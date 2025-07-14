@@ -1,0 +1,87 @@
+{
+  "groupPermissions": {
+    "Entwickler": [
+      "members.view",
+      "members.create",
+      "members.edit",
+      "members.delete",
+      "shares.view",
+      "shares.create",
+      "shares.edit",
+      "shares.cancel",
+      "shares.transfer",
+      "dividends.view",
+      "dividends.calculate",
+      "dividends.approve",
+      "dividends.pay",
+      "documents.view",
+      "documents.upload",
+      "documents.delete",
+      "documents.manage",
+      "loans.view",
+      "loans.create",
+      "loans.edit",
+      "loans.approve",
+      "admin.users.view",
+      "admin.users.manage",
+      "admin.permissions.manage",
+      "admin.audit.view",
+      "reports.view",
+      "reports.export"
+    ],
+    "Vorstand": [
+      "members.view",
+      "members.create",
+      "members.edit",
+      "shares.view",
+      "shares.create",
+      "shares.edit",
+      "shares.transfer",
+      "dividends.view",
+      "dividends.calculate",
+      "dividends.approve",
+      "documents.view",
+      "documents.upload",
+      "documents.manage",
+      "loans.view",
+      "loans.create",
+      "loans.edit",
+      "reports.view",
+      "reports.export"
+    ],
+    "member": [
+      "members.view",
+      "shares.view",
+      "dividends.view",
+      "documents.view",
+      "documents.upload",
+      "loans.view"
+    ],
+    "viewer": [
+      "members.view",
+      "shares.view",
+      "dividends.view",
+      "documents.view",
+      "loans.view"
+    ],
+    "Aufsichtsrat": [
+      "members.view",
+      "shares.view",
+      "dividends.view",
+      "dividends.approve",
+      "dividends.pay",
+      "loans.view",
+      "loans.approve",
+      "reports.view"
+    ],
+    "accountant": [
+      "members.view",
+      "shares.view",
+      "dividends.view",
+      "dividends.calculate",
+      "loans.view",
+      "reports.view",
+      "reports.export"
+    ]
+  }
+}

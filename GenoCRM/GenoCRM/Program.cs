@@ -2,7 +2,14 @@ using GenoCRM.Components;
 using GenoCRM.Data;
 using GenoCRM.Services.Business;
 using GenoCRM.Services.Integration;
+using GenoCRM.Services.Authentication;
+using GenoCRM.Services.Authorization;
+using GenoCRM.Services.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +25,10 @@ builder.Host.UseSerilog();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+// Add authentication state provider
+builder.Services.AddScoped<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider, 
+    Microsoft.AspNetCore.Components.Server.ServerAuthenticationStateProvider>();
 
 // Add API controllers
 builder.Services.AddControllers();
@@ -35,15 +46,71 @@ builder.Services.AddScoped<IDividendService, DividendService>();
 builder.Services.AddHttpClient<INextcloudService, NextcloudService>();
 builder.Services.AddScoped<INextcloudService, NextcloudService>();
 
-// Authentication (commented out for now - will be configured later)
-// builder.Services.AddAuthentication("Nextcloud")
-//     .AddOAuth("Nextcloud", options =>
-//     {
-//         options.AuthorizationEndpoint = builder.Configuration["Nextcloud:AuthorizationEndpoint"];
-//         options.TokenEndpoint = builder.Configuration["Nextcloud:TokenEndpoint"];
-//         options.ClientId = builder.Configuration["Nextcloud:ClientId"];
-//         options.ClientSecret = builder.Configuration["Nextcloud:ClientSecret"];
-//     });
+// Authentication services
+builder.Services.AddHttpClient<INextcloudAuthService, NextcloudAuthService>();
+builder.Services.AddScoped<INextcloudAuthService, NextcloudAuthService>();
+
+// Configuration services
+builder.Services.AddSingleton<IGroupPermissionService, GroupPermissionService>();
+
+// Configure Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Cookies";
+    options.DefaultSignInScheme = "Cookies";
+    options.DefaultChallengeScheme = "Nextcloud";
+})
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/logout";
+    options.AccessDeniedPath = "/access-denied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+    options.SlidingExpiration = true;
+})
+.AddOAuth("Nextcloud", options =>
+{
+    options.AuthorizationEndpoint = builder.Configuration["NextcloudAuth:AuthorizeEndpoint"]!;
+    options.TokenEndpoint = builder.Configuration["NextcloudAuth:TokenEndpoint"]!;
+    options.ClientId = builder.Configuration["NextcloudAuth:ClientId"]!;
+    options.ClientSecret = builder.Configuration["NextcloudAuth:ClientSecret"]!;
+    options.CallbackPath = "/signin-nextcloud";
+    
+    // Add scopes
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+    
+    options.Events = new OAuthEvents
+    {
+        OnCreatingTicket = async context =>
+        {
+            // Get user info and groups from Nextcloud
+            var authService = context.HttpContext.RequestServices.GetRequiredService<INextcloudAuthService>();
+            
+            var nextcloudUser = await authService.GetUserInfoAsync(context.AccessToken!);
+            if (nextcloudUser != null)
+            {
+                var groups = await authService.GetUserGroupsAsync(context.AccessToken!, nextcloudUser.Id);
+                var user = await authService.SyncUserAsync(nextcloudUser, groups);
+                
+                // Create claims principal
+                var principal = authService.CreateClaimsPrincipal(user);
+                context.Principal = principal;
+                
+                // Sign in the user with the cookie scheme
+                await context.HttpContext.SignInAsync("Cookies", principal);
+            }
+        }
+    };
+});
+
+// Configure Authorization
+builder.Services.AddAuthorization(AuthorizationPolicies.ConfigurePolicies);
+
+// Authorization handlers
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, GroupAuthorizationHandler>();
 
 var app = builder.Build();
 
@@ -61,6 +128,8 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAntiforgery();
 

@@ -1,6 +1,8 @@
 @page "/shares"
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "ViewShares")]
 @inject IShareService ShareService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation

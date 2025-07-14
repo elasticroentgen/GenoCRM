@@ -1,0 +1,36 @@
+@page "/access-denied"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Access Denied</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="alert alert-danger text-center">
+                <h3>Access Denied</h3>
+                <p>You don't have permission to access this resource.</p>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <p class="text-muted">
+                            Logged in as: <strong>
+                                @{
+                                    var claimsPrincipal = context.User;
+                                }
+                                @claimsPrincipal.FindFirst(ClaimTypes.GivenName)?.Value @claimsPrincipal.FindFirst(ClaimTypes.Surname)?.Value</strong>
+                        </p>
+                        <p class="text-muted">
+                            Your groups: @string.Join(", ", claimsPrincipal.FindAll("group").Select(c => c.Value))
+                        </p>
+                    </Authorized>
+                </AuthorizeView>
+                
+                <div class="mt-3">
+                    <a href="/" class="btn btn-primary me-2">Go Home</a>
+                    <a href="/login" class="btn btn-outline-secondary">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

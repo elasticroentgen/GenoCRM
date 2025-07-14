@@ -1,6 +1,8 @@
 @page "/members"
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation

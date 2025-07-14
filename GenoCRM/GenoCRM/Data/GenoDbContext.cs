@@ -17,6 +17,11 @@ public class GenoDbContext : DbContext
     public DbSet<LoanInterest> LoanInterests { get; set; }
     public DbSet<Document> Documents { get; set; }
     public DbSet<DocumentVersion> DocumentVersions { get; set; }
+    
+    // Authentication and Authorization
+    public DbSet<User> Users { get; set; }
+    public DbSet<UserGroup> UserGroups { get; set; }
+    public DbSet<UserPermission> UserPermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

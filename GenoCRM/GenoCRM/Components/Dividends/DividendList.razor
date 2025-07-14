@@ -1,6 +1,8 @@
 @page "/dividends"
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "ViewDividends")]
 @inject IDividendService DividendService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
