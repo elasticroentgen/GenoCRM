@@ -283,24 +283,39 @@ public class MemberService : IMemberService
     {
         try
         {
-            var lastMember = await _context.Members
-                .OrderByDescending(m => m.MemberNumber)
-                .FirstOrDefaultAsync();
+            // Get all existing member numbers including terminated members (ignore query filters)
+            var existingNumbers = await _context.Members
+                .IgnoreQueryFilters()
+                .Select(m => m.MemberNumber)
+                .ToListAsync();
 
-            if (lastMember == null)
+            if (!existingNumbers.Any())
             {
                 return "M001";
             }
 
-            // Extract number from member number (assuming format like "M001", "M002", etc.)
-            var lastNumber = lastMember.MemberNumber.Substring(1);
-            if (int.TryParse(lastNumber, out int number))
+            // Extract numeric parts and find the highest number
+            var highestNumber = existingNumbers
+                .Select(mn => {
+                    if (mn.StartsWith("M") && int.TryParse(mn.Substring(1), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            // Generate next number
+            var nextNumber = highestNumber + 1;
+            var candidateNumber = $"M{nextNumber:D3}";
+
+            // Double-check that the number doesn't exist across all members (including terminated)
+            while (await _context.Members.IgnoreQueryFilters().AnyAsync(m => m.MemberNumber == candidateNumber))
             {
-                return $"M{(number + 1):D3}";
+                nextNumber++;
+                candidateNumber = $"M{nextNumber:D3}";
             }
 
-            // Fallback if parsing fails
-            return $"M{DateTime.UtcNow.Ticks % 1000:D3}";
+            return candidateNumber;
         }
         catch (Exception ex)
         {
