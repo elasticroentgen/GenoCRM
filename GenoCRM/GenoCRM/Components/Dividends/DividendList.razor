@@ -1,0 +1,296 @@
+@page "/dividends"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@inject IDividendService DividendService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+<PageTitle>Dividends</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dividend Management</h1>
+    <button class="btn btn-success" @onclick="CalculateAllDividends">
+        <i class="fas fa-calculator"></i> Calculate Dividends
+    </button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Fiscal Year</label>
+        <select class="form-select" @bind="selectedYear" @bind:after="FilterByYear">
+            <option value="0">All Years</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Status</label>
+        <select class="form-select" @bind="selectedStatus" @bind:after="FilterByStatus">
+            <option value="">All Status</option>
+            <option value="Declared">Declared</option>
+            <option value="Approved">Approved</option>
+            <option value="Paid">Paid</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="card-title">Total Dividends (@selectedYear)</h6>
+                <h4 class="text-primary">@totalDividends.ToString("C")</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (dividends?.Any() == true)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Member</th>
+                    <th>Fiscal Year</th>
+                    <th>Base Amount</th>
+                    <th>Rate</th>
+                    <th>Dividend Amount</th>
+                    <th>Tax Withheld</th>
+                    <th>Net Amount</th>
+                    <th>Declaration Date</th>
+                    <th>Payment Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var dividend in dividends)
+                {
+                    <tr>
+                        <td>@dividend.Member?.FullName</td>
+                        <td>@dividend.FiscalYear</td>
+                        <td>@dividend.BaseAmount.ToString("C")</td>
+                        <td>@(dividend.Rate * 100)%</td>
+                        <td>@dividend.Amount.ToString("C")</td>
+                        <td>@(dividend.TaxWithheld?.ToString("C") ?? "-")</td>
+                        <td>@dividend.CalculatedNetAmount.ToString("C")</td>
+                        <td>@dividend.DeclarationDate.ToShortDateString()</td>
+                        <td>@(dividend.PaymentDate?.ToShortDateString() ?? "-")</td>
+                        <td>
+                            <span class="badge bg-@GetStatusColor(dividend.Status)">
+                                @dividend.Status
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                @if (dividend.Status == DividendStatus.Declared)
+                                {
+                                    <button class="btn btn-sm btn-outline-success" @onclick="() => ApproveDividend(dividend.Id)">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                }
+                                @if (dividend.Status == DividendStatus.Approved)
+                                {
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => PayDividend(dividend.Id)">
+                                        <i class="fas fa-money-bill"></i>
+                                    </button>
+                                }
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditDividend(dividend.Id)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                @if (dividend.Status != DividendStatus.Paid)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDividend(dividend.Id)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No dividends found.
+    </div>
+}
+
+@code {
+    private IEnumerable<Dividend>? dividends;
+    private int selectedYear = DateTime.Now.Year;
+    private string selectedStatus = string.Empty;
+    private bool isLoading = true;
+    private decimal totalDividends;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDividends();
+        await LoadTotalDividends();
+    }
+
+    private async Task LoadDividends()
+    {
+        try
+        {
+            isLoading = true;
+            dividends = await DividendService.GetAllDividendsAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error loading dividends: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadTotalDividends()
+    {
+        try
+        {
+            if (selectedYear > 0)
+            {
+                totalDividends = await DividendService.GetTotalDividendsByYearAsync(selectedYear);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error loading total dividends: {ex.Message}");
+        }
+    }
+
+    private async Task FilterByYear()
+    {
+        if (selectedYear == 0)
+        {
+            await LoadDividends();
+        }
+        else
+        {
+            try
+            {
+                isLoading = true;
+                dividends = await DividendService.GetDividendsByFiscalYearAsync(selectedYear);
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error filtering dividends: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+        await LoadTotalDividends();
+    }
+
+    private async Task FilterByStatus()
+    {
+        await FilterByYear(); // Apply year filter first
+    }
+
+    private async Task CalculateAllDividends()
+    {
+        var rate = await JSRuntime.InvokeAsync<string>("prompt", "Enter dividend rate (e.g., 0.03 for 3%):");
+        if (!string.IsNullOrEmpty(rate) && decimal.TryParse(rate, out var dividendRate))
+        {
+            try
+            {
+                var calculatedDividends = await DividendService.CalculateDividendsForAllMembersAsync(selectedYear, dividendRate);
+                await LoadDividends();
+                await LoadTotalDividends();
+                await JSRuntime.InvokeVoidAsync("alert", $"Calculated {calculatedDividends.Count()} dividends for {selectedYear}");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error calculating dividends: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task ApproveDividend(int dividendId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Approve this dividend?");
+        if (confirmed)
+        {
+            try
+            {
+                await DividendService.ApproveDividendAsync(dividendId);
+                await LoadDividends();
+                await JSRuntime.InvokeVoidAsync("alert", "Dividend approved successfully");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error approving dividend: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task PayDividend(int dividendId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Mark this dividend as paid?");
+        if (confirmed)
+        {
+            try
+            {
+                await DividendService.PayDividendAsync(dividendId);
+                await LoadDividends();
+                await LoadTotalDividends();
+                await JSRuntime.InvokeVoidAsync("alert", "Dividend marked as paid");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error paying dividend: {ex.Message}");
+            }
+        }
+    }
+
+    private void EditDividend(int dividendId)
+    {
+        Navigation.NavigateTo($"/dividends/{dividendId}/edit");
+    }
+
+    private async Task DeleteDividend(int dividendId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Delete this dividend?");
+        if (confirmed)
+        {
+            try
+            {
+                await DividendService.DeleteDividendAsync(dividendId);
+                await LoadDividends();
+                await LoadTotalDividends();
+                await JSRuntime.InvokeVoidAsync("alert", "Dividend deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting dividend: {ex.Message}");
+            }
+        }
+    }
+
+    private static string GetStatusColor(DividendStatus status)
+    {
+        return status switch
+        {
+            DividendStatus.Declared => "warning",
+            DividendStatus.Approved => "info",
+            DividendStatus.Paid => "success",
+            DividendStatus.Cancelled => "danger",
+            _ => "secondary"
+        };
+    }
+}

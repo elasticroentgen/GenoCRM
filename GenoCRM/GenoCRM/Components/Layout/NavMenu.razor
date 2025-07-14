@@ -1,0 +1,47 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">GenoCRM</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="members">
+                <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Members
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="shares">
+                <span class="bi bi-graph-up-arrow-nav-menu" aria-hidden="true"></span> Shares
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="dividends">
+                <span class="bi bi-currency-euro-nav-menu" aria-hidden="true"></span> Dividends
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="loans">
+                <span class="bi bi-bank-nav-menu" aria-hidden="true"></span> Loans
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="documents">
+                <span class="bi bi-file-earmark-text-nav-menu" aria-hidden="true"></span> Documents
+            </NavLink>
+        </div>
+    </nav>
+</div>

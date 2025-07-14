@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\GenoCRM.Client\GenoCRM.Client.csproj"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.7" />
+        
+        <!-- Entity Framework Core -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2"/>
+        
+        <!-- Authentication -->
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.3.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.7" />
+        
+        <!-- PDF Generation -->
+        <PackageReference Include="QuestPDF" Version="2024.12.3"/>
+        
+        <!-- Excel/CSV Export -->
+        <PackageReference Include="EPPlus" Version="7.4.2"/>
+        <PackageReference Include="CsvHelper" Version="33.0.1"/>
+        
+        <!-- WebDAV Client -->
+        <PackageReference Include="WebDAVClient" Version="2.2.1" />
+        
+        <!-- HTTP Client -->
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2"/>
+        
+        <!-- Validation -->
+        <PackageReference Include="FluentValidation" Version="12.0.0"/>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
+        
+        <!-- Logging -->
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+</Project>

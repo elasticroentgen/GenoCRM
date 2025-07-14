@@ -1,0 +1,230 @@
+@page "/members"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@inject IMemberService MemberService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+<PageTitle>Members</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Members</h1>
+    <button class="btn btn-primary" @onclick="CreateMember">
+        <i class="fas fa-plus"></i> New Member
+    </button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search members..." @bind="searchTerm" @onkeypress="OnSearchKeyPress" />
+            <button class="btn btn-outline-secondary" @onclick="SearchMembers">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <select class="form-select" @bind="selectedStatus" @bind:after="FilterByStatus">
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Suspended">Suspended</option>
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (members?.Any() == true)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Member #</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Join Date</th>
+                    <th>Shares</th>
+                    <th>Total Value</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in members)
+                {
+                    <tr>
+                        <td>@member.MemberNumber</td>
+                        <td>@member.FullName</td>
+                        <td>@member.Email</td>
+                        <td>
+                            <span class="badge bg-@GetStatusColor(member.Status)">
+                                @member.Status
+                            </span>
+                        </td>
+                        <td>@member.JoinDate.ToShortDateString()</td>
+                        <td>@member.TotalShareCount</td>
+                        <td>@member.TotalShareValue.ToString("C")</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewMember(member.Id)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditMember(member.Id)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMember(member.Id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No members found.
+    </div>
+}
+
+@code {
+    private IEnumerable<Member>? members;
+    private string searchTerm = string.Empty;
+    private string selectedStatus = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        try
+        {
+            isLoading = true;
+            members = await MemberService.GetAllMembersAsync();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error loading members: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SearchMembers()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadMembers();
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            members = await MemberService.SearchMembersAsync(searchTerm);
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error searching members: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task FilterByStatus()
+    {
+        if (string.IsNullOrWhiteSpace(selectedStatus))
+        {
+            await LoadMembers();
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            if (Enum.TryParse<MemberStatus>(selectedStatus, out var status))
+            {
+                members = await MemberService.GetMembersByStatusAsync(status);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error filtering members: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnSearchKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchMembers();
+        }
+    }
+
+    private void CreateMember()
+    {
+        Navigation.NavigateTo("/members/create");
+    }
+
+    private void ViewMember(int memberId)
+    {
+        Navigation.NavigateTo($"/members/{memberId}");
+    }
+
+    private void EditMember(int memberId)
+    {
+        Navigation.NavigateTo($"/members/{memberId}/edit");
+    }
+
+    private async Task DeleteMember(int memberId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this member?");
+        if (confirmed)
+        {
+            try
+            {
+                await MemberService.DeleteMemberAsync(memberId);
+                await LoadMembers();
+                await JSRuntime.InvokeVoidAsync("alert", "Member deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting member: {ex.Message}");
+            }
+        }
+    }
+
+    private static string GetStatusColor(MemberStatus status)
+    {
+        return status switch
+        {
+            MemberStatus.Active => "success",
+            MemberStatus.Inactive => "warning",
+            MemberStatus.Suspended => "danger",
+            MemberStatus.Terminated => "dark",
+            _ => "secondary"
+        };
+    }
+}

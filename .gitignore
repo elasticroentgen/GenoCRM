@@ -1,0 +1,16 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Log files
+logs/
+
+# IDE workspace files
+.idea/workspace.xml
