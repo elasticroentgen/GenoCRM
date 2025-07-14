@@ -1,0 +1,40 @@
+@using GenoCRM.Services.Localization
+@inject IStringLocalizer<GenoCRM.SharedResource> Localizer
+@inject ICultureService CultureService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="d-flex align-items-center">
+    <i class="bi bi-globe me-2"></i>
+    <select class="form-select form-select-sm" style="width: auto;" @onchange="OnCultureChanged">
+        @foreach (var culture in CultureService.GetSupportedCultures())
+        {
+            <option value="@culture.Name" selected="@IsCurrentCulture(culture.Name)">
+                @CultureService.GetCultureDisplayName(culture.Name)
+            </option>
+        }
+    </select>
+</div>
+
+@code {
+    private bool IsCurrentCulture(string culture)
+    {
+        return CultureService.GetCurrentCulture().Name == culture;
+    }
+
+    private void OnCultureChanged(ChangeEventArgs e)
+    {
+        var selectedCulture = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedCulture) && !IsCurrentCulture(selectedCulture))
+        {
+            // Navigate to the same page with culture parameter
+            var uri = NavigationManager.Uri;
+            var uriBuilder = new UriBuilder(uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["culture"] = selectedCulture;
+            uriBuilder.Query = query.ToString();
+            
+            NavigationManager.NavigateTo(uriBuilder.ToString(), forceLoad: true);
+        }
+    }
+}

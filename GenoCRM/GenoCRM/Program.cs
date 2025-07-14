@@ -5,12 +5,16 @@ using GenoCRM.Services.Integration;
 using GenoCRM.Services.Authentication;
 using GenoCRM.Services.Authorization;
 using GenoCRM.Services.Configuration;
+using GenoCRM.Services.Localization;
+using GenoCRM.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Serilog;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,29 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+// Configure localization
+builder.Services.AddLocalization();
+
+// Configure supported cultures
+var supportedCultures = new[]
+{
+    new CultureInfo("en"),
+    new CultureInfo("de")
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    
+    // Configure culture providers (in order of priority)
+    options.RequestCultureProviders.Clear();
+    options.RequestCultureProviders.Add(new QueryStringRequestCultureProvider());
+    options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+    options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -61,6 +88,11 @@ builder.Services.AddScoped<INextcloudAuthService, NextcloudAuthService>();
 
 // Configuration services
 builder.Services.AddSingleton<IGroupPermissionService, GroupPermissionService>();
+
+// Localization services
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICultureService, CultureService>();
+builder.Services.AddScoped<IFormattingService, FormattingService>();
 
 // Configure Authentication
 builder.Services.AddAuthentication(options =>
@@ -146,6 +178,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Use culture middleware before request localization
+app.UseMiddleware<CultureMiddleware>();
+
+// Use request localization
+app.UseRequestLocalization();
 
 app.UseAuthentication();
 app.UseAuthorization();

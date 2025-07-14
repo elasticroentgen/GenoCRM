@@ -3,21 +3,26 @@
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Resources.Pages
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IStringLocalizer<Members> MembersLocalizer
+@inject IFormattingService FormattingService
 @rendermode InteractiveServer
 
-<PageTitle>Members</PageTitle>
+<PageTitle>@MembersLocalizer["PageTitle"]</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Members</h1>
+    <h1>@MembersLocalizer["PageTitle"]</h1>
     <CascadingAuthenticationState>
     <AuthorizeView Policy="CreateMembers">
         <Authorized>
             <button class="btn btn-primary" @onclick="CreateMember">
-                <i class="fas fa-plus"></i> New Member
+                <i class="fas fa-plus"></i> @MembersLocalizer["AddNewMember"]
             </button>
         </Authorized>
     </AuthorizeView>
@@ -27,7 +32,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search members..." @bind="_searchTerm" @onkeydown="OnSearchKeyPress" />
+            <input type="text" class="form-control" placeholder="@MembersLocalizer["SearchMembers"]" @bind="_searchTerm" @onkeydown="OnSearchKeyPress" />
             <button class="btn btn-outline-secondary" @onclick="SearchMembers">
                 <i class="fas fa-search"></i>
             </button>
@@ -36,8 +41,8 @@
     <div class="col-md-6">
         <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
             <option value="">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="Active">@SharedLocalizer["Active"]</option>
+            <option value="Inactive">@SharedLocalizer["Inactive"]</option>
             <option value="Suspended">Suspended</option>
         </select>
     </div>
@@ -57,14 +62,14 @@ else if (_members?.Any() == true)
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Member #</th>
+                    <th>@SharedLocalizer["MemberNumber"]</th>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Join Date</th>
-                    <th>Shares</th>
+                    <th>@SharedLocalizer["Email"]</th>
+                    <th>@SharedLocalizer["Status"]</th>
+                    <th>@SharedLocalizer["JoinDate"]</th>
+                    <th>@SharedLocalizer["Shares"]</th>
                     <th>Total Value</th>
-                    <th>Actions</th>
+                    <th>@MembersLocalizer["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,12 +81,12 @@ else if (_members?.Any() == true)
                         <td>@member.Email</td>
                         <td>
                             <span class="badge bg-@GetStatusColor(member.Status)">
-                                @member.Status
+                                @GetLocalizedStatus(member.Status)
                             </span>
                         </td>
-                        <td>@member.JoinDate.ToShortDateString()</td>
+                        <td>@FormattingService.FormatDate(member.JoinDate)</td>
                         <td>@member.TotalShareCount</td>
-                        <td>@member.TotalShareValue.ToString("C")</td>
+                        <td>@FormattingService.FormatCurrency(member.TotalShareValue)</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewMember(member.Id)" title="View Details">
@@ -114,7 +119,7 @@ else if (_members?.Any() == true)
 else
 {
     <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> No members found.
+        <i class="fas fa-info-circle"></i> @MembersLocalizer["NoMembersFound"]
     </div>
 }
 
@@ -245,6 +250,17 @@ else
             MemberStatus.Suspended => "danger",
             MemberStatus.Terminated => "dark",
             _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(MemberStatus status)
+    {
+        return status switch
+        {
+            MemberStatus.Active => SharedLocalizer["Active"],
+            MemberStatus.Inactive => SharedLocalizer["Inactive"],
+            MemberStatus.Terminated => SharedLocalizer["Terminated"],
+            _ => status.ToString()
         };
     }
 }
