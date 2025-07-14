@@ -26,6 +26,15 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+// Configure Blazor circuit options for detailed errors in development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
+    {
+        options.DetailedErrors = true;
+    });
+}
+
 // Add authentication state provider
 builder.Services.AddScoped<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider, 
     Microsoft.AspNetCore.Components.Server.ServerAuthenticationStateProvider>();
@@ -124,6 +133,16 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+// Configure CSP middleware for development to allow Blazor to work
+if (app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Remove("Content-Security-Policy");
+        await next();
+    });
 }
 
 app.UseHttpsRedirection();

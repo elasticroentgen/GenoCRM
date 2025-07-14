@@ -6,6 +6,7 @@
 @inject IShareService ShareService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
 
 <PageTitle>Cooperative Shares</PageTitle>
 
@@ -21,12 +22,12 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Total Share Capital</h5>
-                <h3 class="text-success">@totalShareCapital.ToString("C")</h3>
+                <h3 class="text-success">@_totalShareCapital.ToString("C")</h3>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <select class="form-select" @bind="selectedStatus" @bind:after="FilterByStatus">
+        <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
             <option value="">All Status</option>
             <option value="Active">Active</option>
             <option value="Cancelled">Cancelled</option>
@@ -36,7 +37,7 @@
     </div>
 </div>
 
-@if (isLoading)
+@if (_isLoading)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -44,7 +45,7 @@
         </div>
     </div>
 }
-else if (shares?.Any() == true)
+else if (_shares?.Any() == true)
 {
     <div class="table-responsive">
         <table class="table table-striped table-hover">
@@ -63,7 +64,7 @@ else if (shares?.Any() == true)
                 </tr>
             </thead>
             <tbody>
-                @foreach (var share in shares)
+                @foreach (var share in _shares)
                 {
                     <tr>
                         <td>@share.CertificateNumber</td>
@@ -115,10 +116,10 @@ else
 }
 
 @code {
-    private IEnumerable<CooperativeShare>? shares;
-    private string selectedStatus = string.Empty;
-    private bool isLoading = true;
-    private decimal totalShareCapital;
+    private IEnumerable<CooperativeShare>? _shares;
+    private string _selectedStatus = string.Empty;
+    private bool _isLoading = true;
+    private decimal _totalShareCapital;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,8 +131,8 @@ else
     {
         try
         {
-            isLoading = true;
-            shares = await ShareService.GetAllSharesAsync();
+            _isLoading = true;
+            _shares = await ShareService.GetAllSharesAsync();
         }
         catch (Exception ex)
         {
@@ -139,7 +140,7 @@ else
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
@@ -147,7 +148,7 @@ else
     {
         try
         {
-            totalShareCapital = await ShareService.GetTotalShareCapitalAsync();
+            _totalShareCapital = await ShareService.GetTotalShareCapitalAsync();
         }
         catch (Exception ex)
         {
@@ -157,7 +158,7 @@ else
 
     private async Task FilterByStatus()
     {
-        if (string.IsNullOrWhiteSpace(selectedStatus))
+        if (string.IsNullOrWhiteSpace(_selectedStatus))
         {
             await LoadShares();
             return;
@@ -165,10 +166,10 @@ else
 
         try
         {
-            isLoading = true;
-            if (Enum.TryParse<ShareStatus>(selectedStatus, out var status))
+            _isLoading = true;
+            if (Enum.TryParse<ShareStatus>(_selectedStatus, out var status))
             {
-                shares = await ShareService.GetSharesByStatusAsync(status);
+                _shares = await ShareService.GetSharesByStatusAsync(status);
             }
         }
         catch (Exception ex)
@@ -177,7 +178,7 @@ else
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 

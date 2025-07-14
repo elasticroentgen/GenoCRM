@@ -11,17 +11,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/MainLayout.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/MainLayout.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberForm.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberForm.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Routes.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Routes.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/GenoDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/GenoDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Integration/NextcloudService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Integration/NextcloudService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.Development.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,7 +64,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     ".NET Launch Settings Profile.GenoCRM: http.executor": "Run",
-    ".NET Launch Settings Profile.GenoCRM: https.executor": "Debug",
+    ".NET Launch Settings Profile.GenoCRM: https.executor": "Run",
     ".NET Project.GenoCRM.Client.executor": "Run",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
@@ -204,7 +204,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1752484361786</updated>
-      <workItem from="1752484363619" duration="13349000" />
+      <workItem from="1752484363619" duration="21905000" />
     </task>
     <servers />
   </component>
@@ -240,27 +240,9 @@
           <option name="timeStamp" value="3" />
         </breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor</url>
-          <line>45</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AccessDenied.razor</url>
           <line>18</line>
           <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Authorization/PermissionAuthorizationHandler.cs</url>
-          <line>23</line>
-          <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Authorization/PermissionAuthorizationHandler.cs" containingFunctionPresentation="Method 'HandleRequirementAsync'">
-            <startOffsets>
-              <option value="679" />
-            </startOffsets>
-            <endOffsets>
-              <option value="697" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

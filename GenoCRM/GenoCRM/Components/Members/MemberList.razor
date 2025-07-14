@@ -2,31 +2,39 @@
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
 
 <PageTitle>Members</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Members</h1>
-    <button class="btn btn-primary" @onclick="CreateMember">
-        <i class="fas fa-plus"></i> New Member
-    </button>
+    <CascadingAuthenticationState>
+    <AuthorizeView Policy="CreateMembers">
+        <Authorized>
+            <button class="btn btn-primary" @onclick="CreateMember">
+                <i class="fas fa-plus"></i> New Member
+            </button>
+        </Authorized>
+    </AuthorizeView>
+    </CascadingAuthenticationState>
 </div>
 
 <div class="row mb-3">
     <div class="col-md-6">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search members..." @bind="searchTerm" @onkeypress="OnSearchKeyPress" />
+            <input type="text" class="form-control" placeholder="Search members..." @bind="_searchTerm" @onkeydown="OnSearchKeyPress" />
             <button class="btn btn-outline-secondary" @onclick="SearchMembers">
                 <i class="fas fa-search"></i>
             </button>
         </div>
     </div>
     <div class="col-md-6">
-        <select class="form-select" @bind="selectedStatus" @bind:after="FilterByStatus">
+        <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
             <option value="">All Status</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
@@ -35,7 +43,7 @@
     </div>
 </div>
 
-@if (isLoading)
+@if (_isLoading)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -43,7 +51,7 @@
         </div>
     </div>
 }
-else if (members?.Any() == true)
+else if (_members?.Any() == true)
 {
     <div class="table-responsive">
         <table class="table table-striped table-hover">
@@ -60,7 +68,7 @@ else if (members?.Any() == true)
                 </tr>
             </thead>
             <tbody>
-                @foreach (var member in members)
+                @foreach (var member in _members)
                 {
                     <tr>
                         <td>@member.MemberNumber</td>
@@ -76,15 +84,25 @@ else if (members?.Any() == true)
                         <td>@member.TotalShareValue.ToString("C")</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewMember(member.Id)">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewMember(member.Id)" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditMember(member.Id)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMember(member.Id)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <CascadingAuthenticationState>
+                                    <AuthorizeView Policy="EditMembers">
+                                        <Authorized>
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditMember(member.Id)" title="Edit Member">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <AuthorizeView Policy="DeleteMembers">
+                                        <Authorized>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMember(member.Id)" title="Delete Member">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </CascadingAuthenticationState>
                             </div>
                         </td>
                     </tr>
@@ -101,10 +119,10 @@ else
 }
 
 @code {
-    private IEnumerable<Member>? members;
-    private string searchTerm = string.Empty;
-    private string selectedStatus = string.Empty;
-    private bool isLoading = true;
+    private IEnumerable<Member>? _members;
+    private string _searchTerm = string.Empty;
+    private string _selectedStatus = string.Empty;
+    private bool _isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,8 +133,8 @@ else
     {
         try
         {
-            isLoading = true;
-            members = await MemberService.GetAllMembersAsync();
+            _isLoading = true;
+            _members = await MemberService.GetAllMembersAsync();
         }
         catch (Exception ex)
         {
@@ -124,13 +142,13 @@ else
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
     private async Task SearchMembers()
     {
-        if (string.IsNullOrWhiteSpace(searchTerm))
+        if (string.IsNullOrWhiteSpace(_searchTerm))
         {
             await LoadMembers();
             return;
@@ -138,8 +156,8 @@ else
 
         try
         {
-            isLoading = true;
-            members = await MemberService.SearchMembersAsync(searchTerm);
+            _isLoading = true;
+            _members = await MemberService.SearchMembersAsync(_searchTerm);
         }
         catch (Exception ex)
         {
@@ -147,13 +165,13 @@ else
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
     private async Task FilterByStatus()
     {
-        if (string.IsNullOrWhiteSpace(selectedStatus))
+        if (string.IsNullOrWhiteSpace(_selectedStatus))
         {
             await LoadMembers();
             return;
@@ -161,10 +179,10 @@ else
 
         try
         {
-            isLoading = true;
-            if (Enum.TryParse<MemberStatus>(selectedStatus, out var status))
+            _isLoading = true;
+            if (Enum.TryParse<MemberStatus>(_selectedStatus, out var status))
             {
-                members = await MemberService.GetMembersByStatusAsync(status);
+                _members = await MemberService.GetMembersByStatusAsync(status);
             }
         }
         catch (Exception ex)
@@ -173,7 +191,7 @@ else
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 

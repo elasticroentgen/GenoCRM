@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace GenoCRM.Services.Business;
 
@@ -9,7 +10,7 @@ public interface IMemberService
     Task<IEnumerable<Member>> GetAllMembersAsync();
     Task<Member?> GetMemberByIdAsync(int id);
     Task<Member?> GetMemberByNumberAsync(string memberNumber);
-    Task<Member> CreateMemberAsync(Member member);
+    Task<Member> CreateMemberAsync(Member member, int initialShareQuantity = 1);
     Task<Member> UpdateMemberAsync(Member member);
     Task<bool> DeleteMemberAsync(int id);
     Task<bool> MemberNumberExistsAsync(string memberNumber);
@@ -18,17 +19,22 @@ public interface IMemberService
     Task<decimal> GetMemberTotalPaymentsAsync(int memberId);
     Task<IEnumerable<Member>> GetMembersByStatusAsync(MemberStatus status);
     Task<string> GenerateNextMemberNumberAsync();
+    Task<decimal> GetCurrentShareDenominationAsync();
 }
 
 public class MemberService : IMemberService
 {
     private readonly GenoDbContext _context;
     private readonly ILogger<MemberService> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IShareService _shareService;
 
-    public MemberService(GenoDbContext context, ILogger<MemberService> logger)
+    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService)
     {
         _context = context;
         _logger = logger;
+        _configuration = configuration;
+        _shareService = shareService;
     }
 
     public async Task<IEnumerable<Member>> GetAllMembersAsync()
@@ -83,19 +89,13 @@ public class MemberService : IMemberService
         }
     }
 
-    public async Task<Member> CreateMemberAsync(Member member)
+    public async Task<Member> CreateMemberAsync(Member member, int initialShareQuantity = 1)
     {
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            if (await MemberNumberExistsAsync(member.MemberNumber))
-            {
-                throw new InvalidOperationException($"Member number {member.MemberNumber} already exists");
-            }
-
-            if (string.IsNullOrEmpty(member.MemberNumber))
-            {
-                member.MemberNumber = await GenerateNextMemberNumberAsync();
-            }
+            // Always auto-generate member number for new members
+            member.MemberNumber = await GenerateNextMemberNumberAsync();
 
             member.CreatedAt = DateTime.UtcNow;
             member.UpdatedAt = DateTime.UtcNow;
@@ -103,14 +103,35 @@ public class MemberService : IMemberService
             _context.Members.Add(member);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Member created with ID {MemberId} and number {MemberNumber}", 
-                member.Id, member.MemberNumber);
+            // Create initial share(s) for the member
+            var shareDenomination = await GetCurrentShareDenominationAsync();
+            var initialShare = new CooperativeShare
+            {
+                MemberId = member.Id,
+                CertificateNumber = await _shareService.GenerateNextCertificateNumberAsync(),
+                Quantity = initialShareQuantity,
+                NominalValue = shareDenomination,
+                Value = shareDenomination,
+                IssueDate = DateTime.UtcNow,
+                Status = ShareStatus.Active,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.CooperativeShares.Add(initialShare);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            _logger.LogInformation("Member created with ID {MemberId}, number {MemberNumber}, and {ShareQuantity} initial shares", 
+                member.Id, member.MemberNumber, initialShareQuantity);
 
             return member;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating member");
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Error creating member with initial shares");
             throw;
         }
     }
@@ -125,17 +146,10 @@ public class MemberService : IMemberService
                 throw new InvalidOperationException($"Member with ID {member.Id} not found");
             }
 
-            // Check if member number changed and if it's already taken
-            if (existingMember.MemberNumber != member.MemberNumber)
-            {
-                if (await MemberNumberExistsAsync(member.MemberNumber))
-                {
-                    throw new InvalidOperationException($"Member number {member.MemberNumber} already exists");
-                }
-            }
-
-            // Update properties
-            existingMember.MemberNumber = member.MemberNumber;
+            // Member number cannot be changed after creation
+            // Keep the existing member number
+            
+            // Update properties (excluding MemberNumber)
             existingMember.FirstName = member.FirstName;
             existingMember.LastName = member.LastName;
             existingMember.Email = member.Email;
@@ -292,6 +306,25 @@ public class MemberService : IMemberService
         {
             _logger.LogError(ex, "Error generating next member number");
             throw;
+        }
+    }
+
+    public Task<decimal> GetCurrentShareDenominationAsync()
+    {
+        try
+        {
+            var shareDenomination = _configuration.GetValue<decimal>("CooperativeSettings:ShareDenomination");
+            if (shareDenomination <= 0)
+            {
+                _logger.LogWarning("Share denomination not configured or invalid, using default value of 250");
+                return Task.FromResult(250.00m);
+            }
+            return Task.FromResult(shareDenomination);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting share denomination from configuration");
+            return Task.FromResult(250.00m); // Default fallback
         }
     }
 }
