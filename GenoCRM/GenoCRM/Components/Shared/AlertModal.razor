@@ -1,0 +1,36 @@
+@using GenoCRM.Services.UI
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+
+<div class="text-center">
+    @if (IsError)
+    {
+        <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3rem;"></i>
+    }
+    else if (IsSuccess)
+    {
+        <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+    }
+    else
+    {
+        <i class="fas fa-info-circle text-primary mb-3" style="font-size: 3rem;"></i>
+    }
+    
+    <p>@Message</p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" @onclick="Close">@(string.IsNullOrEmpty(CloseText) ? SharedLocalizer["OK"] : CloseText)</button>
+</div>
+
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string CloseText { get; set; } = string.Empty;
+    [Parameter] public bool IsError { get; set; }
+    [Parameter] public bool IsSuccess { get; set; }
+
+    private void Close()
+    {
+        ModalService.Close(ModalResult.Ok());
+    }
+}

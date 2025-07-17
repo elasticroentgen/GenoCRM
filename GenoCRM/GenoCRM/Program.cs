@@ -1,11 +1,13 @@
 using GenoCRM.Components;
 using GenoCRM.Data;
 using GenoCRM.Services.Business;
+using GenoCRM.Services.Business.Messaging;
 using GenoCRM.Services.Integration;
 using GenoCRM.Services.Authentication;
 using GenoCRM.Services.Authorization;
 using GenoCRM.Services.Configuration;
 using GenoCRM.Services.Localization;
+using GenoCRM.Services.UI;
 using GenoCRM.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -76,7 +78,26 @@ builder.Services.AddDbContext<GenoDbContext>(options =>
 // Business services
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IShareService, ShareService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDividendService, DividendService>();
+builder.Services.AddScoped<IFiscalYearService, FiscalYearService>();
+builder.Services.AddScoped<IShareTransferService, ShareTransferService>();
+builder.Services.AddScoped<IShareApprovalService, ShareApprovalService>();
+builder.Services.AddScoped<IMessagingService, MessagingService>();
+
+// Messaging providers
+builder.Services.AddScoped<IEmailProvider, SmtpEmailProvider>();
+builder.Services.AddScoped<IWhatsAppProvider, WhatsAppProvider>();
+builder.Services.AddScoped<ISmsProvider, SmsProvider>();
+
+// Configure messaging settings
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsApp"));
+builder.Services.Configure<SmsSettings>(builder.Configuration.GetSection("Sms"));
+
+// HTTP clients for messaging providers
+builder.Services.AddHttpClient<IWhatsAppProvider, WhatsAppProvider>();
+builder.Services.AddHttpClient<ISmsProvider, SmsProvider>();
 
 // Integration services
 builder.Services.AddHttpClient<INextcloudService, NextcloudService>();
@@ -93,6 +114,10 @@ builder.Services.AddSingleton<IGroupPermissionService, GroupPermissionService>()
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICultureService, CultureService>();
 builder.Services.AddScoped<IFormattingService, FormattingService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
+
+// UI services
+builder.Services.AddScoped<IModalService, ModalService>();
 
 // Configure Authentication
 builder.Services.AddAuthentication(options =>
@@ -206,7 +231,8 @@ if (app.Environment.IsDevelopment())
     {
         var context = scope.ServiceProvider.GetRequiredService<GenoDbContext>();
         await context.Database.EnsureCreatedAsync();
-        await GenoCRM.Data.SeedData.SeedAsync(context);
+        //await GenoCRM.Data.SeedData.SeedAsync(context);
+        await GenoCRM.Data.MessagingSeedData.SeedAsync(context);
     }
 }
 

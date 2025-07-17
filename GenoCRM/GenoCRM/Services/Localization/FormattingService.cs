@@ -6,6 +6,8 @@ public interface IFormattingService
 {
     string FormatDate(DateTime date);
     string FormatDate(DateTime? date);
+    string FormatDateTime(DateTime dateTime);
+    string FormatDateTime(DateTime? dateTime);
     string FormatCurrency(decimal amount);
     string FormatNumber(decimal number);
     string FormatPercentage(decimal percentage);
@@ -30,6 +32,18 @@ public class FormattingService : IFormattingService
     {
         if (!date.HasValue) return string.Empty;
         return FormatDate(date.Value);
+    }
+
+    public string FormatDateTime(DateTime dateTime)
+    {
+        var culture = _cultureService.GetCurrentCulture();
+        return dateTime.ToString("g", culture);
+    }
+
+    public string FormatDateTime(DateTime? dateTime)
+    {
+        if (!dateTime.HasValue) return string.Empty;
+        return FormatDateTime(dateTime.Value);
     }
 
     public string FormatCurrency(decimal amount)

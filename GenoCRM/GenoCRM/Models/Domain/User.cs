@@ -107,6 +107,8 @@ public static class Permissions
     public const string EditShares = "shares.edit";
     public const string CancelShares = "shares.cancel";
     public const string TransferShares = "shares.transfer";
+    public const string ApproveShareTransfers = "shares.transfer.approve";
+    public const string RejectShareTransfers = "shares.transfer.reject";
     
     // Dividend management
     public const string ViewDividends = "dividends.view";
@@ -136,6 +138,11 @@ public static class Permissions
     public const string ViewReports = "reports.view";
     public const string ExportData = "reports.export";
     
+    // Messaging
+    public const string ViewMessages = "messages.view";
+    public const string SendMessages = "messages.send";
+    public const string ManageMessages = "messages.manage";
+    
     public static readonly Dictionary<string, string> PermissionDescriptions = new()
     {
         { ViewMembers, "View member information" },
@@ -147,6 +154,8 @@ public static class Permissions
         { EditShares, "Edit share information" },
         { CancelShares, "Cancel shares" },
         { TransferShares, "Transfer shares between members" },
+        { ApproveShareTransfers, "Approve share transfer requests" },
+        { RejectShareTransfers, "Reject share transfer requests" },
         { ViewDividends, "View dividend information" },
         { CalculateDividends, "Calculate dividends" },
         { ApproveDividends, "Approve dividend payments" },
@@ -164,6 +173,9 @@ public static class Permissions
         { ManagePermissions, "Manage user permissions" },
         { ViewAuditLogs, "View audit logs" },
         { ViewReports, "View reports" },
-        { ExportData, "Export data to external formats" }
+        { ExportData, "Export data to external formats" },
+        { ViewMessages, "View messaging history" },
+        { SendMessages, "Send messages to members" },
+        { ManageMessages, "Manage messaging system" }
     };
 }

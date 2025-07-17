@@ -1,0 +1,247 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using System.ComponentModel.DataAnnotations
+@inject IPaymentService PaymentService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">@SharedLocalizer["RecordPayment"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <EditForm Model="_paymentModel" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">@SharedLocalizer["Amount"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <InputNumber id="amount" class="form-control" @bind-Value="_paymentModel.Amount" step="0.01" />
+                                </div>
+                                <ValidationMessage For="@(() => _paymentModel.Amount)" />
+                                @if (_shareInfo != null)
+                                {
+                                    <small class="text-muted">
+                                        @SharedLocalizer["OutstandingAmount"]: @FormattingService.FormatCurrency(_shareInfo.OutstandingAmount)
+                                    </small>
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">@SharedLocalizer["PaymentMethod"]</label>
+                                <InputSelect id="paymentMethod" class="form-select" @bind-Value="_paymentModel.Method">
+                                    <option value="">@SharedLocalizer["SelectPaymentMethod"]</option>
+                                    @foreach (var method in Enum.GetValues<PaymentMethod>())
+                                    {
+                                        <option value="@method">@GetLocalizedPaymentMethod(method)</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => _paymentModel.Method)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="paymentDate" class="form-label">@SharedLocalizer["PaymentDate"]</label>
+                                <InputDate id="paymentDate" class="form-control" @bind-Value="_paymentModel.PaymentDate" />
+                                <ValidationMessage For="@(() => _paymentModel.PaymentDate)" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reference" class="form-label">@SharedLocalizer["Reference"]</label>
+                                <InputText id="reference" class="form-control" @bind-Value="_paymentModel.Reference" />
+                                <ValidationMessage For="@(() => _paymentModel.Reference)" />
+                                <small class="text-muted">@SharedLocalizer["OptionalTransactionReference"]</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">@SharedLocalizer["Notes"]</label>
+                                <InputTextArea id="notes" class="form-control" rows="3" @bind-Value="_paymentModel.Notes" />
+                                <ValidationMessage For="@(() => _paymentModel.Notes)" />
+                            </div>
+
+                            @if (_shareInfo != null)
+                            {
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">@SharedLocalizer["ShareInformation"]</h6>
+                                        <dl class="row mb-0">
+                                            <dt class="col-6">@SharedLocalizer["Certificate"]:</dt>
+                                            <dd class="col-6">@_shareInfo.CertificateNumber</dd>
+                                            
+                                            <dt class="col-6">@SharedLocalizer["TotalValue"]:</dt>
+                                            <dd class="col-6">@FormattingService.FormatCurrency(_shareInfo.TotalValue)</dd>
+                                            
+                                            <dt class="col-6">@SharedLocalizer["PaidAmount"]:</dt>
+                                            <dd class="col-6">@FormattingService.FormatCurrency(_shareInfo.PaidAmount)</dd>
+                                            
+                                            <dt class="col-6">@SharedLocalizer["Outstanding"]:</dt>
+                                            <dd class="col-6 text-danger">@FormattingService.FormatCurrency(_shareInfo.OutstandingAmount)</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="markAsCompleted" @bind="_paymentModel.MarkAsCompleted" />
+                                <label class="form-check-label" for="markAsCompleted">
+                                    @SharedLocalizer["MarkPaymentAsCompleted"]
+                                </label>
+                            </div>
+                            <small class="text-muted">@SharedLocalizer["UncheckIfPaymentIsPending"]</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        @SharedLocalizer["Cancel"]
+                    </button>
+                    <button type="submit" class="btn btn-primary" disabled="@_isProcessing">
+                        @if (_isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        }
+                        @SharedLocalizer["RecordPayment"]
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public CooperativeShare? Share { get; set; }
+    [Parameter] public EventCallback OnPaymentRecorded { get; set; }
+
+    private PaymentFormModel _paymentModel = new();
+    private CooperativeShare? _shareInfo;
+    private bool _isProcessing = false;
+
+    private class PaymentFormModel
+    {
+        [Required(ErrorMessage = "Amount is required")]
+        [Range(0.01, 999999.99, ErrorMessage = "Amount must be between €0.01 and €999,999.99")]
+        public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Payment method is required")]
+        public PaymentMethod Method { get; set; }
+
+        [Required(ErrorMessage = "Payment date is required")]
+        public DateTime PaymentDate { get; set; } = DateTime.Today;
+
+        [StringLength(100, ErrorMessage = "Reference cannot exceed 100 characters")]
+        public string? Reference { get; set; }
+
+        [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
+        public string? Notes { get; set; }
+
+        public bool MarkAsCompleted { get; set; } = true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Share != null)
+        {
+            _shareInfo = Share;
+            
+            // Set default amount to outstanding amount if share is not fully paid
+            if (!Share.IsFullyPaid)
+            {
+                _paymentModel.Amount = Share.OutstandingAmount;
+            }
+        }
+    }
+
+    public async Task ShowAsync()
+    {
+        // Reset form
+        _paymentModel = new PaymentFormModel
+        {
+            PaymentDate = DateTime.Today,
+            MarkAsCompleted = true
+        };
+
+        // Set default amount if share is not fully paid
+        if (_shareInfo != null && !_shareInfo.IsFullyPaid)
+        {
+            _paymentModel.Amount = _shareInfo.OutstandingAmount;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_shareInfo == null) return;
+
+        try
+        {
+            _isProcessing = true;
+
+            // Validate payment amount doesn't exceed outstanding amount
+            if (_paymentModel.Amount > _shareInfo.OutstandingAmount)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["PaymentAmountExceedsOutstanding"]);
+                return;
+            }
+
+            // Record the payment
+            await PaymentService.RecordSharePaymentAsync(
+                _shareInfo.Id,
+                _paymentModel.Amount,
+                _paymentModel.Method,
+                _paymentModel.Reference,
+                _paymentModel.PaymentDate
+            );
+
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                SharedLocalizer["PaymentRecordedSuccessfully"]);
+
+            // Notify parent component
+            await OnPaymentRecorded.InvokeAsync();
+
+            // Reset form
+            _paymentModel = new PaymentFormModel
+            {
+                PaymentDate = DateTime.Today,
+                MarkAsCompleted = true
+            };
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorRecordingPayment"], ex.Message));
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private string GetLocalizedPaymentMethod(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.BankTransfer => SharedLocalizer["BankTransfer"],
+            PaymentMethod.Cash => SharedLocalizer["Cash"],
+            PaymentMethod.Check => SharedLocalizer["Check"],
+            PaymentMethod.CreditCard => SharedLocalizer["CreditCard"],
+            PaymentMethod.DebitCard => SharedLocalizer["DebitCard"],
+            PaymentMethod.Other => SharedLocalizer["Other"],
+            _ => method.ToString()
+        };
+    }
+}

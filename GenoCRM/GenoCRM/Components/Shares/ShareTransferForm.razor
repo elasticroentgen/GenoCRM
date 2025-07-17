@@ -1,0 +1,316 @@
+@page "/shares/transfers/create"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using System.ComponentModel.DataAnnotations
+@attribute [Authorize(Policy = "CreateShares")]
+@inject IShareTransferService ShareTransferService
+@inject IMemberService MemberService
+@inject IShareService ShareService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["CreateShareTransfer"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@SharedLocalizer["CreateShareTransfer"]</h1>
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @SharedLocalizer["Back"]
+    </button>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">@SharedLocalizer["TransferDetails"]</h5>
+            </div>
+            <div class="card-body">
+                <EditForm Model="@_model" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fromMember" class="form-label">@SharedLocalizer["FromMember"] *</label>
+                                <select id="fromMember" class="form-select" @bind="_model.FromMemberId" @bind:after="OnFromMemberChanged">
+                                    <option value="0">@SharedLocalizer["SelectMember"]</option>
+                                    @if (_members != null)
+                                    {
+                                        @foreach (var member in _members)
+                                        {
+                                            <option value="@member.Id">@member.FullName (@member.MemberNumber)</option>
+                                        }
+                                    }
+                                </select>
+                                <ValidationMessage For="() => _model.FromMemberId" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="toMember" class="form-label">@SharedLocalizer["ToMember"] *</label>
+                                <select id="toMember" class="form-select" @bind="_model.ToMemberId">
+                                    <option value="0">@SharedLocalizer["SelectMember"]</option>
+                                    @if (_members != null)
+                                    {
+                                        @foreach (var member in _members.Where(m => m.Id != _model.FromMemberId))
+                                        {
+                                            <option value="@member.Id">@member.FullName (@member.MemberNumber)</option>
+                                        }
+                                    }
+                                </select>
+                                <ValidationMessage For="() => _model.ToMemberId" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="share" class="form-label">@SharedLocalizer["Share"] *</label>
+                                <select id="share" class="form-select" @bind="_model.ShareId" @bind:after="OnShareChanged">
+                                    <option value="0">@SharedLocalizer["SelectShare"]</option>
+                                    @if (_availableShares != null)
+                                    {
+                                        @foreach (var share in _availableShares)
+                                        {
+                                            <option value="@share.Id">@share.CertificateNumber - @share.Quantity @SharedLocalizer["Shares"] (@FormattingService.FormatCurrency(share.TotalValue))</option>
+                                        }
+                                    }
+                                </select>
+                                <ValidationMessage For="() => _model.ShareId" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">@SharedLocalizer["Quantity"] *</label>
+                                <input type="number" id="quantity" class="form-control" @bind="_model.Quantity" min="1" max="@_maxQuantity" />
+                                <ValidationMessage For="() => _model.Quantity" />
+                                @if (_maxQuantity > 0)
+                                {
+                                    <div class="form-text">@SharedLocalizer["MaxAvailable"]: @_maxQuantity</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (_selectedShare != null)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6>@SharedLocalizer["ShareDetails"]</h6>
+                                    <p><strong>@SharedLocalizer["CertificateNumber"]:</strong> @_selectedShare.CertificateNumber</p>
+                                    <p><strong>@SharedLocalizer["NominalValue"]:</strong> @FormattingService.FormatCurrency(_selectedShare.NominalValue)</p>
+                                    <p><strong>@SharedLocalizer["TotalQuantity"]:</strong> @_selectedShare.Quantity</p>
+                                    <p><strong>@SharedLocalizer["TotalValue"]:</strong> @FormattingService.FormatCurrency(_selectedShare.TotalValue)</p>
+                                    @if (_model.Quantity > 0)
+                                    {
+                                        <p><strong>@SharedLocalizer["TransferValue"]:</strong> @FormattingService.FormatCurrency(_model.Quantity * _selectedShare.NominalValue)</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">@SharedLocalizer["Notes"]</label>
+                                <textarea id="notes" class="form-control" rows="3" @bind="_model.Notes" maxlength="500"></textarea>
+                                <ValidationMessage For="() => _model.Notes" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+                            @if (_isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            <i class="fas fa-save"></i> @SharedLocalizer["CreateTransfer"]
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="GoBack">
+                            @SharedLocalizer["Cancel"]
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">@SharedLocalizer["TransferProcess"]</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="badge bg-primary rounded-pill me-2">1</div>
+                        <span>@SharedLocalizer["CreateRequest"]</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="badge bg-secondary rounded-pill me-2">2</div>
+                        <span>@SharedLocalizer["BoardApproval"]</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="badge bg-secondary rounded-pill me-2">3</div>
+                        <span>@SharedLocalizer["TransferCompletion"]</span>
+                    </div>
+                </div>
+                <hr />
+                <div class="alert alert-info">
+                    <small>@SharedLocalizer["TransferProcessInfo"]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] [SupplyParameterFromQuery] public int? ShareId { get; set; }
+    
+    private ShareTransferModel _model = new();
+    private IEnumerable<Member>? _members;
+    private IEnumerable<CooperativeShare>? _availableShares;
+    private CooperativeShare? _selectedShare;
+    private int _maxQuantity = 0;
+    private bool _isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+        
+        if (ShareId.HasValue)
+        {
+            await PreSelectShare(ShareId.Value);
+        }
+    }
+
+    private async Task LoadMembers()
+    {
+        try
+        {
+            _members = await MemberService.GetMembersByStatusAsync(MemberStatus.Active);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingMembers"], ex.Message));
+        }
+    }
+
+    private async Task PreSelectShare(int shareId)
+    {
+        try
+        {
+            var share = await ShareService.GetShareByIdAsync(shareId);
+            if (share != null && share.Status == ShareStatus.Active && share.Quantity > 0)
+            {
+                _model.FromMemberId = share.MemberId;
+                await OnFromMemberChanged();
+                _model.ShareId = shareId;
+                OnShareChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingShare"], ex.Message));
+        }
+    }
+
+    private async Task OnFromMemberChanged()
+    {
+        _availableShares = null;
+        _selectedShare = null;
+        _model.ShareId = 0;
+        _model.Quantity = 0;
+        _maxQuantity = 0;
+
+        if (_model.FromMemberId > 0)
+        {
+            try
+            {
+                _availableShares = await ShareService.GetSharesByMemberIdAsync(_model.FromMemberId);
+                _availableShares = _availableShares.Where(s => s.Status == ShareStatus.Active && s.Quantity > 0);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingShares"], ex.Message));
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnShareChanged()
+    {
+        _selectedShare = null;
+        _model.Quantity = 0;
+        _maxQuantity = 0;
+
+        if (_model.ShareId > 0 && _availableShares != null)
+        {
+            _selectedShare = _availableShares.FirstOrDefault(s => s.Id == _model.ShareId);
+            if (_selectedShare != null)
+            {
+                _maxQuantity = _selectedShare.Quantity;
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        _isSubmitting = true;
+        try
+        {
+            await ShareTransferService.CreateShareTransferRequestAsync(_model.FromMemberId, _model.ToMemberId, _model.ShareId, _model.Quantity);
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCreatedSuccessfully"]);
+            Navigation.NavigateTo("/shares/transfers");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCreatingTransfer"], ex.Message));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/shares/transfers");
+    }
+
+    public class ShareTransferModel
+    {
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a member")]
+        public int FromMemberId { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a member")]
+        public int ToMemberId { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a share")]
+        public int ShareId { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
+        public int Quantity { get; set; }
+
+        [MaxLength(500)]
+        public string? Notes { get; set; }
+    }
+}

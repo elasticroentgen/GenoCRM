@@ -1,0 +1,438 @@
+@page "/shares/transfers/{TransferId:int}"
+@using System.Security.Claims
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using Microsoft.AspNetCore.Components.Authorization
+@using GenoCRM.Services.Authorization
+@attribute [Authorize(Policy = "ViewShares")]
+@inject IAuthorizationService AuthorizationService
+@inject IShareTransferService ShareTransferService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["ShareTransferDetails"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@SharedLocalizer["ShareTransferDetails"]</h1>
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @SharedLocalizer["Back"]
+    </button>
+</div>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+        </div>
+    </div>
+}
+else if (_transfer == null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @SharedLocalizer["TransferNotFound"]
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">@SharedLocalizer["TransferInformation"]</h5>
+                    <span class="badge bg-@GetStatusColor(_transfer.Status) fs-6">
+                        @GetLocalizedStatus(_transfer.Status)
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>@SharedLocalizer["BasicInformation"]</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>@SharedLocalizer["RequestDate"]:</strong></td>
+                                    <td>@FormattingService.FormatDateTime(_transfer.RequestDate)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["Status"]:</strong></td>
+                                    <td>
+                                        <span class="badge bg-@GetStatusColor(_transfer.Status)">
+                                            @GetLocalizedStatus(_transfer.Status)
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["TotalValue"]:</strong></td>
+                                    <td>@FormattingService.FormatCurrency(_transfer.TotalValue)</td>
+                                </tr>
+                                @if (_transfer.ApprovalDate.HasValue)
+                                {
+                                    <tr>
+                                        <td><strong>@SharedLocalizer["ApprovalDate"]:</strong></td>
+                                        <td>@FormattingService.FormatDateTime(_transfer.ApprovalDate.Value)</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(_transfer.ApprovedBy))
+                                {
+                                    <tr>
+                                        <td><strong>@SharedLocalizer["ApprovedBy"]:</strong></td>
+                                        <td>@_transfer.ApprovedBy</td>
+                                    </tr>
+                                }
+                                @if (_transfer.CompletionDate.HasValue)
+                                {
+                                    <tr>
+                                        <td><strong>@SharedLocalizer["CompletionDate"]:</strong></td>
+                                        <td>@FormattingService.FormatDateTime(_transfer.CompletionDate.Value)</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>@SharedLocalizer["TransferDetails"]</h6>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td><strong>@SharedLocalizer["FromMember"]:</strong></td>
+                                    <td>@_transfer.FromMember?.FullName (@_transfer.FromMember?.MemberNumber)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["ToMember"]:</strong></td>
+                                    <td>@_transfer.ToMember?.FullName (@_transfer.ToMember?.MemberNumber)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["Share"]:</strong></td>
+                                    <td>@_transfer.Share?.CertificateNumber</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["Quantity"]:</strong></td>
+                                    <td>@_transfer.Quantity</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@SharedLocalizer["UnitValue"]:</strong></td>
+                                    <td>@FormattingService.FormatCurrency(_transfer.Share?.NominalValue ?? 0)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(_transfer.Notes))
+                    {
+                        <div class="mt-3">
+                            <h6>@SharedLocalizer["Notes"]</h6>
+                            <div class="alert alert-light">
+                                @_transfer.Notes
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@SharedLocalizer["Actions"]</h5>
+                </div>
+                <div class="card-body">
+                    @if (_transfer.Status == ShareTransferStatus.Pending)
+                    {
+                        <div class="d-grid gap-2">
+                            @if (_canApprove)
+                            {
+                                <button class="btn btn-success" @onclick="ApproveTransfer">
+                                    <i class="fas fa-check"></i> @SharedLocalizer["Approve"]
+                                </button>
+                            }
+                            @if (_canReject)
+                            {
+                                <button class="btn btn-danger" @onclick="RejectTransfer">
+                                    <i class="fas fa-times"></i> @SharedLocalizer["Reject"]
+                                </button>
+                            }
+                            <button class="btn btn-warning" @onclick="CancelTransfer">
+                                <i class="fas fa-ban"></i> @SharedLocalizer["Cancel"]
+                            </button>
+                        </div>
+                    }
+                    else if (_transfer.Status == ShareTransferStatus.Approved)
+                    {
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info" @onclick="CompleteTransfer">
+                                <i class="fas fa-check-double"></i> @SharedLocalizer["Complete"]
+                            </button>
+                            <button class="btn btn-warning" @onclick="CancelTransfer">
+                                <i class="fas fa-ban"></i> @SharedLocalizer["Cancel"]
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> @SharedLocalizer["NoActionsAvailable"]
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@SharedLocalizer["TransferTimeline"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">@SharedLocalizer["RequestCreated"]</h6>
+                                <p class="timeline-description">@FormattingService.FormatDateTime(_transfer.RequestDate)</p>
+                            </div>
+                        </div>
+                        
+                        @if (_transfer.ApprovalDate.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-@(_transfer.Status == ShareTransferStatus.Rejected ? "danger" : "success")"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">
+                                        @if (_transfer.Status == ShareTransferStatus.Rejected)
+                                        {
+                                            @SharedLocalizer["RequestRejected"]
+                                        }
+                                        else
+                                        {
+                                            @SharedLocalizer["RequestApproved"]
+                                        }
+                                    </h6>
+                                    <p class="timeline-description">@FormattingService.FormatDateTime(_transfer.ApprovalDate.Value)</p>
+                                    @if (!string.IsNullOrEmpty(_transfer.ApprovedBy))
+                                    {
+                                        <p class="timeline-description">@SharedLocalizer["By"]: @_transfer.ApprovedBy</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (_transfer.CompletionDate.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">@SharedLocalizer["TransferCompleted"]</h6>
+                                    <p class="timeline-description">@FormattingService.FormatDateTime(_transfer.CompletionDate.Value)</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -23px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        z-index: 1;
+    }
+
+    .timeline-title {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .timeline-description {
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+</style>
+
+@code {
+    [Parameter] public int TransferId { get; set; }
+
+    
+    
+    private ShareTransfer? _transfer;
+    private bool _isLoading = true;
+    private string _userName = string.Empty;
+    private bool _canApprove = false;
+    private bool _canReject = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        _userName = $"{authState.User.FindFirst(ClaimTypes.GivenName)?.Value} {authState.User.FindFirst(ClaimTypes.Surname)?.Value}";
+        
+        // Check authorization for approval actions
+        _canApprove = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ApproveShareTransfers)).Succeeded;
+        _canReject = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.RejectShareTransfers)).Succeeded;
+        
+        await LoadTransfer();
+    }
+
+    private async Task LoadTransfer()
+    {
+        try
+        {
+            _isLoading = true;
+            _transfer = await ShareTransferService.GetShareTransferByIdAsync(TransferId);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingTransfer"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApproveTransfer()
+    {
+        if (!_canApprove)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["NoPermissionToApprove"]);
+            return;
+        }
+        
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], SharedLocalizer["ApproveTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                await ShareTransferService.ApproveShareTransferAsync(TransferId, _userName);
+                await LoadTransfer();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferApprovedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorApprovingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task RejectTransfer()
+    {
+        if (!_canReject)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["NoPermissionToReject"]);
+            return;
+        }
+        
+        var reason = await ModalService.ShowPromptAsync(SharedLocalizer["RejectTransfer"], SharedLocalizer["RejectReason"]);
+        if (!string.IsNullOrEmpty(reason))
+        {
+            try
+            {
+                await ShareTransferService.RejectShareTransferAsync(TransferId, _userName, reason);
+                await LoadTransfer();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferRejectedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorRejectingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task CompleteTransfer()
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], SharedLocalizer["CompleteTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                await ShareTransferService.CompleteShareTransferAsync(TransferId);
+                await LoadTransfer();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCompletedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCompletingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task CancelTransfer()
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], SharedLocalizer["CancelTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                await ShareTransferService.CancelShareTransferAsync(TransferId);
+                await LoadTransfer();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCancelledSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCancellingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/shares/transfers");
+    }
+
+    private static string GetStatusColor(ShareTransferStatus status)
+    {
+        return status switch
+        {
+            ShareTransferStatus.Pending => "warning",
+            ShareTransferStatus.Approved => "info",
+            ShareTransferStatus.Completed => "success",
+            ShareTransferStatus.Rejected => "danger",
+            ShareTransferStatus.Cancelled => "secondary",
+            _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(ShareTransferStatus status)
+    {
+        return status switch
+        {
+            ShareTransferStatus.Pending => SharedLocalizer["Pending"],
+            ShareTransferStatus.Approved => SharedLocalizer["Approved"],
+            ShareTransferStatus.Completed => SharedLocalizer["Completed"],
+            ShareTransferStatus.Rejected => SharedLocalizer["Rejected"],
+            ShareTransferStatus.Cancelled => SharedLocalizer["Cancelled"],
+            _ => status.ToString()
+        };
+    }
+}

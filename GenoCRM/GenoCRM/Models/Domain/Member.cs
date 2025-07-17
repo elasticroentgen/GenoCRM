@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using GenoCRM.Models.Validation;
 
 namespace GenoCRM.Models.Domain;
 
+[MemberValidation]
 public class Member
 {
     public int Id { get; set; }
@@ -9,13 +11,24 @@ public class Member
     [StringLength(20)]
     public string MemberNumber { get; set; } = string.Empty;
     
-    [Required]
+    public MemberType MemberType { get; set; } = MemberType.Individual;
+    
+    // For individuals
+    [StringLength(20)]
+    public string? Prefix { get; set; }
+    
     [StringLength(100)]
     public string FirstName { get; set; } = string.Empty;
     
-    [Required]
     [StringLength(100)]
     public string LastName { get; set; } = string.Empty;
+    
+    // For companies
+    [StringLength(200)]
+    public string CompanyName { get; set; } = string.Empty;
+    
+    [StringLength(200)]
+    public string? ContactPerson { get; set; }
     
     [StringLength(200)]
     public string Email { get; set; } = string.Empty;
@@ -41,6 +54,8 @@ public class Member
     
     public DateTime? LeaveDate { get; set; }
     
+    public DateTime? TerminationNoticeDate { get; set; }
+    
     public MemberStatus Status { get; set; } = MemberStatus.Active;
     
     public string? Notes { get; set; }
@@ -57,7 +72,9 @@ public class Member
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
     
     // Computed properties
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => MemberType == MemberType.Individual 
+        ? $"{(string.IsNullOrEmpty(Prefix) ? "" : $"{Prefix} ")}{FirstName} {LastName}".Trim()
+        : CompanyName;
     
     public decimal TotalShareValue => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Value);
     
@@ -69,5 +86,13 @@ public enum MemberStatus
     Active,
     Inactive,
     Suspended,
-    Terminated
+    Offboarding,
+    Terminated,
+    Locked
+}
+
+public enum MemberType
+{
+    Individual,
+    Company
 }

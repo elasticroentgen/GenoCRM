@@ -1,0 +1,426 @@
+@page "/shares/create"
+@page "/shares/create/{MemberId:int}"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize(Policy = "CreateShares")]
+@inject IShareService ShareService
+@inject IMemberService MemberService
+@inject IMessagingService MessagingService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@inject IConfiguration Configuration
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["CreateShare"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@SharedLocalizer["CreateShare"]</h1>
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @SharedLocalizer["Back"]
+    </button>
+</div>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["ShareInformation"]</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="_shareModel" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="member" class="form-label">@SharedLocalizer["Member"] *</label>
+                                <select id="member" class="form-select" @bind="_shareModel.MemberId" required>
+                                    <option value="">@SharedLocalizer["SelectMember"]</option>
+                                    @if (_members != null)
+                                    {
+                                        @foreach (var member in _members)
+                                        {
+                                            <option value="@member.Id">@member.FullName (@member.MemberNumber)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="quantity" class="form-label">@SharedLocalizer["Quantity"] *</label>
+                                <input type="number" id="quantity" class="form-control" @bind="_shareModel.Quantity" 
+                                       min="1" max="1000" required @oninput="CalculateValues" />
+                                <div class="form-text">@SharedLocalizer["MinimumQuantityNote"]</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nominalValue" class="form-label">@SharedLocalizer["NominalValue"] *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="number" id="nominalValue" class="form-control" @bind="_shareModel.NominalValue" 
+                                           step="0.01" min="0" readonly />
+                                </div>
+                                <div class="form-text">@SharedLocalizer["NominalValueNote"]</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="currentValue" class="form-label">@SharedLocalizer["CurrentValue"] *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="number" id="currentValue" class="form-control" @bind="_shareModel.Value" 
+                                           step="0.01" min="0" readonly />
+                                </div>
+                                <div class="form-text">@SharedLocalizer["CurrentValueNote"]</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="issueDate" class="form-label">@SharedLocalizer["IssueDate"] *</label>
+                                <input type="date" id="issueDate" class="form-control" @bind="_shareModel.IssueDate" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="certificateNumber" class="form-label">@SharedLocalizer["CertificateNumber"]</label>
+                                <input type="text" id="certificateNumber" class="form-control" @bind="_shareModel.CertificateNumber" 
+                                       placeholder="@SharedLocalizer["AutoGeneratedPlaceholder"]" readonly />
+                                <div class="form-text">@SharedLocalizer["CertificateNumberNote"]</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">@SharedLocalizer["Notes"]</label>
+                            <textarea id="notes" class="form-control" @bind="_shareModel.Notes" rows="3" 
+                                      placeholder="@SharedLocalizer["NotesPlaceholder"]"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="GoBack">
+                                @SharedLocalizer["Cancel"]
+                            </button>
+                            <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+                                @if (_isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                <i class="fas fa-plus"></i> @SharedLocalizer["CreateShare"]
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["ShareSummary"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6">@SharedLocalizer["Quantity"]:</div>
+                        <div class="col-6 text-end">@_shareModel.Quantity</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">@SharedLocalizer["NominalValue"]:</div>
+                        <div class="col-6 text-end">@FormattingService.FormatCurrency(_shareModel.NominalValue)</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">@SharedLocalizer["CurrentValue"]:</div>
+                        <div class="col-6 text-end">@FormattingService.FormatCurrency(_shareModel.Value)</div>
+                    </div>
+                    <hr />
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>@SharedLocalizer["TotalValue"]:</strong></div>
+                        <div class="col-6 text-end"><strong>@FormattingService.FormatCurrency(_shareModel.TotalValue)</strong></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">@SharedLocalizer["PaymentStatus"]:</div>
+                        <div class="col-6 text-end">
+                            <span class="badge bg-warning">@SharedLocalizer["Unpaid"]</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">@SharedLocalizer["OutstandingAmount"]:</div>
+                        <div class="col-6 text-end text-danger">
+                            <strong>@FormattingService.FormatCurrency(_shareModel.TotalValue)</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["SatzungRules"]</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small">
+                        <li><i class="fas fa-check text-success me-2"></i>@SharedLocalizer["SatzungRule1"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@SharedLocalizer["SatzungRule2"]</li>
+                        <li><i class="fas fa-check text-success me-2"></i>@SharedLocalizer["SatzungRule3"]</li>
+                        <li><i class="fas fa-info text-info me-2"></i>@SharedLocalizer["SatzungRule4"]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int? MemberId { get; set; }
+    [SupplyParameterFromQuery] public int? memberIdQuery { get; set; }
+
+    private ShareCreateModel _shareModel = new();
+    private IEnumerable<Member>? _members;
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private decimal _shareDenomination = 250.00m;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+        await LoadShareDenomination();
+        
+        // Check both route parameter and query parameter
+        if (MemberId.HasValue)
+        {
+            _shareModel.MemberId = MemberId.Value;
+        }
+        else if (memberIdQuery.HasValue)
+        {
+            _shareModel.MemberId = memberIdQuery.Value;
+        }
+        
+        InitializeDefaults();
+        _isLoading = false;
+    }
+
+    private async Task LoadMembers()
+    {
+        try
+        {
+            _members = await MemberService.GetAllMembersAsync();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingMembers"], ex.Message));
+        }
+    }
+
+    private async Task LoadShareDenomination()
+    {
+        try
+        {
+            var shareDenominationValue = Configuration.GetValue<decimal>("CooperativeSettings:ShareDenomination");
+            if (shareDenominationValue > 0)
+            {
+                _shareDenomination = shareDenominationValue;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingConfiguration"], ex.Message));
+        }
+    }
+
+    private void InitializeDefaults()
+    {
+        _shareModel.Quantity = 1;
+        _shareModel.NominalValue = _shareDenomination;
+        _shareModel.Value = _shareDenomination;
+        _shareModel.IssueDate = DateTime.Today;
+        _shareModel.Status = ShareStatus.Active;
+    }
+
+    private void CalculateValues()
+    {
+        _shareModel.NominalValue = _shareModel.Quantity * _shareDenomination;
+        _shareModel.Value = _shareModel.NominalValue; // Initially same as nominal value
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_isSubmitting) return;
+
+        try
+        {
+            _isSubmitting = true;
+
+            // Validate business rules
+            if (!await ValidateBusinessRules())
+            {
+                return;
+            }
+
+            // Create the share
+            var share = new CooperativeShare
+            {
+                MemberId = _shareModel.MemberId,
+                Quantity = _shareModel.Quantity,
+                NominalValue = _shareModel.NominalValue,
+                Value = _shareModel.Value,
+                IssueDate = _shareModel.IssueDate,
+                Status = _shareModel.Status,
+                Notes = _shareModel.Notes
+            };
+
+            var createdShare = await ShareService.CreateShareAsync(share);
+
+            // Send payment reminder notification if messaging is configured
+            try
+            {
+                var templates = await MessagingService.GetTemplatesAsync(MessageType.PaymentReminder);
+                var emailTemplate = templates.FirstOrDefault(t => t.Channel == MessageChannel.Email);
+                
+                if (emailTemplate != null)
+                {
+                    var variables = new Dictionary<string, object>
+                    {
+                        { "OutstandingAmount", FormattingService.FormatCurrency(createdShare.OutstandingAmount) },
+                        { "DueDate", FormattingService.FormatDate(DateTime.UtcNow.AddDays(30)) },
+                        { "CertificateNumber", createdShare.CertificateNumber }
+                    };
+
+                    await MessagingService.SendMessageFromTemplateAsync(
+                        createdShare.MemberId, 
+                        emailTemplate.Id, 
+                        variables);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't fail share creation
+                Console.WriteLine($"Failed to send payment reminder: {ex.Message}");
+            }
+
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                string.Format(SharedLocalizer["ShareCreatedSuccessfully"], createdShare.CertificateNumber));
+
+            // Navigate to the created share's details
+            Navigation.NavigateTo($"/shares/{createdShare.Id}");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorCreatingShare"], ex.Message));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task<bool> ValidateBusinessRules()
+    {
+        // Check if member exists and is active
+        if (_shareModel.MemberId == 0)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["MemberRequired"]);
+            return false;
+        }
+
+        var member = _members?.FirstOrDefault(m => m.Id == _shareModel.MemberId);
+        if (member == null)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["MemberNotFound"]);
+            return false;
+        }
+
+        if (member.Status != MemberStatus.Active)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["MemberNotActive"]);
+            return false;
+        }
+
+        // Validate quantity
+        if (_shareModel.Quantity < 1)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["QuantityMustBePositive"]);
+            return false;
+        }
+
+        if (_shareModel.Quantity > 1000)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["QuantityTooHigh"]);
+            return false;
+        }
+
+        // Check if total shares would exceed maximum
+        try
+        {
+            var existingShares = await ShareService.GetSharesByMemberIdAsync(_shareModel.MemberId);
+            var totalActiveShares = existingShares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Quantity);
+            
+            if (totalActiveShares + _shareModel.Quantity > 1000)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    string.Format(SharedLocalizer["TotalSharesExceedLimit"], totalActiveShares, 1000 - totalActiveShares));
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorCheckingExistingShares"], ex.Message));
+            return false;
+        }
+
+        // Validate values
+        if (_shareModel.NominalValue <= 0 || _shareModel.Value <= 0)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["ValueMustBePositive"]);
+            return false;
+        }
+
+        // Validate issue date
+        if (_shareModel.IssueDate > DateTime.Today)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["IssueDateCannotBeFuture"]);
+            return false;
+        }
+
+        // Validate issue date is not too far in the past (1 year)
+        if (_shareModel.IssueDate < DateTime.Today.AddYears(-1))
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["IssueDateTooOld"]);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/shares");
+    }
+
+    private class ShareCreateModel
+    {
+        public int MemberId { get; set; }
+        public int Quantity { get; set; } = 1;
+        public decimal NominalValue { get; set; }
+        public decimal Value { get; set; }
+        public DateTime IssueDate { get; set; } = DateTime.Today;
+        public ShareStatus Status { get; set; } = ShareStatus.Active;
+        public string? Notes { get; set; }
+        public string CertificateNumber { get; set; } = string.Empty;
+
+        public decimal TotalValue => Quantity * Value;
+    }
+}

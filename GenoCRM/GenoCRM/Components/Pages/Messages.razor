@@ -1,0 +1,419 @@
+@page "/messages"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize(Policy = "AdminGroup")]
+@inject IMessagingService MessagingService
+@inject IMemberService MemberService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IModalService ModalService
+@inject IFormattingService FormattingService
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["Messages"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@SharedLocalizer["Messages"]</h1>
+    <div>
+        <button class="btn btn-primary me-2" @onclick="ShowSendMessageModal">
+            <i class="fas fa-paper-plane"></i> @SharedLocalizer["SendMessage"]
+        </button>
+        <button class="btn btn-success" @onclick="ShowPaymentRemindersModal">
+            <i class="fas fa-bell"></i> @SharedLocalizer["PaymentReminders"]
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["TotalMessages"]</h5>
+                <h3>@_statistics.GetValueOrDefault("totalMessages", 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["DeliveredMessages"]</h5>
+                <h3>@_statistics.GetValueOrDefault("deliveredMessages", 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["PendingMessages"]</h5>
+                <h3>@_statistics.GetValueOrDefault("pendingMessages", 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["FailedMessages"]</h5>
+                <h3>@_statistics.GetValueOrDefault("failedMessages", 0)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Message Type Filter -->
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="messageTypeFilter" class="form-label">@SharedLocalizer["FilterByMessageType"]</label>
+            <select id="messageTypeFilter" class="form-select" @bind="_selectedMessageType" @bind:after="LoadMessages">
+                <option value="">@SharedLocalizer["AllTypes"]</option>
+                @foreach (var type in Enum.GetValues<MessageType>())
+                {
+                    <option value="@type">@GetLocalizedMessageType(type)</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="channelFilter" class="form-label">@SharedLocalizer["FilterByChannel"]</label>
+            <select id="channelFilter" class="form-select" @bind="_selectedChannel" @bind:after="LoadMessages">
+                <option value="">@SharedLocalizer["AllChannels"]</option>
+                @foreach (var channel in Enum.GetValues<MessageChannel>())
+                {
+                    <option value="@channel">@GetLocalizedChannel(channel)</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="statusFilter" class="form-label">@SharedLocalizer["FilterByStatus"]</label>
+            <select id="statusFilter" class="form-select" @bind="_selectedStatus" @bind:after="LoadMessages">
+                <option value="">@SharedLocalizer["AllStatuses"]</option>
+                @foreach (var status in Enum.GetValues<MessageStatus>())
+                {
+                    <option value="@status">@GetLocalizedStatus(status)</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+        </div>
+    </div>
+}
+else if (_messages?.Any() == true)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>@SharedLocalizer["CreatedAt"]</th>
+                    <th>@SharedLocalizer["Member"]</th>
+                    <th>@SharedLocalizer["Type"]</th>
+                    <th>@SharedLocalizer["Channel"]</th>
+                    <th>@SharedLocalizer["Subject"]</th>
+                    <th>@SharedLocalizer["Status"]</th>
+                    <th>@SharedLocalizer["SentAt"]</th>
+                    <th>@SharedLocalizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var message in _messages)
+                {
+                    <tr>
+                        <td>@FormattingService.FormatDateTime(message.CreatedAt)</td>
+                        <td>@message.Member?.FullName</td>
+                        <td>@GetLocalizedMessageType(message.Type)</td>
+                        <td>
+                            <span class="badge bg-info">@GetLocalizedChannel(message.Channel)</span>
+                        </td>
+                        <td>@message.Subject</td>
+                        <td>
+                            <span class="badge bg-@GetStatusColor(message.Status)">
+                                @GetLocalizedStatus(message.Status)
+                            </span>
+                        </td>
+                        <td>@(message.SentAt?.ToString() ?? "-")</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewMessage(message)" title="@SharedLocalizer["View"]">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @if (message.Status == MessageStatus.Failed)
+                                {
+                                    <button class="btn btn-sm btn-outline-warning" @onclick="() => RetryMessage(message.Id)" title="@SharedLocalizer["Retry"]">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                }
+                                @if (message.Status == MessageStatus.Pending || message.Status == MessageStatus.Queued)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelMessage(message.Id)" title="@SharedLocalizer["Cancel"]">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> @SharedLocalizer["NoMessagesFound"]
+    </div>
+}
+
+@code {
+    private IEnumerable<Message>? _messages;
+    private Dictionary<string, object> _statistics = new();
+    private bool _isLoading = true;
+    private string _selectedMessageType = "";
+    private string _selectedChannel = "";
+    private string _selectedStatus = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMessages();
+        await LoadStatistics();
+    }
+
+    private async Task LoadMessages()
+    {
+        try
+        {
+            _isLoading = true;
+            
+            if (!string.IsNullOrEmpty(_selectedMessageType) && Enum.TryParse<MessageType>(_selectedMessageType, out var messageType))
+            {
+                _messages = await MessagingService.GetMessagesByTypeAsync(messageType);
+            }
+            else
+            {
+                // Get all messages from the last 30 days
+                var from = DateTime.UtcNow.AddDays(-30);
+                _messages = await MessagingService.GetMessagesByTypeAsync(MessageType.PaymentReminder, from);
+                
+                // This is a simplified implementation - in production you'd want proper pagination
+                // and more sophisticated filtering
+            }
+
+            // Apply additional filters
+            if (!string.IsNullOrEmpty(_selectedChannel) && Enum.TryParse<MessageChannel>(_selectedChannel, out var channel))
+            {
+                _messages = _messages.Where(m => m.Channel == channel);
+            }
+
+            if (!string.IsNullOrEmpty(_selectedStatus) && Enum.TryParse<MessageStatus>(_selectedStatus, out var status))
+            {
+                _messages = _messages.Where(m => m.Status == status);
+            }
+
+            _messages = _messages.OrderByDescending(m => m.CreatedAt).Take(100);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task LoadStatistics()
+    {
+        try
+        {
+            var from = DateTime.UtcNow.AddDays(-30);
+            _statistics = await MessagingService.GetMessageStatisticsAsync(from);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+    }
+
+    private async Task ShowSendMessageModal()
+    {
+        await ModalService.ShowErrorAsync(SharedLocalizer["Info"], "Send message functionality coming soon!");
+    }
+
+    private async Task ShowPaymentRemindersModal()
+    {
+        try
+        {
+            var members = await MessagingService.GetMembersForPaymentRemindersAsync();
+            var confirmed = await ModalService.ShowConfirmationAsync(
+                SharedLocalizer["PaymentReminders"],
+                string.Format(SharedLocalizer["SendPaymentRemindersConfirmation"], members.Count()));
+
+            if (confirmed)
+            {
+                // Send payment reminders
+                foreach (var member in members)
+                {
+                    var unpaidShares = member.Shares.Where(s => s.Status == ShareStatus.Active && !s.IsFullyPaid);
+                    var totalOutstanding = unpaidShares.Sum(s => s.OutstandingAmount);
+
+                    var variables = new Dictionary<string, object>
+                    {
+                        { "OutstandingAmount", FormattingService.FormatCurrency(totalOutstanding) },
+                        { "DueDate", FormattingService.FormatDate(DateTime.UtcNow.AddDays(30)) }
+                    };
+
+                    // Get payment reminder template
+                    var templates = await MessagingService.GetTemplatesAsync(MessageType.PaymentReminder);
+                    var emailTemplate = templates.FirstOrDefault(t => t.Channel == MessageChannel.Email);
+
+                    if (emailTemplate != null)
+                    {
+                        await MessagingService.SendMessageFromTemplateAsync(member.Id, emailTemplate.Id, variables);
+                    }
+                }
+
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                    string.Format(SharedLocalizer["PaymentRemindersSent"], members.Count()));
+                await LoadMessages();
+                await LoadStatistics();
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+    }
+
+    private async Task ViewMessage(Message message)
+    {
+        var messageDetails = $"{SharedLocalizer["Member"]}: {message.Member?.FullName}\n" +
+                           $"{SharedLocalizer["Type"]}: {GetLocalizedMessageType(message.Type)}\n" +
+                           $"{SharedLocalizer["Channel"]}: {GetLocalizedChannel(message.Channel)}\n" +
+                           $"{SharedLocalizer["Status"]}: {GetLocalizedStatus(message.Status)}\n" +
+                           $"{SharedLocalizer["CreatedAt"]}: {FormattingService.FormatDateTime(message.CreatedAt)}\n" +
+                           (message.SentAt.HasValue ? $"{SharedLocalizer["SentAt"]}: {FormattingService.FormatDateTime(message.SentAt.Value)}\n" : "") +
+                           (!string.IsNullOrEmpty(message.ErrorMessage) ? $"{SharedLocalizer["Error"]}: {message.ErrorMessage}\n" : "") +
+                           $"\n{SharedLocalizer["Subject"]}: {message.Subject}\n" +
+                           $"\n{SharedLocalizer["Content"]}:\n{message.Content}";
+
+        await ModalService.ShowAlertAsync(SharedLocalizer["MessageDetails"], messageDetails);
+    }
+
+    private async Task RetryMessage(int messageId)
+    {
+        try
+        {
+            var success = await MessagingService.RetryMessageAsync(messageId);
+            if (success)
+            {
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["MessageRetried"]);
+                await LoadMessages();
+                await LoadStatistics();
+            }
+            else
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["MessageRetryFailed"]);
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+    }
+
+    private async Task CancelMessage(int messageId)
+    {
+        try
+        {
+            var confirmed = await ModalService.ShowConfirmationAsync(
+                SharedLocalizer["Confirmation"], 
+                SharedLocalizer["CancelMessageConfirmation"]);
+
+            if (confirmed)
+            {
+                var success = await MessagingService.CancelMessageAsync(messageId);
+                if (success)
+                {
+                    await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["MessageCancelled"]);
+                    await LoadMessages();
+                    await LoadStatistics();
+                }
+                else
+                {
+                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["MessageCancelFailed"]);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+    }
+
+    private string GetLocalizedMessageType(MessageType type)
+    {
+        return type switch
+        {
+            MessageType.PaymentReminder => SharedLocalizer["PaymentReminder"],
+            MessageType.DividendNotification => SharedLocalizer["DividendNotification"],
+            MessageType.GeneralAssemblyNotice => SharedLocalizer["GeneralAssemblyNotice"],
+            MessageType.WelcomeMessage => SharedLocalizer["WelcomeMessage"],
+            MessageType.ShareCancellationConfirmation => SharedLocalizer["ShareCancellationConfirmation"],
+            MessageType.PaymentConfirmation => SharedLocalizer["PaymentConfirmation"],
+            MessageType.GeneralBroadcast => SharedLocalizer["GeneralBroadcast"],
+            _ => type.ToString()
+        };
+    }
+
+    private string GetLocalizedChannel(MessageChannel channel)
+    {
+        return channel switch
+        {
+            MessageChannel.Email => SharedLocalizer["Email"],
+            MessageChannel.WhatsApp => SharedLocalizer["WhatsApp"],
+            MessageChannel.SMS => SharedLocalizer["SMS"],
+            _ => channel.ToString()
+        };
+    }
+
+    private string GetLocalizedStatus(MessageStatus status)
+    {
+        return status switch
+        {
+            MessageStatus.Pending => SharedLocalizer["Pending"],
+            MessageStatus.Queued => SharedLocalizer["Queued"],
+            MessageStatus.Sending => SharedLocalizer["Sending"],
+            MessageStatus.Sent => SharedLocalizer["Sent"],
+            MessageStatus.Delivered => SharedLocalizer["Delivered"],
+            MessageStatus.Failed => SharedLocalizer["Failed"],
+            MessageStatus.Cancelled => SharedLocalizer["Cancelled"],
+            _ => status.ToString()
+        };
+    }
+
+    private string GetStatusColor(MessageStatus status)
+    {
+        return status switch
+        {
+            MessageStatus.Pending => "warning",
+            MessageStatus.Queued => "info",
+            MessageStatus.Sending => "primary",
+            MessageStatus.Sent => "success",
+            MessageStatus.Delivered => "success",
+            MessageStatus.Failed => "danger",
+            MessageStatus.Cancelled => "secondary",
+            _ => "secondary"
+        };
+    }
+}

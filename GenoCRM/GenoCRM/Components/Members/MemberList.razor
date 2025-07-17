@@ -4,14 +4,16 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
 @using GenoCRM.Resources.Pages
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
-@inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
 @inject IStringLocalizer<Members> MembersLocalizer
 @inject IFormattingService FormattingService
+@inject IModalService ModalService
+@inject IFiscalYearService FiscalYearService
 @rendermode InteractiveServer
 
 <PageTitle>@MembersLocalizer["PageTitle"]</PageTitle>
@@ -43,7 +45,8 @@
             <option value="">All Status</option>
             <option value="Active">@SharedLocalizer["Active"]</option>
             <option value="Inactive">@SharedLocalizer["Inactive"]</option>
-            <option value="Suspended">Suspended</option>
+            <option value="Suspended">@SharedLocalizer["Suspended"]</option>
+            <option value="Offboarding">@SharedLocalizer["Offboarding"]</option>
         </select>
     </div>
 </div>
@@ -102,9 +105,18 @@ else if (_members?.Any() == true)
                                     </AuthorizeView>
                                     <AuthorizeView Policy="DeleteMembers">
                                         <Authorized>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMember(member.Id)" title="Delete Member">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if (member.Status == MemberStatus.Active)
+                                            {
+                                                <button class="btn btn-sm btn-outline-warning" @onclick="() => OffboardMember(member.Id)" title="@SharedLocalizer["OffboardMember"]">
+                                                    <i class="fas fa-sign-out-alt"></i>
+                                                </button>
+                                            }
+                                            else if (member.Status == MemberStatus.Offboarding && FiscalYearService.CanProcessOffboarding())
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => FinallyDeleteMember(member.Id)" title="@SharedLocalizer["Delete"]">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            }
                                         </Authorized>
                                     </AuthorizeView>
                                 </CascadingAuthenticationState>
@@ -139,15 +151,17 @@ else
         try
         {
             _isLoading = true;
+            StateHasChanged();
             _members = await MemberService.GetAllMembersAsync();
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error loading members: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error loading members: {ex.Message}");
         }
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -166,7 +180,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error searching members: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error searching members: {ex.Message}");
         }
         finally
         {
@@ -192,7 +206,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error filtering members: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error filtering members: {ex.Message}");
         }
         finally
         {
@@ -223,20 +237,45 @@ else
         Navigation.NavigateTo($"/members/{memberId}/edit");
     }
 
-    private async Task DeleteMember(int memberId)
+    private async Task OffboardMember(int memberId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this member?");
+        var canOffboard = await MemberService.CanOffboardMemberAsync(memberId);
+        if (!canOffboard)
+        {
+            await ModalService.ShowAlertAsync(SharedLocalizer["Warning"], "This member cannot be offboarded at this time. Offboarding is not allowed in the last month of the fiscal year.");
+            return;
+        }
+
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], SharedLocalizer["OffboardConfirmation"]);
         if (confirmed)
         {
             try
             {
-                await MemberService.DeleteMemberAsync(memberId);
+                await MemberService.OffboardMemberAsync(memberId);
                 await LoadMembers();
-                await JSRuntime.InvokeVoidAsync("alert", "Member deleted successfully");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Member marked for offboarding successfully");
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting member: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error offboarding member: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task FinallyDeleteMember(int memberId)
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], "Are you sure you want to finally delete this member? This action cannot be undone.");
+        if (confirmed)
+        {
+            try
+            {
+                await MemberService.FinallyDeleteMemberAsync(memberId);
+                await LoadMembers();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Member deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error deleting member: {ex.Message}");
             }
         }
     }
@@ -248,6 +287,7 @@ else
             MemberStatus.Active => "success",
             MemberStatus.Inactive => "warning",
             MemberStatus.Suspended => "danger",
+            MemberStatus.Offboarding => "info",
             MemberStatus.Terminated => "dark",
             _ => "secondary"
         };
@@ -259,6 +299,8 @@ else
         {
             MemberStatus.Active => SharedLocalizer["Active"],
             MemberStatus.Inactive => SharedLocalizer["Inactive"],
+            MemberStatus.Suspended => SharedLocalizer["Suspended"],
+            MemberStatus.Offboarding => SharedLocalizer["Offboarding"],
             MemberStatus.Terminated => SharedLocalizer["Terminated"],
             _ => status.ToString()
         };

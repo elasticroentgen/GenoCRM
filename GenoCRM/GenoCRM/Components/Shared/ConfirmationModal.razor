@@ -1,0 +1,29 @@
+@using GenoCRM.Services.UI
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+
+<div class="text-center">
+    <i class="fas fa-question-circle text-warning mb-3" style="font-size: 3rem;"></i>
+    <p>@Message</p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@(string.IsNullOrEmpty(CancelText) ? SharedLocalizer["No"] : CancelText)</button>
+    <button type="button" class="btn btn-primary" @onclick="Confirm">@(string.IsNullOrEmpty(ConfirmText) ? SharedLocalizer["Yes"] : ConfirmText)</button>
+</div>
+
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText { get; set; } = string.Empty;
+    [Parameter] public string CancelText { get; set; } = string.Empty;
+
+    private void Confirm()
+    {
+        ModalService.Close(ModalResult.Ok());
+    }
+
+    private void Cancel()
+    {
+        ModalService.Close(ModalResult.Cancel());
+    }
+}

@@ -3,18 +3,25 @@
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using GenoCRM.Resources.Pages
 @attribute [Authorize(Policy = "CreateMembers")]
 @inject IMemberService MemberService
-@inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IStringLocalizer<Members> MembersLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@inject ICountryService CountryService
 @rendermode InteractiveServer
 
-<PageTitle>@(IsEdit ? "Edit Member" : "Create Member")</PageTitle>
+<PageTitle>@(IsEdit ? MembersLocalizer["EditMember"] : MembersLocalizer["CreateMember"])</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>@(IsEdit ? "Edit Member" : "Create Member")</h1>
+    <h1>@(IsEdit ? MembersLocalizer["EditMember"] : MembersLocalizer["CreateMember"])</h1>
     <button class="btn btn-outline-secondary" @onclick="GoBack">
-        <i class="fas fa-arrow-left"></i> Back to List
+        <i class="fas fa-arrow-left"></i> @MembersLocalizer["BackToList"]
     </button>
 </div>
 
@@ -25,49 +32,85 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Personal Information</h5>
+                    <h5>@MembersLocalizer["PersonalInformation"]</h5>
                 </div>
                 <div class="card-body">
                     @if (IsEdit)
                     {
                         <div class="mb-3">
-                            <label class="form-label">Member Number</label>
+                            <label class="form-label">@SharedLocalizer["MemberNumber"]</label>
                             <input type="text" class="form-control" value="@_member.MemberNumber" readonly />
-                            <div class="form-text">Member number is automatically generated and cannot be changed.</div>
+                            <div class="form-text">@MembersLocalizer["MemberNumberReadonly"]</div>
                         </div>
                     }
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">First Name *</label>
-                                <InputText @bind-Value="_member.FirstName" class="form-control" />
-                                <ValidationMessage For="@(() => _member.FirstName)" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Last Name *</label>
-                                <InputText @bind-Value="_member.LastName" class="form-control" />
-                                <ValidationMessage For="@(() => _member.LastName)" />
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">@SharedLocalizer["MemberType"]</label>
+                        <InputSelect @bind-Value="_member.MemberType" class="form-select" @onchange="OnMemberTypeChanged">
+                            <option value="@MemberType.Individual">@SharedLocalizer["Individual"]</option>
+                            <option value="@MemberType.Company">@SharedLocalizer["Company"]</option>
+                        </InputSelect>
                     </div>
                     
+                    @if (_member.MemberType == MemberType.Individual)
+                    {
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">@SharedLocalizer["Prefix"]</label>
+                                    <InputSelect @bind-Value="_member.Prefix" class="form-select">
+                                        <option value="">@SharedLocalizer["None"]</option>
+                                        <option value="Dr.">Dr.</option>
+                                        <option value="Prof.">Prof.</option>
+                                        <option value="Prof. Dr.">Prof. Dr.</option>
+                                    </InputSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">@MembersLocalizer["FirstNameLabel"]</label>
+                                    <InputText @bind-Value="_member.FirstName" class="form-control" />
+                                    <ValidationMessage For="@(() => _member.FirstName)" />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label">@MembersLocalizer["LastNameLabel"]</label>
+                                    <InputText @bind-Value="_member.LastName" class="form-control" />
+                                    <ValidationMessage For="@(() => _member.LastName)" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">@SharedLocalizer["CompanyName"] *</label>
+                            <InputText @bind-Value="_member.CompanyName" class="form-control" />
+                            <ValidationMessage For="@(() => _member.CompanyName)" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">@SharedLocalizer["ContactPerson"]</label>
+                            <InputText @bind-Value="_member.ContactPerson" class="form-control" />
+                            <ValidationMessage For="@(() => _member.ContactPerson)" />
+                        </div>
+                    }
+                    
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
+                        <label class="form-label">@SharedLocalizer["Email"]</label>
                         <InputText @bind-Value="_member.Email" class="form-control" type="email" />
                         <ValidationMessage For="@(() => _member.Email)" />
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Phone</label>
+                        <label class="form-label">@SharedLocalizer["Phone"]</label>
                         <InputText @bind-Value="_member.Phone" class="form-control" />
                         <ValidationMessage For="@(() => _member.Phone)" />
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Birth Date</label>
+                        <label class="form-label">@SharedLocalizer["BirthDate"]</label>
                         <InputDate @bind-Value="_member.BirthDate" class="form-control" />
                         <ValidationMessage For="@(() => _member.BirthDate)" />
                     </div>
@@ -78,11 +121,11 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Address Information</h5>
+                    <h5>@MembersLocalizer["AddressInformation"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Street</label>
+                        <label class="form-label">@SharedLocalizer["Street"]</label>
                         <InputText @bind-Value="_member.Street" class="form-control" />
                         <ValidationMessage For="@(() => _member.Street)" />
                     </div>
@@ -90,14 +133,14 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Postal Code</label>
+                                <label class="form-label">@SharedLocalizer["PostalCode"]</label>
                                 <InputText @bind-Value="_member.PostalCode" class="form-control" />
                                 <ValidationMessage For="@(() => _member.PostalCode)" />
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label class="form-label">City</label>
+                                <label class="form-label">@SharedLocalizer["City"]</label>
                                 <InputText @bind-Value="_member.City" class="form-control" />
                                 <ValidationMessage For="@(() => _member.City)" />
                             </div>
@@ -105,8 +148,13 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Country</label>
-                        <InputText @bind-Value="_member.Country" class="form-control" />
+                        <label class="form-label">@SharedLocalizer["Country"]</label>
+                        <InputSelect @bind-Value="_member.Country" class="form-select">
+                            @foreach (var country in _countries)
+                            {
+                                <option value="@country.Key">@country.Value</option>
+                            }
+                        </InputSelect>
                         <ValidationMessage For="@(() => _member.Country)" />
                     </div>
                 </div>
@@ -114,22 +162,23 @@
             
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5>Membership Information</h5>
+                    <h5>@MembersLocalizer["MembershipInformation"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Join Date *</label>
+                        <label class="form-label">@MembersLocalizer["JoinDateLabel"]</label>
                         <InputDate @bind-Value="_member.JoinDate" class="form-control" />
                         <ValidationMessage For="@(() => _member.JoinDate)" />
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Status</label>
+                        <label class="form-label">@SharedLocalizer["Status"]</label>
                         <InputSelect @bind-Value="_member.Status" class="form-select">
-                            <option value="@MemberStatus.Active">Active</option>
-                            <option value="@MemberStatus.Inactive">Inactive</option>
-                            <option value="@MemberStatus.Suspended">Suspended</option>
-                            <option value="@MemberStatus.Terminated">Terminated</option>
+                            <option value="@MemberStatus.Active">@SharedLocalizer["Active"]</option>
+                            <option value="@MemberStatus.Inactive">@SharedLocalizer["Inactive"]</option>
+                            <option value="@MemberStatus.Suspended">@SharedLocalizer["Suspended"]</option>
+                            <option value="@MemberStatus.Offboarding">@SharedLocalizer["Offboarding"]</option>
+                            <option value="@MemberStatus.Terminated">@SharedLocalizer["Terminated"]</option>
                         </InputSelect>
                         <ValidationMessage For="@(() => _member.Status)" />
                     </div>
@@ -137,14 +186,14 @@
                     @if (_member.Status == MemberStatus.Terminated)
                     {
                         <div class="mb-3">
-                            <label class="form-label">Leave Date</label>
+                            <label class="form-label">@MembersLocalizer["LeaveDate"]</label>
                             <InputDate @bind-Value="_member.LeaveDate" class="form-control" />
                             <ValidationMessage For="@(() => _member.LeaveDate)" />
                         </div>
                     }
                     
                     <div class="mb-3">
-                        <label class="form-label">Notes</label>
+                        <label class="form-label">@MembersLocalizer["Notes"]</label>
                         <InputTextArea @bind-Value="_member.Notes" class="form-control" rows="3" />
                         <ValidationMessage For="@(() => _member.Notes)" />
                     </div>
@@ -152,11 +201,11 @@
                     @if (!IsEdit)
                     {
                         <div class="mb-3">
-                            <label class="form-label">Initial Share Quantity *</label>
+                            <label class="form-label">@MembersLocalizer["InitialShareQuantityRequired"]</label>
                             <InputNumber @bind-Value="_initialShareQuantity" class="form-control" min="1" />
                             <div class="form-text">
-                                Number of shares to be initially allocated (€@_shareDenomination per share).
-                                <br />Total value: <strong>@((_initialShareQuantity * _shareDenomination).ToString("C"))</strong>
+                                @string.Format(MembersLocalizer["InitialSharesDescription"], _shareDenomination)
+                                <br />@SharedLocalizer["TotalValue"]: <strong>@FormattingService.FormatCurrency(_initialShareQuantity * _shareDenomination)</strong>
                             </div>
                             <ValidationMessage For="@(() => _initialShareQuantity)" />
                         </div>
@@ -168,13 +217,13 @@
     
     <div class="mt-4">
         <div class="d-flex justify-content-between">
-            <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            <button type="button" class="btn btn-secondary" @onclick="GoBack">@SharedLocalizer["Cancel"]</button>
             <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
                 @if (_isSubmitting)
                 {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                 }
-                @(IsEdit ? "Update Member" : "Create Member")
+                @(IsEdit ? MembersLocalizer["UpdateMember"] : MembersLocalizer["CreateMember"])
             </button>
         </div>
     </div>
@@ -187,11 +236,13 @@
     private bool _isSubmitting = false;
     private int _initialShareQuantity = 1;
     private decimal _shareDenomination = 250.00m;
+    private Dictionary<string, string> _countries = new();
     private bool IsEdit => MemberId.HasValue;
 
     protected override async Task OnInitializedAsync()
     {
-        // Load current share denomination from service
+        // Load countries and share denomination
+        _countries = CountryService.GetCountries();
         _shareDenomination = await MemberService.GetCurrentShareDenominationAsync();
         
         if (IsEdit && MemberId.HasValue)
@@ -203,7 +254,7 @@
             }
             else
             {
-                await JSRuntime.InvokeVoidAsync("alert", "Member not found");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], "Member not found");
                 Navigation.NavigateTo("/members");
             }
         }
@@ -213,6 +264,7 @@
             _member.JoinDate = DateTime.Today;
             _member.Status = MemberStatus.Active;
             _member.MemberNumber = string.Empty; // Ensure it's empty for auto-generation
+            _member.Country = CountryService.GetDefaultCountryCode(); // Default to Germany
         }
     }
 
@@ -225,25 +277,25 @@
             if (IsEdit)
             {
                 await MemberService.UpdateMemberAsync(_member);
-                await JSRuntime.InvokeVoidAsync("alert", "Member updated successfully");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], MembersLocalizer["MemberUpdatedSuccessfully"]);
             }
             else
             {
                 if (_initialShareQuantity < 1)
                 {
-                    await JSRuntime.InvokeVoidAsync("alert", "Initial share quantity must be at least 1");
+                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], MembersLocalizer["InitialShareQuantityMinimum"]);
                     return;
                 }
                 
                 await MemberService.CreateMemberAsync(_member, _initialShareQuantity);
-                await JSRuntime.InvokeVoidAsync("alert", $"Member created successfully with {_initialShareQuantity} shares");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], string.Format(MembersLocalizer["MemberCreatedSuccessfully"], _initialShareQuantity));
             }
             
             Navigation.NavigateTo("/members");
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error saving member: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(MembersLocalizer["ErrorSavingMember"], ex.Message));
         }
         finally
         {
@@ -254,5 +306,26 @@
     private void GoBack()
     {
         Navigation.NavigateTo("/members");
+    }
+
+    private void OnMemberTypeChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        if (Enum.TryParse<MemberType>(e.Value?.ToString(), out var memberType))
+        {
+            _member.MemberType = memberType;
+            
+            // Clear type-specific fields when switching
+            if (memberType == MemberType.Individual)
+            {
+                _member.CompanyName = string.Empty;
+                _member.ContactPerson = null;
+            }
+            else
+            {
+                _member.FirstName = string.Empty;
+                _member.LastName = string.Empty;
+                _member.Prefix = null;
+            }
+        }
     }
 }

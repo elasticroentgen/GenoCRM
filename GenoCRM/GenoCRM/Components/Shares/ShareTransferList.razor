@@ -1,0 +1,341 @@
+@page "/shares/transfers"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Policy = "ViewShares")]
+@inject IShareTransferService ShareTransferService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["ShareTransfers"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@SharedLocalizer["ShareTransfers"]</h1>
+    <button class="btn btn-primary" @onclick="CreateTransfer">
+        <i class="fas fa-plus"></i> @SharedLocalizer["NewTransfer"]
+    </button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="@SharedLocalizer["Search"]" @bind="_searchTerm" @onkeydown="OnSearchKeyPress" />
+            <button class="btn btn-outline-secondary" @onclick="SearchTransfers">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
+            <option value="">@SharedLocalizer["AllStatus"]</option>
+            <option value="Pending">@SharedLocalizer["Pending"]</option>
+            <option value="Approved">@SharedLocalizer["Approved"]</option>
+            <option value="Completed">@SharedLocalizer["Completed"]</option>
+            <option value="Rejected">@SharedLocalizer["Rejected"]</option>
+            <option value="Cancelled">@SharedLocalizer["Cancelled"]</option>
+        </select>
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+        </div>
+    </div>
+}
+else if (_transfers?.Any() == true)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>@SharedLocalizer["RequestDate"]</th>
+                    <th>@SharedLocalizer["FromMember"]</th>
+                    <th>@SharedLocalizer["ToMember"]</th>
+                    <th>@SharedLocalizer["Share"]</th>
+                    <th>@SharedLocalizer["Quantity"]</th>
+                    <th>@SharedLocalizer["TotalValue"]</th>
+                    <th>@SharedLocalizer["Status"]</th>
+                    <th>@SharedLocalizer["ApprovalDate"]</th>
+                    <th>@SharedLocalizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transfer in _transfers)
+                {
+                    <tr>
+                        <td>@FormattingService.FormatDateTime(transfer.RequestDate)</td>
+                        <td>@transfer.FromMember?.FullName (@transfer.FromMember?.MemberNumber)</td>
+                        <td>@transfer.ToMember?.FullName (@transfer.ToMember?.MemberNumber)</td>
+                        <td>@transfer.Share?.CertificateNumber</td>
+                        <td>@transfer.Quantity</td>
+                        <td>@FormattingService.FormatCurrency(transfer.TotalValue)</td>
+                        <td>
+                            <span class="badge bg-@GetStatusColor(transfer.Status)">
+                                @GetLocalizedStatus(transfer.Status)
+                            </span>
+                        </td>
+                        <td>@(transfer.ApprovalDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewTransfer(transfer.Id)" title="@SharedLocalizer["View"]">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @if (transfer.Status == ShareTransferStatus.Pending)
+                                {
+                                    @if (_canApprove)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success" @onclick="() => ApproveTransfer(transfer.Id)" title="@SharedLocalizer["Approve"]">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                    @if (_canReject)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => RejectTransfer(transfer.Id)" title="@SharedLocalizer["Reject"]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                }
+                                @if (transfer.Status == ShareTransferStatus.Approved)
+                                {
+                                    <button class="btn btn-sm btn-outline-info" @onclick="() => CompleteTransfer(transfer.Id)" title="@SharedLocalizer["Complete"]">
+                                        <i class="fas fa-check-double"></i>
+                                    </button>
+                                }
+                                @if (transfer.Status == ShareTransferStatus.Pending || transfer.Status == ShareTransferStatus.Approved)
+                                {
+                                    <button class="btn btn-sm btn-outline-warning" @onclick="() => CancelTransfer(transfer.Id)" title="@SharedLocalizer["Cancel"]">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> @SharedLocalizer["NoTransfersFound"]
+    </div>
+}
+
+@code {
+    private IEnumerable<ShareTransfer>? _transfers;
+    private string _searchTerm = string.Empty;
+    private string _selectedStatus = string.Empty;
+    private bool _isLoading = true;
+    private bool _canApprove = false;
+    private bool _canReject = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        
+        // Check authorization for approval actions
+        _canApprove = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ApproveShareTransfers)).Succeeded;
+        _canReject = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.RejectShareTransfers)).Succeeded;
+        
+        await LoadTransfers();
+    }
+
+    private async Task LoadTransfers()
+    {
+        try
+        {
+            _isLoading = true;
+            StateHasChanged();
+            
+            if (_selectedStatus == "Pending")
+            {
+                _transfers = await ShareTransferService.GetPendingShareTransfersAsync();
+            }
+            else if (string.IsNullOrEmpty(_selectedStatus))
+            {
+                _transfers = await ShareTransferService.GetAllShareTransfersAsync();
+            }
+            else
+            {
+                // Filter by status
+                var allTransfers = await ShareTransferService.GetAllShareTransfersAsync();
+                if (Enum.TryParse<ShareTransferStatus>(_selectedStatus, out var status))
+                {
+                    _transfers = allTransfers.Where(t => t.Status == status);
+                }
+                else
+                {
+                    _transfers = allTransfers;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingTransfers"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SearchTransfers()
+    {
+        // For now, just reload all transfers
+        // In a real implementation, you might want to add search functionality to the service
+        await LoadTransfers();
+    }
+
+    private async Task FilterByStatus()
+    {
+        await LoadTransfers();
+    }
+
+    private async Task OnSearchKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchTransfers();
+        }
+    }
+
+    private void CreateTransfer()
+    {
+        Navigation.NavigateTo("/shares/transfers/create");
+    }
+
+    private void ViewTransfer(int transferId)
+    {
+        Navigation.NavigateTo($"/shares/transfers/{transferId}");
+    }
+
+    private async Task ApproveTransfer(int transferId)
+    {
+        if (!_canApprove)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["NoPermissionToApprove"]);
+            return;
+        }
+        
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], SharedLocalizer["ApproveTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userName = $"{authState.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value} {authState.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value}";
+                
+                await ShareTransferService.ApproveShareTransferAsync(transferId, userName);
+                await LoadTransfers();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferApprovedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorApprovingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task RejectTransfer(int transferId)
+    {
+        if (!_canReject)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["NoPermissionToReject"]);
+            return;
+        }
+        
+        var reason = await ModalService.ShowPromptAsync(SharedLocalizer["RejectTransfer"], SharedLocalizer["RejectReason"]);
+        if (!string.IsNullOrEmpty(reason))
+        {
+            try
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userName = $"{authState.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value} {authState.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value}";
+                
+                await ShareTransferService.RejectShareTransferAsync(transferId, userName, reason);
+                await LoadTransfers();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferRejectedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorRejectingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task CompleteTransfer(int transferId)
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], SharedLocalizer["CompleteTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                await ShareTransferService.CompleteShareTransferAsync(transferId);
+                await LoadTransfers();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCompletedSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCompletingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private async Task CancelTransfer(int transferId)
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], SharedLocalizer["CancelTransferConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                await ShareTransferService.CancelShareTransferAsync(transferId);
+                await LoadTransfers();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCancelledSuccessfully"]);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCancellingTransfer"], ex.Message));
+            }
+        }
+    }
+
+    private static string GetStatusColor(ShareTransferStatus status)
+    {
+        return status switch
+        {
+            ShareTransferStatus.Pending => "warning",
+            ShareTransferStatus.Approved => "info",
+            ShareTransferStatus.Completed => "success",
+            ShareTransferStatus.Rejected => "danger",
+            ShareTransferStatus.Cancelled => "secondary",
+            _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(ShareTransferStatus status)
+    {
+        return status switch
+        {
+            ShareTransferStatus.Pending => SharedLocalizer["Pending"],
+            ShareTransferStatus.Approved => SharedLocalizer["Approved"],
+            ShareTransferStatus.Completed => SharedLocalizer["Completed"],
+            ShareTransferStatus.Rejected => SharedLocalizer["Rejected"],
+            ShareTransferStatus.Cancelled => SharedLocalizer["Cancelled"],
+            _ => status.ToString()
+        };
+    }
+}

@@ -72,6 +72,8 @@ public static class AuthorizationPolicies
     public const string CreateShares = "CreateShares";
     public const string EditShares = "EditShares";
     public const string CancelShares = "CancelShares";
+    public const string ApproveShareTransfers = "ApproveShareTransfers";
+    public const string RejectShareTransfers = "RejectShareTransfers";
     
     public const string ViewDividends = "ViewDividends";
     public const string CalculateDividends = "CalculateDividends";
@@ -86,6 +88,10 @@ public static class AuthorizationPolicies
     
     public const string Administration = "Administration";
     public const string ViewReports = "ViewReports";
+    
+    public const string ViewMessages = "ViewMessages";
+    public const string SendMessages = "SendMessages";
+    public const string ManageMessages = "ManageMessages";
     
     // Group-based policies
     public const string AdminGroup = "AdminGroup";
@@ -120,6 +126,12 @@ public static class AuthorizationPolicies
         options.AddPolicy(CancelShares, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.CancelShares)));
 
+        options.AddPolicy(ApproveShareTransfers, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ApproveShareTransfers)));
+
+        options.AddPolicy(RejectShareTransfers, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.RejectShareTransfers)));
+
         options.AddPolicy(ViewDividends, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewDividends)));
         
@@ -149,6 +161,15 @@ public static class AuthorizationPolicies
         
         options.AddPolicy(ViewReports, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewReports)));
+
+        options.AddPolicy(ViewMessages, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewMessages)));
+        
+        options.AddPolicy(SendMessages, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.SendMessages)));
+        
+        options.AddPolicy(ManageMessages, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ManageMessages)));
 
         // Group-based policies
         options.AddPolicy(AdminGroup, policy => 

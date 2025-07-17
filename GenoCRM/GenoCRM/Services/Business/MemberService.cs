@@ -20,6 +20,15 @@ public interface IMemberService
     Task<IEnumerable<Member>> GetMembersByStatusAsync(MemberStatus status);
     Task<string> GenerateNextMemberNumberAsync();
     Task<decimal> GetCurrentShareDenominationAsync();
+    Task<bool> OffboardMemberAsync(int id);
+    Task<bool> CanOffboardMemberAsync(int id);
+    Task<IEnumerable<Member>> GetMembersReadyForDeletionAsync();
+    Task<bool> FinallyDeleteMemberAsync(int id);
+    Task<int> ProcessOffboardingMembersAsync();
+    Task<bool> SubmitTerminationNoticeAsync(int id);
+    Task<bool> CanSubmitTerminationNoticeAsync(int id);
+    Task<DateTime?> GetEarliestTerminationDateAsync(int id);
+    Task<IEnumerable<Member>> GetMembersReadyForOffboardingAsync();
 }
 
 public class MemberService : IMemberService
@@ -28,13 +37,15 @@ public class MemberService : IMemberService
     private readonly ILogger<MemberService> _logger;
     private readonly IConfiguration _configuration;
     private readonly IShareService _shareService;
+    private readonly IFiscalYearService _fiscalYearService;
 
-    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService)
+    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService, IFiscalYearService fiscalYearService)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _shareService = shareService;
+        _fiscalYearService = fiscalYearService;
     }
 
     public async Task<IEnumerable<Member>> GetAllMembersAsync()
@@ -340,6 +351,309 @@ public class MemberService : IMemberService
         {
             _logger.LogError(ex, "Error getting share denomination from configuration");
             return Task.FromResult(250.00m); // Default fallback
+        }
+    }
+
+    public async Task<bool> SubmitTerminationNoticeAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members.FindAsync(id);
+            if (member == null)
+            {
+                return false;
+            }
+
+            if (!await CanSubmitTerminationNoticeAsync(id))
+            {
+                return false;
+            }
+
+            // Submit termination notice
+            member.TerminationNoticeDate = DateTime.UtcNow;
+            member.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Termination notice submitted for member with ID {MemberId}", id);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error submitting termination notice for member with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<bool> CanSubmitTerminationNoticeAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members.FindAsync(id);
+            if (member == null)
+            {
+                return false;
+            }
+
+            // Can only submit termination notice for active members
+            if (member.Status != MemberStatus.Active)
+            {
+                return false;
+            }
+
+            // Cannot submit if already submitted
+            if (member.TerminationNoticeDate.HasValue)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking if termination notice can be submitted for member with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<DateTime?> GetEarliestTerminationDateAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members.FindAsync(id);
+            if (member == null || !member.TerminationNoticeDate.HasValue)
+            {
+                return null;
+            }
+
+            // Calculate 2 years from notice date, ending at fiscal year end
+            var noticeDate = member.TerminationNoticeDate.Value;
+            var twoYearsLater = noticeDate.AddYears(2);
+            
+            // Find the fiscal year end that occurs on or after the 2-year mark
+            var fiscalYear = _fiscalYearService.GetFiscalYearForDate(twoYearsLater);
+            var fiscalYearEnd = _fiscalYearService.GetFiscalYearEnd(fiscalYear);
+            
+            // If the 2-year date is after the fiscal year end, move to next fiscal year
+            if (twoYearsLater > fiscalYearEnd)
+            {
+                fiscalYearEnd = _fiscalYearService.GetFiscalYearEnd(fiscalYear + 1);
+            }
+
+            return fiscalYearEnd;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating earliest termination date for member with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<Member>> GetMembersReadyForOffboardingAsync()
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            var members = await _context.Members
+                .Where(m => m.TerminationNoticeDate.HasValue && m.Status == MemberStatus.Active)
+                .ToListAsync();
+
+            var readyMembers = new List<Member>();
+
+            foreach (var member in members)
+            {
+                var earliestTerminationDate = await GetEarliestTerminationDateAsync(member.Id);
+                if (earliestTerminationDate.HasValue && now >= earliestTerminationDate.Value)
+                {
+                    readyMembers.Add(member);
+                }
+            }
+
+            return readyMembers;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting members ready for offboarding");
+            throw;
+        }
+    }
+
+    public async Task<bool> OffboardMemberAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members.FindAsync(id);
+            if (member == null)
+            {
+                return false;
+            }
+
+            if (!await CanOffboardMemberAsync(id))
+            {
+                return false;
+            }
+
+            // Mark member as offboarding
+            member.Status = MemberStatus.Offboarding;
+            member.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Member marked for offboarding with ID {MemberId}", id);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error offboarding member with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<bool> CanOffboardMemberAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members.FindAsync(id);
+            if (member == null)
+            {
+                return false;
+            }
+
+            // Can only offboard active members
+            if (member.Status != MemberStatus.Active)
+            {
+                return false;
+            }
+
+            // Must have submitted termination notice
+            if (!member.TerminationNoticeDate.HasValue)
+            {
+                return false;
+            }
+
+            // Check if 2-year notice period has passed
+            var earliestTerminationDate = await GetEarliestTerminationDateAsync(id);
+            if (!earliestTerminationDate.HasValue || DateTime.UtcNow < earliestTerminationDate.Value)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking if member can be offboarded with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<Member>> GetMembersReadyForDeletionAsync()
+    {
+        try
+        {
+            var canProcessOffboarding = _fiscalYearService.CanProcessOffboarding();
+            if (!canProcessOffboarding)
+            {
+                return Enumerable.Empty<Member>();
+            }
+
+            // Get members who have been in offboarding status and fiscal year has ended
+            var members = await _context.Members
+                .Where(m => m.Status == MemberStatus.Offboarding)
+                .Include(m => m.Shares)
+                .Include(m => m.Payments)
+                .Include(m => m.Dividends)
+                .ToListAsync();
+
+            return members;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting members ready for deletion");
+            throw;
+        }
+    }
+
+    public async Task<bool> FinallyDeleteMemberAsync(int id)
+    {
+        try
+        {
+            var member = await _context.Members
+                .Include(m => m.Shares)
+                .Include(m => m.Payments)
+                .Include(m => m.Dividends)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (member == null)
+            {
+                return false;
+            }
+
+            // Can only delete members in offboarding status after fiscal year end
+            if (member.Status != MemberStatus.Offboarding || !_fiscalYearService.CanProcessOffboarding())
+            {
+                return false;
+            }
+
+            // Check if all shares have been returned (cancelled)
+            var activeShares = member.Shares.Where(s => s.Status == ShareStatus.Active).ToList();
+            if (activeShares.Any())
+            {
+                _logger.LogWarning("Cannot delete member {MemberId} - still has active shares", id);
+                return false;
+            }
+
+            // Check if all dividends have been paid
+            var unpaidDividends = member.Dividends.Where(d => d.Status != DividendStatus.Paid).ToList();
+            if (unpaidDividends.Any())
+            {
+                _logger.LogWarning("Cannot delete member {MemberId} - still has unpaid dividends", id);
+                return false;
+            }
+
+            // Mark as terminated instead of hard delete to preserve audit trail
+            member.Status = MemberStatus.Terminated;
+            member.LeaveDate = DateTime.UtcNow;
+            member.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Member finally processed for deletion with ID {MemberId}", id);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finally deleting member with ID {MemberId}", id);
+            throw;
+        }
+    }
+
+    public async Task<int> ProcessOffboardingMembersAsync()
+    {
+        try
+        {
+            var membersToProcess = await GetMembersReadyForDeletionAsync();
+            var processedCount = 0;
+
+            foreach (var member in membersToProcess)
+            {
+                if (await FinallyDeleteMemberAsync(member.Id))
+                {
+                    processedCount++;
+                }
+            }
+
+            _logger.LogInformation("Processed {ProcessedCount} members for offboarding completion", processedCount);
+
+            return processedCount;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing offboarding members");
+            throw;
         }
     }
 }

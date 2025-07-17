@@ -18,6 +18,9 @@ public interface IShareService
     Task<IEnumerable<CooperativeShare>> GetSharesByStatusAsync(ShareStatus status);
     Task<decimal> GetMemberShareValueAsync(int memberId);
     Task<bool> TransferShareAsync(int shareId, int newMemberId);
+    Task<IEnumerable<CooperativeShare>> GetActiveSharesAsync();
+    Task<IEnumerable<CooperativeShare>> GetNonActiveSharesAsync();
+    Task<decimal> GetOffboardingSharesValueAsync();
 }
 
 public class ShareService : IShareService
@@ -199,32 +202,105 @@ public class ShareService : IShareService
 
     public async Task<string> GenerateNextCertificateNumberAsync()
     {
-        try
+        const int maxRetries = 10;
+        const int baseDelayMs = 10;
+        
+        for (int attempt = 0; attempt < maxRetries; attempt++)
         {
-            var lastShare = await _context.CooperativeShares
-                .OrderByDescending(s => s.CertificateNumber)
-                .FirstOrDefaultAsync();
-
-            if (lastShare == null)
+            try
             {
-                return "CERT001";
+                // Check if we're already in a transaction or if transactions are supported
+                var supportsTransactions = !(_context.Database.ProviderName?.Contains("InMemory") ?? false);
+                var currentTransaction = _context.Database.CurrentTransaction;
+                
+                if (supportsTransactions && currentTransaction == null)
+                {
+                    // Only create a new transaction if we're not already in one
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+                    
+                    try
+                    {
+                        var result = await GenerateNextCertificateNumberInternalAsync();
+                        
+                        // Check if this certificate number already exists (double-check)
+                        var exists = await _context.CooperativeShares
+                            .AnyAsync(s => s.CertificateNumber == result);
+                        
+                        if (!exists)
+                        {
+                            await transaction.CommitAsync();
+                            return result;
+                        }
+                        
+                        // If it exists, rollback and retry
+                        await transaction.RollbackAsync();
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                }
+                else
+                {
+                    // Either we're already in a transaction or using in-memory database
+                    // Just generate without creating a new transaction
+                    var result = await GenerateNextCertificateNumberInternalAsync();
+                    
+                    // Check if this certificate number already exists (double-check)
+                    var exists = await _context.CooperativeShares
+                        .AnyAsync(s => s.CertificateNumber == result);
+                    
+                    if (!exists)
+                    {
+                        return result;
+                    }
+                }
             }
-
-            // Extract number from certificate number (assuming format like "CERT001", "CERT002", etc.)
-            var lastNumber = lastShare.CertificateNumber.Substring(4);
-            if (int.TryParse(lastNumber, out int number))
+            catch (Exception ex) when (attempt < maxRetries - 1)
             {
-                return $"CERT{(number + 1):D3}";
+                _logger.LogWarning(ex, "Attempt {Attempt} failed to generate certificate number, retrying...", attempt + 1);
+                
+                // Exponential backoff with jitter
+                var delay = baseDelayMs * (int)Math.Pow(2, attempt) + new Random().Next(0, 10);
+                await Task.Delay(delay);
+                continue;
             }
-
-            // Fallback if parsing fails
-            return $"CERT{DateTime.UtcNow.Ticks % 1000:D3}";
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating next certificate number after {MaxRetries} attempts", maxRetries);
+                throw;
+            }
         }
-        catch (Exception ex)
+        
+        throw new InvalidOperationException($"Failed to generate unique certificate number after {maxRetries} attempts");
+    }
+    
+    private async Task<string> GenerateNextCertificateNumberInternalAsync()
+    {
+        // Get the highest numeric certificate number by parsing all certificate numbers
+        var allShares = await _context.CooperativeShares
+            .Select(s => s.CertificateNumber)
+            .ToListAsync();
+
+        int highestNumber = 0;
+        foreach (var certNumber in allShares)
         {
-            _logger.LogError(ex, "Error generating next certificate number");
-            throw;
+            if (certNumber.StartsWith("CERT") && certNumber.Length >= 7)
+            {
+                var numberPart = certNumber.Substring(4);
+                if (int.TryParse(numberPart, out int number))
+                {
+                    if (number > highestNumber)
+                    {
+                        highestNumber = number;
+                    }
+                }
+            }
         }
+
+        var nextNumber = highestNumber + 1;
+        return $"CERT{nextNumber:D3}";
     }
 
     public async Task<decimal> GetTotalShareCapitalAsync()
@@ -306,6 +382,57 @@ public class ShareService : IShareService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error transferring share {ShareId} to member {NewMemberId}", shareId, newMemberId);
+            throw;
+        }
+    }
+    
+    public async Task<IEnumerable<CooperativeShare>> GetActiveSharesAsync()
+    {
+        try
+        {
+            return await _context.CooperativeShares
+                .Include(s => s.Member)
+                .Include(s => s.Payments)
+                .Where(s => s.Status == ShareStatus.Active)
+                .OrderBy(s => s.CertificateNumber)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving active shares");
+            throw;
+        }
+    }
+    
+    public async Task<IEnumerable<CooperativeShare>> GetNonActiveSharesAsync()
+    {
+        try
+        {
+            return await _context.CooperativeShares
+                .Include(s => s.Member)
+                .Include(s => s.Payments)
+                .Where(s => s.Status != ShareStatus.Active)
+                .OrderBy(s => s.CertificateNumber)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving non-active shares");
+            throw;
+        }
+    }
+    
+    public async Task<decimal> GetOffboardingSharesValueAsync()
+    {
+        try
+        {
+            return await _context.CooperativeShares
+                .Where(s => s.Status == ShareStatus.Cancelled || s.Status == ShareStatus.Transferred || s.Status == ShareStatus.Suspended)
+                .SumAsync(s => s.Value * s.Quantity);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating offboarding shares value");
             throw;
         }
     }

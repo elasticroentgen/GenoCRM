@@ -10,6 +10,8 @@
       "shares.edit",
       "shares.cancel",
       "shares.transfer",
+      "shares.transfer.approve",
+      "shares.transfer.reject",
       "dividends.view",
       "dividends.calculate",
       "dividends.approve",
@@ -27,7 +29,10 @@
       "admin.permissions.manage",
       "admin.audit.view",
       "reports.view",
-      "reports.export"
+      "reports.export",
+      "messages.view",
+      "messages.send",
+      "messages.manage"
     ],
     "Vorstand": [
       "members.view",
@@ -37,6 +42,8 @@
       "shares.create",
       "shares.edit",
       "shares.transfer",
+      "shares.transfer.approve",
+      "shares.transfer.reject",
       "dividends.view",
       "dividends.calculate",
       "dividends.approve",
@@ -47,7 +54,9 @@
       "loans.create",
       "loans.edit",
       "reports.view",
-      "reports.export"
+      "reports.export",
+      "messages.view",
+      "messages.send"
     ],
     "member": [
       "members.view",
@@ -67,6 +76,8 @@
     "Aufsichtsrat": [
       "members.view",
       "shares.view",
+      "shares.transfer.approve",
+      "shares.transfer.reject",
       "dividends.view",
       "dividends.approve",
       "dividends.pay",

@@ -1,0 +1,51 @@
+@using GenoCRM.Services.UI
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+
+<div class="mb-3">
+    <label class="form-label">@Message</label>
+    <input type="text" class="form-control" @bind="InputValue" @bind:event="oninput" 
+           placeholder="@Placeholder" @onkeypress="HandleKeyPress" />
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+    <button type="button" class="btn btn-primary" @onclick="Confirm" disabled="@string.IsNullOrWhiteSpace(InputValue)">
+        @SharedLocalizer["OK"]
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public string DefaultValue { get; set; } = string.Empty;
+    
+    private string InputValue { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        InputValue = DefaultValue;
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(InputValue))
+        {
+            Confirm();
+        }
+        else if (e.Key == "Escape")
+        {
+            Cancel();
+        }
+    }
+
+    private void Confirm()
+    {
+        ModalService.Close(ModalResult.Ok(InputValue));
+    }
+
+    private void Cancel()
+    {
+        ModalService.Close(ModalResult.Cancel());
+    }
+}

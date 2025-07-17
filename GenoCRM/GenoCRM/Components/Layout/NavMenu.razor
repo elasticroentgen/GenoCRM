@@ -33,6 +33,12 @@
             </div>
 
             <div class="nav-item px-3">
+                <NavLink class="nav-link" href="shares/transfers">
+                    <span class="bi bi-arrow-left-right-nav-menu" aria-hidden="true"></span> @Localizer["ShareTransfers"]
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
                 <NavLink class="nav-link" href="dividends">
                     <span class="bi bi-currency-euro-nav-menu" aria-hidden="true"></span> @Localizer["Dividends"]
                 </NavLink>
@@ -49,6 +55,16 @@
                     <span class="bi bi-file-earmark-text-nav-menu" aria-hidden="true"></span> Documents
                 </NavLink>
             </div>
+
+            <AuthorizeView Policy="AdminGroup">
+                <Authorized Context="adminContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="messages">
+                            <span class="bi bi-envelope-nav-menu" aria-hidden="true"></span> @Localizer["Messages"]
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </Authorized>
         </AuthorizeView>
     </nav>

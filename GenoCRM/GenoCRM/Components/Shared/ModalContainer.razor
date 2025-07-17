@@ -1,0 +1,60 @@
+@using GenoCRM.Services.UI
+@implements IDisposable
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+@if (_modalReference != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" @onclick="HandleBackgroundClick">
+        <div class="modal-dialog" role="document" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@_modalReference.Title</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <DynamicComponent Type="@_modalReference.ComponentType" Parameters="@_modalReference.Parameters" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private ModalReference? _modalReference;
+
+    protected override void OnInitialized()
+    {
+        ModalService.OnShow += ShowModal;
+        ModalService.OnClose += CloseModal;
+    }
+
+    private void ShowModal(ModalReference modalReference)
+    {
+        _modalReference = modalReference;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseModal()
+    {
+        _modalReference = null;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleBackgroundClick()
+    {
+        Cancel();
+    }
+
+    private void Cancel()
+    {
+        ModalService.Close(ModalResult.Cancel());
+    }
+
+    public void Dispose()
+    {
+        ModalService.OnShow -= ShowModal;
+        ModalService.OnClose -= CloseModal;
+    }
+}

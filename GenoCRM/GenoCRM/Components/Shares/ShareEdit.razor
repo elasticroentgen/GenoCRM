@@ -1,0 +1,410 @@
+@page "/shares/{ShareId:int}/edit"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using System.ComponentModel.DataAnnotations
+@attribute [Authorize(Policy = "EditShares")]
+@inject IShareService ShareService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["EditShare"]</PageTitle>
+
+<div class="container-fluid">
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+            </div>
+        </div>
+    }
+    else if (_share != null)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/shares">@SharedLocalizer["CooperativeShares"]</a></li>
+                        <li class="breadcrumb-item"><a href="/shares/@ShareId">@_share.CertificateNumber</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@SharedLocalizer["Edit"]</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <h1>@SharedLocalizer["EditShare"]: @_share.CertificateNumber</h1>
+
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle"></i> 
+            <strong>@SharedLocalizer["ImportantNote"]:</strong> 
+            @SharedLocalizer["ShareEditRestrictions"]
+        </div>
+
+        <EditForm Model="_editModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">@SharedLocalizer["ShareInformation"]</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">@SharedLocalizer["CertificateNumber"]</label>
+                                <input type="text" class="form-control" value="@_share.CertificateNumber" disabled />
+                                <small class="text-muted">@SharedLocalizer["CertificateNumberCannotBeChanged"]</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">@SharedLocalizer["Member"]</label>
+                                <input type="text" class="form-control" value="@_share.Member?.FullName" disabled />
+                                <small class="text-muted">@SharedLocalizer["MemberCannotBeChangedUseTransfer"]</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">@SharedLocalizer["Quantity"]</label>
+                                <input type="number" class="form-control" value="@_share.Quantity" disabled />
+                                <small class="text-muted">@SharedLocalizer["QuantityCannotBeChanged"]</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">@SharedLocalizer["NominalValue"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="text" class="form-control" value="@FormattingService.FormatNumber(_share.NominalValue)" disabled />
+                                </div>
+                                <small class="text-muted">@SharedLocalizer["NominalValueFixedBySatzung"]: €250</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">@SharedLocalizer["CurrentValue"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="text" class="form-control" value="@FormattingService.FormatNumber(_share.Value)" disabled />
+                                </div>
+                                <small class="text-muted">@SharedLocalizer["ValueCannotBeChangedDirectly"]</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="status" class="form-label">@SharedLocalizer["Status"]</label>
+                                <InputSelect id="status" class="form-select" @bind-Value="_editModel.Status">
+                                    @foreach (var status in GetEditableStatuses())
+                                    {
+                                        <option value="@status">@GetLocalizedStatus(status)</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => _editModel.Status)" />
+                                @if (_editModel.Status == ShareStatus.Suspended)
+                                {
+                                    <small class="text-warning">@SharedLocalizer["SuspendedShareWarning"]</small>
+                                }
+                            </div>
+
+                            @if (_editModel.Status == ShareStatus.Cancelled)
+                            {
+                                <div class="mb-3">
+                                    <label for="cancellationDate" class="form-label">@SharedLocalizer["CancellationDate"]</label>
+                                    <InputDate id="cancellationDate" class="form-control" @bind-Value="_editModel.CancellationDate" />
+                                    <ValidationMessage For="@(() => _editModel.CancellationDate)" />
+                                    <small class="text-muted">@SharedLocalizer["TwoYearNoticePeriod"]</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">@SharedLocalizer["PaymentInformation"]</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-6">@SharedLocalizer["TotalValue"]</dt>
+                                <dd class="col-sm-6">@FormattingService.FormatCurrency(_share.TotalValue)</dd>
+
+                                <dt class="col-sm-6">@SharedLocalizer["TotalPaid"]</dt>
+                                <dd class="col-sm-6">@FormattingService.FormatCurrency(_share.PaidAmount)</dd>
+
+                                <dt class="col-sm-6">@SharedLocalizer["OutstandingAmount"]</dt>
+                                <dd class="col-sm-6">
+                                    @if (_share.IsFullyPaid)
+                                    {
+                                        <span class="badge bg-success">@SharedLocalizer["FullyPaid"]</span>
+                                    }
+                                    else
+                                    {
+                                        <strong class="text-danger">@FormattingService.FormatCurrency(_share.OutstandingAmount)</strong>
+                                    }
+                                </dd>
+                            </dl>
+
+                            @if (!_share.IsFullyPaid)
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    @SharedLocalizer["ShareNotFullyPaidWarning"]
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">@SharedLocalizer["AdditionalInformation"]</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">@SharedLocalizer["Notes"]</label>
+                                <InputTextArea id="notes" class="form-control" rows="4" @bind-Value="_editModel.Notes" />
+                                <ValidationMessage For="@(() => _editModel.Notes)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                        <i class="fas fa-times"></i> @SharedLocalizer["Cancel"]
+                    </button>
+                    <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+                        @if (_isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        }
+                        <i class="fas fa-save"></i> @SharedLocalizer["Save"]
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> @SharedLocalizer["ShareNotFound"]
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int ShareId { get; set; }
+    
+    private CooperativeShare? _share;
+    private ShareEditModel _editModel = new();
+    private bool _isLoading = true;
+    private bool _isSaving = false;
+
+    private class ShareEditModel
+    {
+        [Required(ErrorMessage = "Status is required")]
+        public ShareStatus Status { get; set; }
+        
+        public DateTime? CancellationDate { get; set; }
+        
+        [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
+        public string? Notes { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShare();
+    }
+
+    private async Task LoadShare()
+    {
+        try
+        {
+            _isLoading = true;
+            _share = await ShareService.GetShareByIdAsync(ShareId);
+            
+            if (_share != null)
+            {
+                // Check if share can be edited
+                if (!CanEdit(_share))
+                {
+                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                        SharedLocalizer["ShareCannotBeEdited"]);
+                    Navigation.NavigateTo($"/shares/{ShareId}");
+                    return;
+                }
+                
+                // Initialize edit model
+                _editModel.Status = _share.Status;
+                _editModel.CancellationDate = _share.CancellationDate;
+                _editModel.Notes = _share.Notes;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingShare"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private bool CanEdit(CooperativeShare share)
+    {
+        // Based on Satzung constraints:
+        // - Cannot edit transferred shares (ownership changed)
+        // - Cannot edit cancelled shares that are past cancellation date
+        // - Active and Suspended shares can be edited with limitations
+        
+        if (share.Status == ShareStatus.Transferred)
+            return false;
+            
+        if (share.Status == ShareStatus.Cancelled && 
+            share.CancellationDate.HasValue && 
+            share.CancellationDate.Value <= DateTime.UtcNow)
+            return false;
+            
+        return true;
+    }
+
+    private IEnumerable<ShareStatus> GetEditableStatuses()
+    {
+        if (_share == null) 
+            return new[] { ShareStatus.Active };
+            
+        var statuses = new List<ShareStatus>();
+        
+        // Current status is always included
+        statuses.Add(_share.Status);
+        
+        // Based on Satzung constraints
+        switch (_share.Status)
+        {
+            case ShareStatus.Active:
+                // Active shares can be suspended or cancelled (with 2-year notice)
+                statuses.Add(ShareStatus.Suspended);
+                statuses.Add(ShareStatus.Cancelled);
+                break;
+                
+            case ShareStatus.Suspended:
+                // Suspended shares can be reactivated or cancelled
+                statuses.Add(ShareStatus.Active);
+                statuses.Add(ShareStatus.Cancelled);
+                break;
+                
+            case ShareStatus.Cancelled:
+                // Cancelled shares cannot change status (§5 - cancellation is final)
+                break;
+                
+            case ShareStatus.Transferred:
+                // Transferred shares cannot be edited at all
+                break;
+        }
+        
+        return statuses.Distinct().OrderBy(s => s);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_share == null) return;
+        
+        try
+        {
+            _isSaving = true;
+            
+            // Validate status change
+            if (!await ValidateStatusChange())
+                return;
+            
+            // Update share model
+            _share.Status = _editModel.Status;
+            _share.Notes = _editModel.Notes;
+            
+            // Handle cancellation date
+            if (_editModel.Status == ShareStatus.Cancelled)
+            {
+                if (!_editModel.CancellationDate.HasValue)
+                {
+                    // Set default cancellation date (2 years from now as per §5)
+                    _editModel.CancellationDate = DateTime.UtcNow.AddYears(2);
+                }
+                else if (_editModel.CancellationDate.Value < DateTime.UtcNow.AddYears(2))
+                {
+                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                        SharedLocalizer["CancellationDateMustBeTwoYears"]);
+                    return;
+                }
+                _share.CancellationDate = _editModel.CancellationDate;
+            }
+            else
+            {
+                _share.CancellationDate = null;
+            }
+            
+            await ShareService.UpdateShareAsync(_share);
+            
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                SharedLocalizer["ShareUpdatedSuccessfully"]);
+            
+            Navigation.NavigateTo($"/shares/{ShareId}");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorUpdatingShare"], ex.Message));
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task<bool> ValidateStatusChange()
+    {
+        if (_share == null) return false;
+        
+        // Validate based on Satzung constraints
+        if (_editModel.Status == ShareStatus.Cancelled && _share.Status != ShareStatus.Cancelled)
+        {
+            // §5: Cancellation requires 2-year notice period
+            var result = await ModalService.ShowConfirmationAsync(
+                SharedLocalizer["Confirmation"], 
+                SharedLocalizer["ConfirmShareCancellation"]);
+                
+            if (!result) return false;
+            
+            // §28 Abs. 6: Shares must be fully paid before cancellation
+            if (!_share.IsFullyPaid)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["ShareMustBeFullyPaidBeforeCancellation"]);
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo($"/shares/{ShareId}");
+    }
+
+    private string GetLocalizedStatus(ShareStatus status)
+    {
+        return status switch
+        {
+            ShareStatus.Active => SharedLocalizer["Active"],
+            ShareStatus.Cancelled => SharedLocalizer["Cancelled"],
+            ShareStatus.Transferred => SharedLocalizer["Transferred"],
+            ShareStatus.Suspended => SharedLocalizer["Suspended"],
+            _ => status.ToString()
+        };
+    }
+}

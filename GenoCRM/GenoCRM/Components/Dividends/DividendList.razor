@@ -1,11 +1,13 @@
 @page "/dividends"
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "ViewDividends")]
 @inject IDividendService DividendService
-@inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IModalService ModalService
 @rendermode InteractiveServer
 
 <PageTitle>Dividends</PageTitle>
@@ -152,7 +154,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error loading dividends: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error loading dividends: {ex.Message}");
         }
         finally
         {
@@ -171,7 +173,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error loading total dividends: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error loading total dividends: {ex.Message}");
         }
     }
 
@@ -190,7 +192,7 @@ else
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error filtering dividends: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error filtering dividends: {ex.Message}");
             }
             finally
             {
@@ -207,7 +209,7 @@ else
 
     private async Task CalculateAllDividends()
     {
-        var rate = await JSRuntime.InvokeAsync<string>("prompt", "Enter dividend rate (e.g., 0.03 for 3%):");
+        var rate = await ModalService.ShowPromptAsync("Dividend Rate", "Enter dividend rate (e.g., 0.03 for 3%):", "0.03");
         if (!string.IsNullOrEmpty(rate) && decimal.TryParse(rate, out var dividendRate))
         {
             try
@@ -215,36 +217,36 @@ else
                 var calculatedDividends = await DividendService.CalculateDividendsForAllMembersAsync(_selectedYear, dividendRate);
                 await LoadDividends();
                 await LoadTotalDividends();
-                await JSRuntime.InvokeVoidAsync("alert", $"Calculated {calculatedDividends.Count()} dividends for {_selectedYear}");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], $"Calculated {calculatedDividends.Count()} dividends for {_selectedYear}");
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error calculating dividends: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error calculating dividends: {ex.Message}");
             }
         }
     }
 
     private async Task ApproveDividend(int dividendId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Approve this dividend?");
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], "Approve this dividend?");
         if (confirmed)
         {
             try
             {
                 await DividendService.ApproveDividendAsync(dividendId);
                 await LoadDividends();
-                await JSRuntime.InvokeVoidAsync("alert", "Dividend approved successfully");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Dividend approved successfully");
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error approving dividend: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error approving dividend: {ex.Message}");
             }
         }
     }
 
     private async Task PayDividend(int dividendId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Mark this dividend as paid?");
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], "Mark this dividend as paid?");
         if (confirmed)
         {
             try
@@ -252,11 +254,11 @@ else
                 await DividendService.PayDividendAsync(dividendId);
                 await LoadDividends();
                 await LoadTotalDividends();
-                await JSRuntime.InvokeVoidAsync("alert", "Dividend marked as paid");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Dividend marked as paid");
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error paying dividend: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error paying dividend: {ex.Message}");
             }
         }
     }
@@ -268,7 +270,7 @@ else
 
     private async Task DeleteDividend(int dividendId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Delete this dividend?");
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], "Delete this dividend?");
         if (confirmed)
         {
             try
@@ -276,11 +278,11 @@ else
                 await DividendService.DeleteDividendAsync(dividendId);
                 await LoadDividends();
                 await LoadTotalDividends();
-                await JSRuntime.InvokeVoidAsync("alert", "Dividend deleted successfully");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Dividend deleted successfully");
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting dividend: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error deleting dividend: {ex.Message}");
             }
         }
     }

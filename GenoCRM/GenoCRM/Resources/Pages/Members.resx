@@ -124,4 +124,125 @@
   <data name="JoinDateRequired" xml:space="preserve">
     <value>Join date is required.</value>
   </data>
+  
+  <!-- Member Details Page -->
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>Back to List</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Full Name</value>
+  </data>
+  <data name="AddressInformation" xml:space="preserve">
+    <value>Address Information</value>
+  </data>
+  <data name="LeaveDate" xml:space="preserve">
+    <value>Leave Date</value>
+  </data>
+  <data name="MemberSince" xml:space="preserve">
+    <value>Member Since</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="TotalShares" xml:space="preserve">
+    <value>Total Shares</value>
+  </data>
+  <data name="TotalShareValue" xml:space="preserve">
+    <value>Total Share Value</value>
+  </data>
+  <data name="ActiveShares" xml:space="preserve">
+    <value>Active Shares</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="AddShare" xml:space="preserve">
+    <value>Add Share</value>
+  </data>
+  <data name="ViewShares" xml:space="preserve">
+    <value>View Shares</value>
+  </data>
+  <data name="ViewDividends" xml:space="preserve">
+    <value>View Dividends</value>
+  </data>
+  <data name="MemberShares" xml:space="preserve">
+    <value>Member Shares</value>
+  </data>
+  <data name="CertificateNumber" xml:space="preserve">
+    <value>Certificate #</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="NominalValue" xml:space="preserve">
+    <value>Nominal Value</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Total Value</value>
+  </data>
+  <data name="IssueDate" xml:space="preserve">
+    <value>Issue Date</value>
+  </data>
+  <data name="MemberNotFound" xml:space="preserve">
+    <value>Member not found</value>
+  </data>
+  <data name="ErrorLoadingMember" xml:space="preserve">
+    <value>Error loading member: {0}</value>
+  </data>
+  <data name="ErrorLoadingShares" xml:space="preserve">
+    <value>Error loading shares: {0}</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Are you sure you want to delete this member? This action cannot be undone.</value>
+  </data>
+  <data name="MemberDeletedSuccessfully" xml:space="preserve">
+    <value>Member deleted successfully</value>
+  </data>
+  <data name="ErrorDeletingMember" xml:space="preserve">
+    <value>Error deleting member: {0}</value>
+  </data>
+  
+  <!-- Member Form -->
+  <data name="MemberNumberReadonly" xml:space="preserve">
+    <value>Member number is automatically generated and cannot be changed.</value>
+  </data>
+  <data name="FirstNameLabel" xml:space="preserve">
+    <value>First Name *</value>
+  </data>
+  <data name="LastNameLabel" xml:space="preserve">
+    <value>Last Name *</value>
+  </data>
+  <data name="JoinDateLabel" xml:space="preserve">
+    <value>Join Date *</value>
+  </data>
+  <data name="InitialShareQuantityRequired" xml:space="preserve">
+    <value>Initial Share Quantity *</value>
+  </data>
+  <data name="InitialSharesDescription" xml:space="preserve">
+    <value>Number of shares to be initially allocated (€{0} per share).</value>
+  </data>
+  <data name="UpdateMember" xml:space="preserve">
+    <value>Update Member</value>
+  </data>
+  <data name="MemberUpdatedSuccessfully" xml:space="preserve">
+    <value>Member updated successfully</value>
+  </data>
+  <data name="MemberCreatedSuccessfully" xml:space="preserve">
+    <value>Member created successfully with {0} shares</value>
+  </data>
+  <data name="InitialShareQuantityMinimum" xml:space="preserve">
+    <value>Initial share quantity must be at least 1</value>
+  </data>
+  <data name="ErrorSavingMember" xml:space="preserve">
+    <value>Error saving member: {0}</value>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Suspended</value>
+  </data>
 </root>

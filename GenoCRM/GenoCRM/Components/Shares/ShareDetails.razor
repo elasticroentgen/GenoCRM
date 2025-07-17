@@ -1,0 +1,436 @@
+@page "/shares/{ShareId:int}"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize(Policy = "ViewShares")]
+@inject IShareService ShareService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["ShareDetails"]</PageTitle>
+
+<div class="container-fluid">
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+            </div>
+        </div>
+    }
+    else if (_share != null)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/shares">@SharedLocalizer["CooperativeShares"]</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@_share.CertificateNumber</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-secondary me-2" @onclick="GoBack">
+                    <i class="fas fa-arrow-left"></i> @SharedLocalizer["Back"]
+                </button>
+                @if (CanEdit())
+                {
+                    <button class="btn btn-primary me-2" @onclick="EditShare">
+                        <i class="fas fa-edit"></i> @SharedLocalizer["Edit"]
+                    </button>
+                }
+                @if (CanRecordPayment())
+                {
+                    <button class="btn btn-success" @onclick="ShowPaymentForm" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                        <i class="fas fa-credit-card"></i> @SharedLocalizer["RecordPayment"]
+                    </button>
+                }
+            </div>
+        </div>
+
+        <h1>@SharedLocalizer["ShareDetails"]: @_share.CertificateNumber</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">@SharedLocalizer["ShareInformation"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">@SharedLocalizer["CertificateNumber"]</dt>
+                            <dd class="col-sm-8">@_share.CertificateNumber</dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["Status"]</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-@GetStatusColor(_share.Status)">
+                                    @GetLocalizedStatus(_share.Status)
+                                </span>
+                            </dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["IssueDate"]</dt>
+                            <dd class="col-sm-8">@FormattingService.FormatDate(_share.IssueDate)</dd>
+
+                            @if (_share.CancellationDate.HasValue)
+                            {
+                                <dt class="col-sm-4">@SharedLocalizer["CancellationDate"]</dt>
+                                <dd class="col-sm-8">@FormattingService.FormatDate(_share.CancellationDate.Value)</dd>
+                            }
+
+                            <dt class="col-sm-4">@SharedLocalizer["Quantity"]</dt>
+                            <dd class="col-sm-8">@_share.Quantity</dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["NominalValue"]</dt>
+                            <dd class="col-sm-8">@FormattingService.FormatCurrency(_share.NominalValue)</dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["CurrentValue"]</dt>
+                            <dd class="col-sm-8">@FormattingService.FormatCurrency(_share.Value)</dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["TotalValue"]</dt>
+                            <dd class="col-sm-8">
+                                <strong>@FormattingService.FormatCurrency(_share.TotalValue)</strong>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">@SharedLocalizer["PaymentStatus"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">@SharedLocalizer["PaymentStatus"]</dt>
+                            <dd class="col-sm-8">
+                                @if (_share.IsFullyPaid)
+                                {
+                                    <span class="badge bg-success">@SharedLocalizer["FullyPaid"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">@SharedLocalizer["PartiallyPaid"]</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">@SharedLocalizer["TotalPaid"]</dt>
+                            <dd class="col-sm-8">@FormattingService.FormatCurrency(_share.PaidAmount)</dd>
+
+                            @if (!_share.IsFullyPaid)
+                            {
+                                <dt class="col-sm-4">@SharedLocalizer["OutstandingAmount"]</dt>
+                                <dd class="col-sm-8">
+                                    <strong class="text-danger">@FormattingService.FormatCurrency(_share.OutstandingAmount)</strong>
+                                </dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">@SharedLocalizer["MemberInformation"]</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (_share.Member != null)
+                        {
+                            <dl class="row">
+                                <dt class="col-sm-4">@SharedLocalizer["MemberNumber"]</dt>
+                                <dd class="col-sm-8">@_share.Member.MemberNumber</dd>
+
+                                <dt class="col-sm-4">@SharedLocalizer["Name"]</dt>
+                                <dd class="col-sm-8">
+                                    <a href="/members/@_share.Member.Id">@_share.Member.FullName</a>
+                                </dd>
+
+                                <dt class="col-sm-4">@SharedLocalizer["MemberStatus"]</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-@GetMemberStatusColor(_share.Member.Status)">
+                                        @GetLocalizedMemberStatus(_share.Member.Status)
+                                    </span>
+                                </dd>
+                            </dl>
+                        }
+                        else
+                        {
+                            <p class="text-muted">@SharedLocalizer["NoMemberAssigned"]</p>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_share.Notes))
+                {
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">@SharedLocalizer["Notes"]</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">@_share.Notes</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (_share.Payments?.Any() == true)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["PaymentHistory"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>@SharedLocalizer["PaymentDate"]</th>
+                                    <th>@SharedLocalizer["Amount"]</th>
+                                    <th>@SharedLocalizer["PaymentMethod"]</th>
+                                    <th>@SharedLocalizer["Reference"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in _share.Payments.OrderByDescending(p => p.PaymentDate))
+                                {
+                                    <tr>
+                                        <td>@FormattingService.FormatDate(payment.PaymentDate)</td>
+                                        <td>@FormattingService.FormatCurrency(payment.Amount)</td>
+                                        <td>@GetLocalizedPaymentMethod(payment.Method)</td>
+                                        <td>@payment.Reference</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>@SharedLocalizer["Total"]</th>
+                                    <th>@FormattingService.FormatCurrency(_share.Payments.Sum(p => p.Amount))</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (_share.Dividends?.Any() == true)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["DividendHistory"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>@SharedLocalizer["Year"]</th>
+                                    <th>@SharedLocalizer["DividendPerShare"]</th>
+                                    <th>@SharedLocalizer["TotalDividend"]</th>
+                                    <th>@SharedLocalizer["PaymentDate"]</th>
+                                    <th>@SharedLocalizer["Status"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dividend in _share.Dividends.OrderByDescending(d => d.FiscalYear))
+                                {
+                                    <tr>
+                                        <td>@dividend.FiscalYear</td>
+                                        <td>@FormattingService.FormatCurrency(dividend.Rate)</td>
+                                        <td>@FormattingService.FormatCurrency(dividend.Amount)</td>
+                                        <td>@(dividend.PaymentDate.HasValue ? FormattingService.FormatDate(dividend.PaymentDate.Value) : "-")</td>
+                                        <td>
+                                            @if (dividend.Status == DividendStatus.Paid)
+                                            {
+                                                <span class="badge bg-success">@SharedLocalizer["Paid"]</span>
+                                            }
+                                            else if (dividend.Status == DividendStatus.Approved)
+                                            {
+                                                <span class="badge bg-info">@SharedLocalizer["Approved"]</span>
+                                            }
+                                            else if (dividend.Status == DividendStatus.Declared)
+                                            {
+                                                <span class="badge bg-warning">@SharedLocalizer["Declared"]</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">@SharedLocalizer["Cancelled"]</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">@SharedLocalizer["Timestamps"]</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-2">@SharedLocalizer["CreatedAt"]</dt>
+                    <dd class="col-sm-4">@FormattingService.FormatDateTime(_share.CreatedAt)</dd>
+
+                    <dt class="col-sm-2">@SharedLocalizer["UpdatedAt"]</dt>
+                    <dd class="col-sm-4">@FormattingService.FormatDateTime(_share.UpdatedAt)</dd>
+                </dl>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> @SharedLocalizer["ShareNotFound"]
+        </div>
+    }
+</div>
+
+@* Payment Form Modal *@
+@if (_share != null)
+{
+    <PaymentForm Share="_share" OnPaymentRecorded="OnPaymentRecorded" @ref="_paymentForm" />
+}
+
+@code {
+    [Parameter] public int ShareId { get; set; }
+    
+    private CooperativeShare? _share;
+    private bool _isLoading = true;
+    private PaymentForm? _paymentForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShare();
+    }
+
+    private async Task LoadShare()
+    {
+        try
+        {
+            _isLoading = true;
+            _share = await ShareService.GetShareByIdAsync(ShareId);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingShare"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private bool CanEdit()
+    {
+        if (_share == null) return false;
+        
+        // Only active shares can be edited with limitations
+        // Cancelled, Transferred shares should not be editable
+        return _share.Status == ShareStatus.Active || _share.Status == ShareStatus.Suspended;
+    }
+
+    private bool CanRecordPayment()
+    {
+        if (_share == null) return false;
+        
+        // Can only record payments for active shares that are not fully paid
+        return _share.Status == ShareStatus.Active && !_share.IsFullyPaid;
+    }
+
+    private async Task ShowPaymentForm()
+    {
+        if (_paymentForm != null)
+        {
+            await _paymentForm.ShowAsync();
+        }
+    }
+
+    private async Task OnPaymentRecorded()
+    {
+        // Reload share data to reflect the new payment
+        await LoadShare();
+    }
+
+    private void EditShare()
+    {
+        Navigation.NavigateTo($"/shares/{ShareId}/edit");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/shares");
+    }
+
+    private static string GetStatusColor(ShareStatus status)
+    {
+        return status switch
+        {
+            ShareStatus.Active => "success",
+            ShareStatus.Cancelled => "danger",
+            ShareStatus.Transferred => "info",
+            ShareStatus.Suspended => "warning",
+            _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(ShareStatus status)
+    {
+        return status switch
+        {
+            ShareStatus.Active => SharedLocalizer["Active"],
+            ShareStatus.Cancelled => SharedLocalizer["Cancelled"],
+            ShareStatus.Transferred => SharedLocalizer["Transferred"],
+            ShareStatus.Suspended => SharedLocalizer["Suspended"],
+            _ => status.ToString()
+        };
+    }
+
+    private static string GetMemberStatusColor(MemberStatus status)
+    {
+        return status switch
+        {
+            MemberStatus.Active => "success",
+            MemberStatus.Inactive => "secondary",
+            MemberStatus.Offboarding => "warning",
+            MemberStatus.Terminated => "danger",
+            _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedMemberStatus(MemberStatus status)
+    {
+        return status switch
+        {
+            MemberStatus.Active => SharedLocalizer["Active"],
+            MemberStatus.Inactive => SharedLocalizer["Inactive"],
+            MemberStatus.Offboarding => SharedLocalizer["Offboarding"],
+            MemberStatus.Terminated => SharedLocalizer["Terminated"],
+            _ => status.ToString()
+        };
+    }
+
+    private string GetLocalizedPaymentMethod(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.BankTransfer => SharedLocalizer["BankTransfer"],
+            PaymentMethod.Cash => SharedLocalizer["Cash"],
+            PaymentMethod.DebitCard => SharedLocalizer["DebitCard"],
+            PaymentMethod.Check => SharedLocalizer["Check"],
+            PaymentMethod.CreditCard => SharedLocalizer["CreditCard"],
+            PaymentMethod.Other => SharedLocalizer["Other"],
+            _ => method.ToString()
+        };
+    }
+}

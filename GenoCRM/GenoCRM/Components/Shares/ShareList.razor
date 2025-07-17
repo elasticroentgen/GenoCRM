@@ -2,38 +2,56 @@
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
 @attribute [Authorize(Policy = "ViewShares")]
 @inject IShareService ShareService
-@inject IJSRuntime JSRuntime
+@inject IPaymentService PaymentService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
 @rendermode InteractiveServer
 
-<PageTitle>Cooperative Shares</PageTitle>
+<PageTitle>@SharedLocalizer["CooperativeShares"]</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Cooperative Shares</h1>
+    <h1>@SharedLocalizer["CooperativeShares"]</h1>
     <button class="btn btn-primary" @onclick="CreateShare">
-        <i class="fas fa-plus"></i> New Share
+        <i class="fas fa-plus"></i> @SharedLocalizer["NewShare"]
     </button>
 </div>
 
 <div class="row mb-3">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Total Share Capital</h5>
-                <h3 class="text-success">@_totalShareCapital.ToString("C")</h3>
+                <h5 class="card-title">@SharedLocalizer["TotalShareCapital"]</h5>
+                <h3 class="text-success">@FormattingService.FormatCurrency(_totalShareCapital)</h3>
+                <small class="text-muted">@SharedLocalizer["ActiveSharesOnly"]</small>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
-            <option value="">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Cancelled">Cancelled</option>
-            <option value="Transferred">Transferred</option>
-            <option value="Suspended">Suspended</option>
-        </select>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["OffboardingShares"]</h5>
+                <h3 class="text-warning">@FormattingService.FormatCurrency(_offboardingSharesValue)</h3>
+                <small class="text-muted">@SharedLocalizer["TransferredCancelledSuspended"]</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="statusFilter" class="form-label">@SharedLocalizer["FilterByStatus"]</label>
+            <select id="statusFilter" class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
+                <option value="">@SharedLocalizer["AllStatus"]</option>
+                <option value="Active">@SharedLocalizer["Active"]</option>
+                <option value="Cancelled">@SharedLocalizer["Cancelled"]</option>
+                <option value="Transferred">@SharedLocalizer["Transferred"]</option>
+                <option value="Suspended">@SharedLocalizer["Suspended"]</option>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -41,90 +59,279 @@
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
         </div>
     </div>
 }
-else if (_shares?.Any() == true)
+else if (!string.IsNullOrEmpty(_selectedStatus))
 {
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Certificate #</th>
-                    <th>Member</th>
-                    <th>Quantity</th>
-                    <th>Nominal Value</th>
-                    <th>Current Value</th>
-                    <th>Total Value</th>
-                    <th>Issue Date</th>
-                    <th>Status</th>
-                    <th>Paid</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var share in _shares)
-                {
+    <!-- Single filtered table when status is selected -->
+    @if (_shares?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
                     <tr>
-                        <td>@share.CertificateNumber</td>
-                        <td>@share.Member?.FullName</td>
-                        <td>@share.Quantity</td>
-                        <td>@share.NominalValue.ToString("C")</td>
-                        <td>@share.Value.ToString("C")</td>
-                        <td>@share.TotalValue.ToString("C")</td>
-                        <td>@share.IssueDate.ToShortDateString()</td>
-                        <td>
-                            <span class="badge bg-@GetStatusColor(share.Status)">
-                                @share.Status
-                            </span>
-                        </td>
-                        <td>
-                            @if (share.IsFullyPaid)
-                            {
-                                <span class="badge bg-success">Paid</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning">@share.OutstandingAmount.ToString("C") due</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewShare(share.Id)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditShare(share.Id)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
-                                    <i class="fas fa-ban"></i>
-                                </button>
-                            </div>
-                        </td>
+                        <th>@SharedLocalizer["CertificateNumber"]</th>
+                        <th>@SharedLocalizer["Member"]</th>
+                        <th>@SharedLocalizer["Quantity"]</th>
+                        <th>@SharedLocalizer["NominalValue"]</th>
+                        <th>@SharedLocalizer["CurrentValue"]</th>
+                        <th>@SharedLocalizer["TotalValue"]</th>
+                        <th>@SharedLocalizer["IssueDate"]</th>
+                        <th>@SharedLocalizer["Status"]</th>
+                        <th>@SharedLocalizer["Paid"]</th>
+                        <th>@SharedLocalizer["Actions"]</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var share in _shares)
+                    {
+                        <tr>
+                            <td>@share.CertificateNumber</td>
+                            <td>@share.Member?.FullName</td>
+                            <td>@share.Quantity</td>
+                            <td>@FormattingService.FormatCurrency(share.NominalValue)</td>
+                            <td>@FormattingService.FormatCurrency(share.Value)</td>
+                            <td>@FormattingService.FormatCurrency(share.TotalValue)</td>
+                            <td>@FormattingService.FormatDate(share.IssueDate)</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(share.Status)">
+                                    @GetLocalizedStatus(share.Status)
+                                </span>
+                            </td>
+                            <td>
+                                @if (share.IsFullyPaid)
+                                {
+                                    <span class="badge bg-success">@SharedLocalizer["Paid"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">@FormattingService.FormatCurrency(share.OutstandingAmount) @SharedLocalizer["Due"]</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewShare(share.Id)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditShare(share.Id)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    @if (share.Status == ShareStatus.Active && share.Quantity > 0)
+                                    {
+                                        <button class="btn btn-sm btn-outline-info" @onclick="() => TransferShare(share.Id)" title="@SharedLocalizer["Transfer"]">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                    }
+                                    @if (share.Status == ShareStatus.Active && !share.IsFullyPaid)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(share.Id)" title="@SharedLocalizer["MarkAsPaid"]">
+                                            <i class="fas fa-credit-card"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @SharedLocalizer["NoSharesFound"]
+        </div>
+    }
 }
 else
 {
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> No shares found.
+    <!-- Split view: Active shares and Other shares -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">@SharedLocalizer["ActiveShares"] (@(_activeShares?.Count() ?? 0))</h4>
+                </div>
+                <div class="card-body">
+                    @if (_activeShares?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>@SharedLocalizer["CertificateNumber"]</th>
+                                        <th>@SharedLocalizer["Member"]</th>
+                                        <th>@SharedLocalizer["Quantity"]</th>
+                                        <th>@SharedLocalizer["NominalValue"]</th>
+                                        <th>@SharedLocalizer["CurrentValue"]</th>
+                                        <th>@SharedLocalizer["TotalValue"]</th>
+                                        <th>@SharedLocalizer["IssueDate"]</th>
+                                        <th>@SharedLocalizer["Paid"]</th>
+                                        <th>@SharedLocalizer["Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var share in _activeShares)
+                                    {
+                                        <tr>
+                                            <td>@share.CertificateNumber</td>
+                                            <td>@share.Member?.FullName</td>
+                                            <td>@share.Quantity</td>
+                                            <td>@FormattingService.FormatCurrency(share.NominalValue)</td>
+                                            <td>@FormattingService.FormatCurrency(share.Value)</td>
+                                            <td>@FormattingService.FormatCurrency(share.TotalValue)</td>
+                                            <td>@FormattingService.FormatDate(share.IssueDate)</td>
+                                            <td>
+                                                @if (share.IsFullyPaid)
+                                                {
+                                                    <span class="badge bg-success">@SharedLocalizer["Paid"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">@FormattingService.FormatCurrency(share.OutstandingAmount) @SharedLocalizer["Due"]</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewShare(share.Id)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditShare(share.Id)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    @if (share.Quantity > 0)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-info" @onclick="() => TransferShare(share.Id)" title="@SharedLocalizer["Transfer"]">
+                                                            <i class="fas fa-exchange-alt"></i>
+                                                        </button>
+                                                    }
+                                                    @if (!share.IsFullyPaid)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(share.Id)" title="@SharedLocalizer["MarkAsPaid"]">
+                                                            <i class="fas fa-credit-card"></i>
+                                                        </button>
+                                                    }
+                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> @SharedLocalizer["NoActiveSharesFound"]
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">@SharedLocalizer["OtherShares"] (@(_nonActiveShares?.Count() ?? 0))</h4>
+                </div>
+                <div class="card-body">
+                    @if (_nonActiveShares?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>@SharedLocalizer["CertificateNumber"]</th>
+                                        <th>@SharedLocalizer["Member"]</th>
+                                        <th>@SharedLocalizer["Quantity"]</th>
+                                        <th>@SharedLocalizer["NominalValue"]</th>
+                                        <th>@SharedLocalizer["CurrentValue"]</th>
+                                        <th>@SharedLocalizer["TotalValue"]</th>
+                                        <th>@SharedLocalizer["IssueDate"]</th>
+                                        <th>@SharedLocalizer["Status"]</th>
+                                        <th>@SharedLocalizer["Paid"]</th>
+                                        <th>@SharedLocalizer["Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var share in _nonActiveShares)
+                                    {
+                                        <tr>
+                                            <td>@share.CertificateNumber</td>
+                                            <td>@share.Member?.FullName</td>
+                                            <td>@share.Quantity</td>
+                                            <td>@FormattingService.FormatCurrency(share.NominalValue)</td>
+                                            <td>@FormattingService.FormatCurrency(share.Value)</td>
+                                            <td>@FormattingService.FormatCurrency(share.TotalValue)</td>
+                                            <td>@FormattingService.FormatDate(share.IssueDate)</td>
+                                            <td>
+                                                <span class="badge bg-@GetStatusColor(share.Status)">
+                                                    @GetLocalizedStatus(share.Status)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (share.IsFullyPaid)
+                                                {
+                                                    <span class="badge bg-success">@SharedLocalizer["Paid"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">@FormattingService.FormatCurrency(share.OutstandingAmount) @SharedLocalizer["Due"]</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewShare(share.Id)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditShare(share.Id)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i> @SharedLocalizer["NoOtherSharesFound"]
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 }
 
 @code {
     private IEnumerable<CooperativeShare>? _shares;
+    private IEnumerable<CooperativeShare>? _activeShares;
+    private IEnumerable<CooperativeShare>? _nonActiveShares;
     private string _selectedStatus = string.Empty;
     private bool _isLoading = true;
     private decimal _totalShareCapital;
+    private decimal _offboardingSharesValue;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadShares();
         await LoadTotalCapital();
+        await LoadOffboardingValue();
     }
 
     private async Task LoadShares()
@@ -133,10 +340,12 @@ else
         {
             _isLoading = true;
             _shares = await ShareService.GetAllSharesAsync();
+            _activeShares = await ShareService.GetActiveSharesAsync();
+            _nonActiveShares = await ShareService.GetNonActiveSharesAsync();
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error loading shares: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingShares"], ex.Message));
         }
         finally
         {
@@ -152,7 +361,19 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error loading total capital: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingTotalCapital"], ex.Message));
+        }
+    }
+    
+    private async Task LoadOffboardingValue()
+    {
+        try
+        {
+            _offboardingSharesValue = await ShareService.GetOffboardingSharesValueAsync();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingOffboardingValue"], ex.Message));
         }
     }
 
@@ -174,7 +395,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("alert", $"Error filtering shares: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorFilteringShares"], ex.Message));
         }
         finally
         {
@@ -197,9 +418,14 @@ else
         Navigation.NavigateTo($"/shares/{shareId}/edit");
     }
 
+    private void TransferShare(int shareId)
+    {
+        Navigation.NavigateTo($"/shares/transfers/create?shareId={shareId}");
+    }
+
     private async Task CancelShare(int shareId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to cancel this share?");
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], SharedLocalizer["CancelShareConfirmation"]);
         if (confirmed)
         {
             try
@@ -207,12 +433,57 @@ else
                 await ShareService.DeleteShareAsync(shareId);
                 await LoadShares();
                 await LoadTotalCapital();
-                await JSRuntime.InvokeVoidAsync("alert", "Share cancelled successfully");
+                await LoadOffboardingValue();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["ShareCancelledSuccessfully"]);
             }
             catch (Exception ex)
             {
-                await JSRuntime.InvokeVoidAsync("alert", $"Error cancelling share: {ex.Message}");
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorCancellingShare"], ex.Message));
             }
+        }
+    }
+
+    private async Task MarkAsPaid(int shareId)
+    {
+        try
+        {
+            var share = await ShareService.GetShareByIdAsync(shareId);
+            if (share == null)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["ShareNotFound"]);
+                return;
+            }
+
+            if (share.IsFullyPaid)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Info"], SharedLocalizer["ShareAlreadyFullyPaid"]);
+                return;
+            }
+
+            var confirmed = await ModalService.ShowConfirmationAsync(
+                SharedLocalizer["Confirmation"], 
+                string.Format(SharedLocalizer["ConfirmMarkAsPaid"], 
+                    share.CertificateNumber, 
+                    FormattingService.FormatCurrency(share.OutstandingAmount)));
+
+            if (confirmed)
+            {
+                // Record full payment for the outstanding amount
+                await PaymentService.RecordSharePaymentAsync(
+                    shareId,
+                    share.OutstandingAmount,
+                    PaymentMethod.BankTransfer, // Default to bank transfer
+                    $"Full payment for share {share.CertificateNumber}");
+
+                await LoadShares();
+                await LoadTotalCapital();
+                await LoadOffboardingValue();
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["ShareMarkedAsPaid"]);
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorMarkingAsPaid"], ex.Message));
         }
     }
 
@@ -225,6 +496,18 @@ else
             ShareStatus.Transferred => "info",
             ShareStatus.Suspended => "warning",
             _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(ShareStatus status)
+    {
+        return status switch
+        {
+            ShareStatus.Active => SharedLocalizer["Active"],
+            ShareStatus.Cancelled => SharedLocalizer["Cancelled"],
+            ShareStatus.Transferred => SharedLocalizer["Transferred"],
+            ShareStatus.Suspended => SharedLocalizer["Suspended"],
+            _ => status.ToString()
         };
     }
 }

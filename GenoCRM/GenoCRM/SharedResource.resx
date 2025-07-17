@@ -90,6 +90,24 @@
   <data name="Close" xml:space="preserve">
     <value>Close</value>
   </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
   
   <!-- Navigation -->
   <data name="Home" xml:space="preserve">
@@ -170,8 +188,215 @@
   <data name="Inactive" xml:space="preserve">
     <value>Inactive</value>
   </data>
+  <data name="Offboarding" xml:space="preserve">
+    <value>Offboarding</value>
+  </data>
   <data name="Terminated" xml:space="preserve">
     <value>Terminated</value>
+  </data>
+  <data name="ActiveShares" xml:space="preserve">
+    <value>Active Shares</value>
+  </data>
+  <data name="ActiveSharesOnly" xml:space="preserve">
+    <value>Active shares only</value>
+  </data>
+  <data name="OffboardingShares" xml:space="preserve">
+    <value>Offboarding Shares</value>
+  </data>
+  <data name="OtherShares" xml:space="preserve">
+    <value>Other Shares</value>
+  </data>
+  <data name="TransferredCancelledSuspended" xml:space="preserve">
+    <value>Transferred, cancelled, suspended</value>
+  </data>
+  <data name="FilterByStatus" xml:space="preserve">
+    <value>Filter by Status</value>
+  </data>
+  <data name="NoActiveSharesFound" xml:space="preserve">
+    <value>No active shares found</value>
+  </data>
+  <data name="NoOtherSharesFound" xml:space="preserve">
+    <value>No other shares found</value>
+  </data>
+  <data name="ErrorLoadingOffboardingValue" xml:space="preserve">
+    <value>Error loading offboarding value: {0}</value>
+  </data>
+  <data name="ShareDetails" xml:space="preserve">
+    <value>Share Details</value>
+  </data>
+  <data name="ShareInformation" xml:space="preserve">
+    <value>Share Information</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Payment Status</value>
+  </data>
+  <data name="FullyPaid" xml:space="preserve">
+    <value>Fully Paid</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Partially Paid</value>
+  </data>
+  <data name="TotalPaid" xml:space="preserve">
+    <value>Total Paid</value>
+  </data>
+  <data name="MemberInformation" xml:space="preserve">
+    <value>Member Information</value>
+  </data>
+  <data name="NoMemberAssigned" xml:space="preserve">
+    <value>No member assigned</value>
+  </data>
+  <data name="PaymentHistory" xml:space="preserve">
+    <value>Payment History</value>
+  </data>
+  <data name="PaymentDate" xml:space="preserve">
+    <value>Payment Date</value>
+  </data>
+  <data name="PaymentMethod" xml:space="preserve">
+    <value>Payment Method</value>
+  </data>
+  <data name="Reference" xml:space="preserve">
+    <value>Reference</value>
+  </data>
+  <data name="DividendHistory" xml:space="preserve">
+    <value>Dividend History</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="DividendPerShare" xml:space="preserve">
+    <value>Dividend per Share</value>
+  </data>
+  <data name="TotalDividend" xml:space="preserve">
+    <value>Total Dividend</value>
+  </data>
+  <data name="Timestamps" xml:space="preserve">
+    <value>Timestamps</value>
+  </data>
+  <data name="ShareNotFound" xml:space="preserve">
+    <value>Share not found</value>
+  </data>
+  <data name="ErrorLoadingShare" xml:space="preserve">
+    <value>Error loading share: {0}</value>
+  </data>
+  <data name="EditShare" xml:space="preserve">
+    <value>Edit Share</value>
+  </data>
+  <data name="ImportantNote" xml:space="preserve">
+    <value>Important Note</value>
+  </data>
+  <data name="ShareEditRestrictions" xml:space="preserve">
+    <value>According to the cooperative bylaws, share modifications are restricted. Certificate numbers, quantities, and values cannot be changed. Use the transfer function to change ownership.</value>
+  </data>
+  <data name="CertificateNumberCannotBeChanged" xml:space="preserve">
+    <value>Certificate number cannot be changed</value>
+  </data>
+  <data name="MemberCannotBeChangedUseTransfer" xml:space="preserve">
+    <value>Member cannot be changed directly - use transfer function</value>
+  </data>
+  <data name="QuantityCannotBeChanged" xml:space="preserve">
+    <value>Quantity cannot be changed after issuance</value>
+  </data>
+  <data name="NominalValueFixedBySatzung" xml:space="preserve">
+    <value>Nominal value is fixed by bylaws</value>
+  </data>
+  <data name="ValueCannotBeChangedDirectly" xml:space="preserve">
+    <value>Value cannot be changed directly</value>
+  </data>
+  <data name="SuspendedShareWarning" xml:space="preserve">
+    <value>Suspended shares do not count towards cooperative capital</value>
+  </data>
+  <data name="TwoYearNoticePeriod" xml:space="preserve">
+    <value>According to §5, a two-year notice period is required</value>
+  </data>
+  <data name="PaymentInformation" xml:space="preserve">
+    <value>Payment Information</value>
+  </data>
+  <data name="ShareNotFullyPaidWarning" xml:space="preserve">
+    <value>This share has outstanding payments. According to bylaws, shares must be fully paid before certain actions.</value>
+  </data>
+  <data name="AdditionalInformation" xml:space="preserve">
+    <value>Additional Information</value>
+  </data>
+  <data name="ShareCannotBeEdited" xml:space="preserve">
+    <value>This share cannot be edited due to its current status</value>
+  </data>
+  <data name="ErrorUpdatingShare" xml:space="preserve">
+    <value>Error updating share: {0}</value>
+  </data>
+  <data name="ShareUpdatedSuccessfully" xml:space="preserve">
+    <value>Share updated successfully</value>
+  </data>
+  <data name="ConfirmShareCancellation" xml:space="preserve">
+    <value>Are you sure you want to cancel this share? According to §5 of the bylaws, a two-year notice period applies and this action cannot be reversed.</value>
+  </data>
+  <data name="CancellationDateMustBeTwoYears" xml:space="preserve">
+    <value>According to §5 of the bylaws, the cancellation date must be at least two years from now</value>
+  </data>
+  <data name="ShareMustBeFullyPaidBeforeCancellation" xml:space="preserve">
+    <value>According to the bylaws, shares must be fully paid before they can be cancelled</value>
+  </data>
+  <data name="DebitCard" xml:space="preserve">
+    <value>Debit Card</value>
+  </data>
+  <data name="Check" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Declared" xml:space="preserve">
+    <value>Declared</value>
+  </data>
+  <data name="RecordPayment" xml:space="preserve">
+    <value>Record Payment</value>
+  </data>
+  <data name="SelectPaymentMethod" xml:space="preserve">
+    <value>Select Payment Method</value>
+  </data>
+  <data name="OptionalTransactionReference" xml:space="preserve">
+    <value>Optional transaction reference</value>
+  </data>
+  <data name="Certificate" xml:space="preserve">
+    <value>Certificate</value>
+  </data>
+  <data name="PaidAmount" xml:space="preserve">
+    <value>Paid Amount</value>
+  </data>
+  <data name="Outstanding" xml:space="preserve">
+    <value>Outstanding</value>
+  </data>
+  <data name="MarkPaymentAsCompleted" xml:space="preserve">
+    <value>Mark payment as completed</value>
+  </data>
+  <data name="UncheckIfPaymentIsPending" xml:space="preserve">
+    <value>Uncheck if payment is pending verification</value>
+  </data>
+  <data name="PaymentAmountExceedsOutstanding" xml:space="preserve">
+    <value>Payment amount cannot exceed outstanding amount</value>
+  </data>
+  <data name="PaymentRecordedSuccessfully" xml:space="preserve">
+    <value>Payment recorded successfully</value>
+  </data>
+  <data name="ErrorRecordingPayment" xml:space="preserve">
+    <value>Error recording payment: {0}</value>
+  </data>
+  <data name="MarkAsPaid" xml:space="preserve">
+    <value>Mark as Paid</value>
+  </data>
+  <data name="ShareAlreadyFullyPaid" xml:space="preserve">
+    <value>This share is already fully paid</value>
+  </data>
+  <data name="ConfirmMarkAsPaid" xml:space="preserve">
+    <value>Mark share {0} as fully paid? This will record a payment of {1}.</value>
+  </data>
+  <data name="ShareMarkedAsPaid" xml:space="preserve">
+    <value>Share marked as paid successfully</value>
+  </data>
+  <data name="ErrorMarkingAsPaid" xml:space="preserve">
+    <value>Error marking share as paid: {0}</value>
+  </data>
+  <data name="Locked" xml:space="preserve">
+    <value>Locked</value>
   </data>
   
   <!-- Language switcher -->
@@ -183,5 +408,549 @@
   </data>
   <data name="German" xml:space="preserve">
     <value>German</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Total Value</value>
+  </data>
+  
+  <!-- Share-related -->
+  <data name="CooperativeShares" xml:space="preserve">
+    <value>Cooperative Shares</value>
+  </data>
+  <data name="NewShare" xml:space="preserve">
+    <value>New Share</value>
+  </data>
+  <data name="TotalShareCapital" xml:space="preserve">
+    <value>Total Share Capital</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>All Status</value>
+  </data>
+  <data name="CertificateNumber" xml:space="preserve">
+    <value>Certificate #</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="NominalValue" xml:space="preserve">
+    <value>Nominal Value</value>
+  </data>
+  <data name="CurrentValue" xml:space="preserve">
+    <value>Current Value</value>
+  </data>
+  <data name="IssueDate" xml:space="preserve">
+    <value>Issue Date</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Due" xml:space="preserve">
+    <value>due</value>
+  </data>
+  <data name="NoSharesFound" xml:space="preserve">
+    <value>No shares found.</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="CancelShareConfirmation" xml:space="preserve">
+    <value>Are you sure you want to cancel this share?</value>
+  </data>
+  <data name="ShareCancelledSuccessfully" xml:space="preserve">
+    <value>Share cancelled successfully</value>
+  </data>
+  <data name="ErrorLoadingShares" xml:space="preserve">
+    <value>Error loading shares: {0}</value>
+  </data>
+  <data name="ErrorLoadingTotalCapital" xml:space="preserve">
+    <value>Error loading total capital: {0}</value>
+  </data>
+  <data name="ErrorFilteringShares" xml:space="preserve">
+    <value>Error filtering shares: {0}</value>
+  </data>
+  <data name="ErrorCancellingShare" xml:space="preserve">
+    <value>Error cancelling share: {0}</value>
+  </data>
+  
+  <!-- Share Status -->
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Transferred" xml:space="preserve">
+    <value>Transferred</value>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Suspended</value>
+  </data>
+  
+  <!-- Member Types -->
+  <data name="Individual" xml:space="preserve">
+    <value>Individual</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  
+  <!-- Member Fields -->
+  <data name="MemberType" xml:space="preserve">
+    <value>Member Type</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Prefix</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>Company Name</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>Contact Person</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Offboard" xml:space="preserve">
+    <value>Offboard</value>
+  </data>
+  <data name="OffboardMember" xml:space="preserve">
+    <value>Offboard Member</value>
+  </data>
+  <data name="OffboardConfirmation" xml:space="preserve">
+    <value>Are you sure you want to offboard this member? They will be removed at the end of the fiscal year after all shares are returned and dividends paid.</value>
+  </data>
+  
+  <!-- Share Transfer -->
+  <data name="ShareTransfers" xml:space="preserve">
+    <value>Share Transfers</value>
+  </data>
+  <data name="NewTransfer" xml:space="preserve">
+    <value>New Transfer</value>
+  </data>
+  <data name="CreateShareTransfer" xml:space="preserve">
+    <value>Create Share Transfer</value>
+  </data>
+  <data name="ShareTransferDetails" xml:space="preserve">
+    <value>Share Transfer Details</value>
+  </data>
+  <data name="FromMember" xml:space="preserve">
+    <value>From Member</value>
+  </data>
+  <data name="ToMember" xml:space="preserve">
+    <value>To Member</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="SelectMember" xml:space="preserve">
+    <value>Select Member</value>
+  </data>
+  <data name="SelectShare" xml:space="preserve">
+    <value>Select Share</value>
+  </data>
+  <data name="MaxAvailable" xml:space="preserve">
+    <value>Max Available</value>
+  </data>
+  <data name="TotalQuantity" xml:space="preserve">
+    <value>Total Quantity</value>
+  </data>
+  <data name="TransferValue" xml:space="preserve">
+    <value>Transfer Value</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="CreateTransfer" xml:space="preserve">
+    <value>Create Transfer</value>
+  </data>
+  <data name="TransferProcess" xml:space="preserve">
+    <value>Transfer Process</value>
+  </data>
+  <data name="CreateRequest" xml:space="preserve">
+    <value>Create Request</value>
+  </data>
+  <data name="BoardApproval" xml:space="preserve">
+    <value>Board Approval</value>
+  </data>
+  <data name="TransferCompletion" xml:space="preserve">
+    <value>Transfer Completion</value>
+  </data>
+  <data name="TransferProcessInfo" xml:space="preserve">
+    <value>Share transfers require board approval and cannot be reversed once completed.</value>
+  </data>
+  <data name="RequestDate" xml:space="preserve">
+    <value>Request Date</value>
+  </data>
+  <data name="ApprovalDate" xml:space="preserve">
+    <value>Approval Date</value>
+  </data>
+  <data name="CompletionDate" xml:space="preserve">
+    <value>Completion Date</value>
+  </data>
+  <data name="ApprovedBy" xml:space="preserve">
+    <value>Approved By</value>
+  </data>
+  <data name="UnitValue" xml:space="preserve">
+    <value>Unit Value</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="Complete" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="NoActionsAvailable" xml:space="preserve">
+    <value>No actions available for this transfer.</value>
+  </data>
+  <data name="TransferTimeline" xml:space="preserve">
+    <value>Transfer Timeline</value>
+  </data>
+  <data name="RequestCreated" xml:space="preserve">
+    <value>Request Created</value>
+  </data>
+  <data name="RequestApproved" xml:space="preserve">
+    <value>Request Approved</value>
+  </data>
+  <data name="RequestRejected" xml:space="preserve">
+    <value>Request Rejected</value>
+  </data>
+  <data name="TransferCompleted" xml:space="preserve">
+    <value>Transfer Completed</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>By</value>
+  </data>
+  <data name="TransferInformation" xml:space="preserve">
+    <value>Transfer Information</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="TransferDetails" xml:space="preserve">
+    <value>Transfer Details</value>
+  </data>
+  <data name="TransferNotFound" xml:space="preserve">
+    <value>Transfer not found.</value>
+  </data>
+  <data name="NoTransfersFound" xml:space="preserve">
+    <value>No transfers found.</value>
+  </data>
+  
+  <!-- Transfer Status -->
+  <data name="Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  
+  <!-- Transfer Actions & Confirmations -->
+  <data name="NoPermissionToApprove" xml:space="preserve">
+    <value>You do not have permission to approve share transfers</value>
+  </data>
+  <data name="NoPermissionToReject" xml:space="preserve">
+    <value>You do not have permission to reject share transfers</value>
+  </data>
+  <data name="ApproveTransferConfirmation" xml:space="preserve">
+    <value>Are you sure you want to approve this share transfer?</value>
+  </data>
+  <data name="RejectTransfer" xml:space="preserve">
+    <value>Reject Transfer</value>
+  </data>
+  <data name="RejectReason" xml:space="preserve">
+    <value>Reason for rejection:</value>
+  </data>
+  <data name="CompleteTransferConfirmation" xml:space="preserve">
+    <value>Are you sure you want to complete this transfer? This action cannot be undone.</value>
+  </data>
+  <data name="CancelTransferConfirmation" xml:space="preserve">
+    <value>Are you sure you want to cancel this transfer?</value>
+  </data>
+  
+  <!-- Transfer Success Messages -->
+  <data name="TransferCreatedSuccessfully" xml:space="preserve">
+    <value>Share transfer created successfully.</value>
+  </data>
+  <data name="TransferApprovedSuccessfully" xml:space="preserve">
+    <value>Share transfer approved successfully.</value>
+  </data>
+  <data name="TransferRejectedSuccessfully" xml:space="preserve">
+    <value>Share transfer rejected successfully.</value>
+  </data>
+  <data name="TransferCompletedSuccessfully" xml:space="preserve">
+    <value>Share transfer completed successfully.</value>
+  </data>
+  <data name="TransferCancelledSuccessfully" xml:space="preserve">
+    <value>Share transfer cancelled successfully.</value>
+  </data>
+  
+  <!-- Transfer Error Messages -->
+  <data name="ErrorLoadingTransfers" xml:space="preserve">
+    <value>Error loading transfers: {0}</value>
+  </data>
+  <data name="ErrorLoadingTransfer" xml:space="preserve">
+    <value>Error loading transfer: {0}</value>
+  </data>
+  <data name="ErrorCreatingTransfer" xml:space="preserve">
+    <value>Error creating transfer: {0}</value>
+  </data>
+  <data name="ErrorApprovingTransfer" xml:space="preserve">
+    <value>Error approving transfer: {0}</value>
+  </data>
+  <data name="ErrorRejectingTransfer" xml:space="preserve">
+    <value>Error rejecting transfer: {0}</value>
+  </data>
+  <data name="ErrorCompletingTransfer" xml:space="preserve">
+    <value>Error completing transfer: {0}</value>
+  </data>
+  <data name="ErrorCancellingTransfer" xml:space="preserve">
+    <value>Error cancelling transfer: {0}</value>
+  </data>
+  <data name="ErrorLoadingMembers" xml:space="preserve">
+    <value>Error loading members: {0}</value>
+  </data>
+
+  <!-- Messaging -->
+  <data name="Messages" xml:space="preserve">
+    <value>Messages</value>
+  </data>
+  <data name="SendMessage" xml:space="preserve">
+    <value>Send Message</value>
+  </data>
+  <data name="PaymentReminders" xml:space="preserve">
+    <value>Payment Reminders</value>
+  </data>
+  <data name="TotalMessages" xml:space="preserve">
+    <value>Total Messages</value>
+  </data>
+  <data name="DeliveredMessages" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="PendingMessages" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="FailedMessages" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="FilterByMessageType" xml:space="preserve">
+    <value>Filter by Message Type</value>
+  </data>
+  <data name="FilterByChannel" xml:space="preserve">
+    <value>Filter by Channel</value>
+  </data>
+  <data name="AllTypes" xml:space="preserve">
+    <value>All Types</value>
+  </data>
+  <data name="AllChannels" xml:space="preserve">
+    <value>All Channels</value>
+  </data>
+  <data name="AllStatuses" xml:space="preserve">
+    <value>All Statuses</value>
+  </data>
+  <data name="PaymentReminder" xml:space="preserve">
+    <value>Payment Reminder</value>
+  </data>
+  <data name="DividendNotification" xml:space="preserve">
+    <value>Dividend Notification</value>
+  </data>
+  <data name="GeneralAssemblyNotice" xml:space="preserve">
+    <value>General Assembly Notice</value>
+  </data>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>Welcome Message</value>
+  </data>
+  <data name="ShareCancellationConfirmation" xml:space="preserve">
+    <value>Share Cancellation Confirmation</value>
+  </data>
+  <data name="PaymentConfirmation" xml:space="preserve">
+    <value>Payment Confirmation</value>
+  </data>
+  <data name="GeneralBroadcast" xml:space="preserve">
+    <value>General Broadcast</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="WhatsApp" xml:space="preserve">
+    <value>WhatsApp</value>
+  </data>
+  <data name="SMS" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Queued" xml:space="preserve">
+    <value>Queued</value>
+  </data>
+  <data name="Sending" xml:space="preserve">
+    <value>Sending</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Delivered" xml:space="preserve">
+    <value>Delivered</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="SentAt" xml:space="preserve">
+    <value>Sent At</value>
+  </data>
+  <data name="MessageDetails" xml:space="preserve">
+    <value>Message Details</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="MessageRetried" xml:space="preserve">
+    <value>Message has been queued for retry</value>
+  </data>
+  <data name="MessageRetryFailed" xml:space="preserve">
+    <value>Failed to retry message</value>
+  </data>
+  <data name="CancelMessageConfirmation" xml:space="preserve">
+    <value>Are you sure you want to cancel this message?</value>
+  </data>
+  <data name="MessageCancelled" xml:space="preserve">
+    <value>Message has been cancelled</value>
+  </data>
+  <data name="MessageCancelFailed" xml:space="preserve">
+    <value>Failed to cancel message</value>
+  </data>
+  <data name="SendPaymentRemindersConfirmation" xml:space="preserve">
+    <value>Send payment reminders to {0} members with unpaid shares?</value>
+  </data>
+  <data name="PaymentRemindersSent" xml:space="preserve">
+    <value>Payment reminders sent to {0} members</value>
+  </data>
+  <data name="NoMessagesFound" xml:space="preserve">
+    <value>No messages found</value>
+  </data>
+
+  <!-- Share Creation -->
+  <data name="NewShare" xml:space="preserve">
+    <value>New Share</value>
+  </data>
+  <data name="CreateShare" xml:space="preserve">
+    <value>Create Share</value>
+  </data>
+  <data name="ShareInformation" xml:space="preserve">
+    <value>Share Information</value>
+  </data>
+  <data name="SelectMember" xml:space="preserve">
+    <value>Select Member</value>
+  </data>
+  <data name="MinimumQuantityNote" xml:space="preserve">
+    <value>Minimum 1 share required</value>
+  </data>
+  <data name="NominalValueNote" xml:space="preserve">
+    <value>Based on cooperative denomination</value>
+  </data>
+  <data name="CurrentValueNote" xml:space="preserve">
+    <value>Current market value of shares</value>
+  </data>
+  <data name="AutoGeneratedPlaceholder" xml:space="preserve">
+    <value>Auto-generated</value>
+  </data>
+  <data name="CertificateNumberNote" xml:space="preserve">
+    <value>Will be automatically generated</value>
+  </data>
+  <data name="NotesPlaceholder" xml:space="preserve">
+    <value>Optional notes about this share issue</value>
+  </data>
+  <data name="ShareSummary" xml:space="preserve">
+    <value>Share Summary</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Total Value</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Payment Status</value>
+  </data>
+  <data name="Unpaid" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="OutstandingAmount" xml:space="preserve">
+    <value>Outstanding Amount</value>
+  </data>
+  <data name="SatzungRules" xml:space="preserve">
+    <value>Satzung Rules</value>
+  </data>
+  <data name="SatzungRule1" xml:space="preserve">
+    <value>Shares must be fully paid within 30 days</value>
+  </data>
+  <data name="SatzungRule2" xml:space="preserve">
+    <value>Each share has a nominal value of €250</value>
+  </data>
+  <data name="SatzungRule3" xml:space="preserve">
+    <value>Maximum 1000 shares per member</value>
+  </data>
+  <data name="SatzungRule4" xml:space="preserve">
+    <value>Shares can be cancelled with 2-year notice</value>
+  </data>
+  <data name="ShareCreatedSuccessfully" xml:space="preserve">
+    <value>Share created successfully with certificate number {0}</value>
+  </data>
+  <data name="ErrorCreatingShare" xml:space="preserve">
+    <value>Error creating share: {0}</value>
+  </data>
+  <data name="ErrorLoadingConfiguration" xml:space="preserve">
+    <value>Error loading configuration: {0}</value>
+  </data>
+  <data name="MemberRequired" xml:space="preserve">
+    <value>Please select a member</value>
+  </data>
+  <data name="MemberNotFound" xml:space="preserve">
+    <value>Selected member not found</value>
+  </data>
+  <data name="MemberNotActive" xml:space="preserve">
+    <value>Selected member is not active</value>
+  </data>
+  <data name="QuantityMustBePositive" xml:space="preserve">
+    <value>Quantity must be at least 1</value>
+  </data>
+  <data name="QuantityTooHigh" xml:space="preserve">
+    <value>Quantity cannot exceed 1000 shares</value>
+  </data>
+  <data name="ValueMustBePositive" xml:space="preserve">
+    <value>Share value must be positive</value>
+  </data>
+  <data name="IssueDateCannotBeFuture" xml:space="preserve">
+    <value>Issue date cannot be in the future</value>
+  </data>
+  <data name="IssueDateTooOld" xml:space="preserve">
+    <value>Issue date cannot be more than 1 year in the past</value>
+  </data>
+  <data name="TotalSharesExceedLimit" xml:space="preserve">
+    <value>Member already has {0} shares. Maximum allowed: {1} additional shares</value>
+  </data>
+  <data name="ErrorCheckingExistingShares" xml:space="preserve">
+    <value>Error checking existing shares: {0}</value>
   </data>
 </root>

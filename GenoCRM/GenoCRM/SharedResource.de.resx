@@ -90,6 +90,24 @@
   <data name="Close" xml:space="preserve">
     <value>Schließen</value>
   </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Erfolg</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warnung</value>
+  </data>
   
   <!-- Navigation -->
   <data name="Home" xml:space="preserve">
@@ -170,8 +188,215 @@
   <data name="Inactive" xml:space="preserve">
     <value>Inaktiv</value>
   </data>
+  <data name="Offboarding" xml:space="preserve">
+    <value>Abmeldung</value>
+  </data>
   <data name="Terminated" xml:space="preserve">
     <value>Beendet</value>
+  </data>
+  <data name="ActiveShares" xml:space="preserve">
+    <value>Aktive Anteile</value>
+  </data>
+  <data name="ActiveSharesOnly" xml:space="preserve">
+    <value>Nur aktive Anteile</value>
+  </data>
+  <data name="OffboardingShares" xml:space="preserve">
+    <value>Ausstehende Anteile</value>
+  </data>
+  <data name="OtherShares" xml:space="preserve">
+    <value>Andere Anteile</value>
+  </data>
+  <data name="TransferredCancelledSuspended" xml:space="preserve">
+    <value>Übertragen, storniert, gesperrt</value>
+  </data>
+  <data name="FilterByStatus" xml:space="preserve">
+    <value>Nach Status filtern</value>
+  </data>
+  <data name="NoActiveSharesFound" xml:space="preserve">
+    <value>Keine aktiven Anteile gefunden</value>
+  </data>
+  <data name="NoOtherSharesFound" xml:space="preserve">
+    <value>Keine anderen Anteile gefunden</value>
+  </data>
+  <data name="ErrorLoadingOffboardingValue" xml:space="preserve">
+    <value>Fehler beim Laden der Ausstiegswerte: {0}</value>
+  </data>
+  <data name="ShareDetails" xml:space="preserve">
+    <value>Anteilsdetails</value>
+  </data>
+  <data name="ShareInformation" xml:space="preserve">
+    <value>Anteilsinformationen</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Zahlungsstatus</value>
+  </data>
+  <data name="FullyPaid" xml:space="preserve">
+    <value>Vollständig bezahlt</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Teilweise bezahlt</value>
+  </data>
+  <data name="TotalPaid" xml:space="preserve">
+    <value>Insgesamt bezahlt</value>
+  </data>
+  <data name="MemberInformation" xml:space="preserve">
+    <value>Mitgliedsinformationen</value>
+  </data>
+  <data name="NoMemberAssigned" xml:space="preserve">
+    <value>Kein Mitglied zugewiesen</value>
+  </data>
+  <data name="PaymentHistory" xml:space="preserve">
+    <value>Zahlungsverlauf</value>
+  </data>
+  <data name="PaymentDate" xml:space="preserve">
+    <value>Zahlungsdatum</value>
+  </data>
+  <data name="PaymentMethod" xml:space="preserve">
+    <value>Zahlungsart</value>
+  </data>
+  <data name="Reference" xml:space="preserve">
+    <value>Referenz</value>
+  </data>
+  <data name="DividendHistory" xml:space="preserve">
+    <value>Dividendenverlauf</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Jahr</value>
+  </data>
+  <data name="DividendPerShare" xml:space="preserve">
+    <value>Dividende pro Anteil</value>
+  </data>
+  <data name="TotalDividend" xml:space="preserve">
+    <value>Gesamtdividende</value>
+  </data>
+  <data name="Timestamps" xml:space="preserve">
+    <value>Zeitstempel</value>
+  </data>
+  <data name="ShareNotFound" xml:space="preserve">
+    <value>Anteil nicht gefunden</value>
+  </data>
+  <data name="ErrorLoadingShare" xml:space="preserve">
+    <value>Fehler beim Laden des Anteils: {0}</value>
+  </data>
+  <data name="EditShare" xml:space="preserve">
+    <value>Anteil bearbeiten</value>
+  </data>
+  <data name="ImportantNote" xml:space="preserve">
+    <value>Wichtiger Hinweis</value>
+  </data>
+  <data name="ShareEditRestrictions" xml:space="preserve">
+    <value>Gemäß der Satzung sind Änderungen an Anteilen eingeschränkt. Zertifikatsnummern, Mengen und Werte können nicht geändert werden. Verwenden Sie die Übertragungsfunktion, um den Eigentümer zu ändern.</value>
+  </data>
+  <data name="CertificateNumberCannotBeChanged" xml:space="preserve">
+    <value>Zertifikatsnummer kann nicht geändert werden</value>
+  </data>
+  <data name="MemberCannotBeChangedUseTransfer" xml:space="preserve">
+    <value>Mitglied kann nicht direkt geändert werden - verwenden Sie die Übertragungsfunktion</value>
+  </data>
+  <data name="QuantityCannotBeChanged" xml:space="preserve">
+    <value>Anzahl kann nach Ausgabe nicht geändert werden</value>
+  </data>
+  <data name="NominalValueFixedBySatzung" xml:space="preserve">
+    <value>Nennwert ist durch Satzung festgelegt</value>
+  </data>
+  <data name="ValueCannotBeChangedDirectly" xml:space="preserve">
+    <value>Wert kann nicht direkt geändert werden</value>
+  </data>
+  <data name="SuspendedShareWarning" xml:space="preserve">
+    <value>Gesperrte Anteile zählen nicht zum Genossenschaftskapital</value>
+  </data>
+  <data name="TwoYearNoticePeriod" xml:space="preserve">
+    <value>Gemäß §5 ist eine zweijährige Kündigungsfrist erforderlich</value>
+  </data>
+  <data name="PaymentInformation" xml:space="preserve">
+    <value>Zahlungsinformationen</value>
+  </data>
+  <data name="ShareNotFullyPaidWarning" xml:space="preserve">
+    <value>Dieser Anteil hat ausstehende Zahlungen. Laut Satzung müssen Anteile vor bestimmten Handlungen vollständig bezahlt sein.</value>
+  </data>
+  <data name="AdditionalInformation" xml:space="preserve">
+    <value>Zusätzliche Informationen</value>
+  </data>
+  <data name="ShareCannotBeEdited" xml:space="preserve">
+    <value>Dieser Anteil kann aufgrund seines aktuellen Status nicht bearbeitet werden</value>
+  </data>
+  <data name="ErrorUpdatingShare" xml:space="preserve">
+    <value>Fehler beim Aktualisieren des Anteils: {0}</value>
+  </data>
+  <data name="ShareUpdatedSuccessfully" xml:space="preserve">
+    <value>Anteil erfolgreich aktualisiert</value>
+  </data>
+  <data name="ConfirmShareCancellation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diesen Anteil kündigen möchten? Gemäß §5 der Satzung gilt eine zweijährige Kündigungsfrist und diese Aktion kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="CancellationDateMustBeTwoYears" xml:space="preserve">
+    <value>Gemäß §5 der Satzung muss das Kündigungsdatum mindestens zwei Jahre in der Zukunft liegen</value>
+  </data>
+  <data name="ShareMustBeFullyPaidBeforeCancellation" xml:space="preserve">
+    <value>Laut Satzung müssen Anteile vor der Kündigung vollständig bezahlt sein</value>
+  </data>
+  <data name="DebitCard" xml:space="preserve">
+    <value>EC-Karte</value>
+  </data>
+  <data name="Check" xml:space="preserve">
+    <value>Scheck</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Genehmigt</value>
+  </data>
+  <data name="Declared" xml:space="preserve">
+    <value>Erklärt</value>
+  </data>
+  <data name="RecordPayment" xml:space="preserve">
+    <value>Zahlung erfassen</value>
+  </data>
+  <data name="SelectPaymentMethod" xml:space="preserve">
+    <value>Zahlungsart auswählen</value>
+  </data>
+  <data name="OptionalTransactionReference" xml:space="preserve">
+    <value>Optional: Transaktionsreferenz</value>
+  </data>
+  <data name="Certificate" xml:space="preserve">
+    <value>Zertifikat</value>
+  </data>
+  <data name="PaidAmount" xml:space="preserve">
+    <value>Bezahlter Betrag</value>
+  </data>
+  <data name="Outstanding" xml:space="preserve">
+    <value>Ausstehend</value>
+  </data>
+  <data name="MarkPaymentAsCompleted" xml:space="preserve">
+    <value>Zahlung als abgeschlossen markieren</value>
+  </data>
+  <data name="UncheckIfPaymentIsPending" xml:space="preserve">
+    <value>Nicht ankreuzen, wenn Zahlung noch in Bearbeitung ist</value>
+  </data>
+  <data name="PaymentAmountExceedsOutstanding" xml:space="preserve">
+    <value>Zahlungsbetrag kann nicht den ausstehenden Betrag überschreiten</value>
+  </data>
+  <data name="PaymentRecordedSuccessfully" xml:space="preserve">
+    <value>Zahlung erfolgreich erfasst</value>
+  </data>
+  <data name="ErrorRecordingPayment" xml:space="preserve">
+    <value>Fehler beim Erfassen der Zahlung: {0}</value>
+  </data>
+  <data name="MarkAsPaid" xml:space="preserve">
+    <value>Als bezahlt markieren</value>
+  </data>
+  <data name="ShareAlreadyFullyPaid" xml:space="preserve">
+    <value>Dieser Anteil ist bereits vollständig bezahlt</value>
+  </data>
+  <data name="ConfirmMarkAsPaid" xml:space="preserve">
+    <value>Anteil {0} als vollständig bezahlt markieren? Dies wird eine Zahlung von {1} erfassen.</value>
+  </data>
+  <data name="ShareMarkedAsPaid" xml:space="preserve">
+    <value>Anteil erfolgreich als bezahlt markiert</value>
+  </data>
+  <data name="ErrorMarkingAsPaid" xml:space="preserve">
+    <value>Fehler beim Markieren des Anteils als bezahlt: {0}</value>
+  </data>
+  <data name="Locked" xml:space="preserve">
+    <value>Gesperrt</value>
   </data>
   
   <!-- Language switcher -->
@@ -183,5 +408,549 @@
   </data>
   <data name="German" xml:space="preserve">
     <value>Deutsch</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Gesamtwert</value>
+  </data>
+  
+  <!-- Share-related -->
+  <data name="CooperativeShares" xml:space="preserve">
+    <value>Genossenschaftsanteile</value>
+  </data>
+  <data name="NewShare" xml:space="preserve">
+    <value>Neuer Anteil</value>
+  </data>
+  <data name="TotalShareCapital" xml:space="preserve">
+    <value>Gesamtkapital</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>Alle Status</value>
+  </data>
+  <data name="CertificateNumber" xml:space="preserve">
+    <value>Zertifikat-Nr.</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Mitglied</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Anzahl</value>
+  </data>
+  <data name="NominalValue" xml:space="preserve">
+    <value>Nennwert</value>
+  </data>
+  <data name="CurrentValue" xml:space="preserve">
+    <value>Aktueller Wert</value>
+  </data>
+  <data name="IssueDate" xml:space="preserve">
+    <value>Ausgabedatum</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Bezahlt</value>
+  </data>
+  <data name="Due" xml:space="preserve">
+    <value>fällig</value>
+  </data>
+  <data name="NoSharesFound" xml:space="preserve">
+    <value>Keine Anteile gefunden.</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Lädt...</value>
+  </data>
+  <data name="CancelShareConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diesen Anteil stornieren möchten?</value>
+  </data>
+  <data name="ShareCancelledSuccessfully" xml:space="preserve">
+    <value>Anteil erfolgreich storniert</value>
+  </data>
+  <data name="ErrorLoadingShares" xml:space="preserve">
+    <value>Fehler beim Laden der Anteile: {0}</value>
+  </data>
+  <data name="ErrorLoadingTotalCapital" xml:space="preserve">
+    <value>Fehler beim Laden des Gesamtkapitals: {0}</value>
+  </data>
+  <data name="ErrorFilteringShares" xml:space="preserve">
+    <value>Fehler beim Filtern der Anteile: {0}</value>
+  </data>
+  <data name="ErrorCancellingShare" xml:space="preserve">
+    <value>Fehler beim Stornieren des Anteils: {0}</value>
+  </data>
+  
+  <!-- Share Status -->
+  <data name="Cancelled" xml:space="preserve">
+    <value>Storniert</value>
+  </data>
+  <data name="Transferred" xml:space="preserve">
+    <value>Übertragen</value>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Gesperrt</value>
+  </data>
+  
+  <!-- Member Types -->
+  <data name="Individual" xml:space="preserve">
+    <value>Einzelperson</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Unternehmen</value>
+  </data>
+  
+  <!-- Member Fields -->
+  <data name="MemberType" xml:space="preserve">
+    <value>Mitgliedstyp</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>Firmenname</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>Ansprechpartner</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="Offboard" xml:space="preserve">
+    <value>Abmelden</value>
+  </data>
+  <data name="OffboardMember" xml:space="preserve">
+    <value>Mitglied abmelden</value>
+  </data>
+  <data name="OffboardConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mitglied abmelden möchten? Es wird am Ende des Geschäftsjahres entfernt, nachdem alle Anteile zurückgegeben und Dividenden gezahlt wurden.</value>
+  </data>
+  
+  <!-- Share Transfer -->
+  <data name="ShareTransfers" xml:space="preserve">
+    <value>Anteilsübertragungen</value>
+  </data>
+  <data name="NewTransfer" xml:space="preserve">
+    <value>Neue Übertragung</value>
+  </data>
+  <data name="CreateShareTransfer" xml:space="preserve">
+    <value>Anteilsübertragung erstellen</value>
+  </data>
+  <data name="ShareTransferDetails" xml:space="preserve">
+    <value>Anteilsübertragungsdetails</value>
+  </data>
+  <data name="FromMember" xml:space="preserve">
+    <value>Von Mitglied</value>
+  </data>
+  <data name="ToMember" xml:space="preserve">
+    <value>An Mitglied</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Anteil</value>
+  </data>
+  <data name="SelectMember" xml:space="preserve">
+    <value>Mitglied auswählen</value>
+  </data>
+  <data name="SelectShare" xml:space="preserve">
+    <value>Anteil auswählen</value>
+  </data>
+  <data name="MaxAvailable" xml:space="preserve">
+    <value>Max. verfügbar</value>
+  </data>
+  <data name="TotalQuantity" xml:space="preserve">
+    <value>Gesamtanzahl</value>
+  </data>
+  <data name="TransferValue" xml:space="preserve">
+    <value>Übertragungswert</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notizen</value>
+  </data>
+  <data name="CreateTransfer" xml:space="preserve">
+    <value>Übertragung erstellen</value>
+  </data>
+  <data name="TransferProcess" xml:space="preserve">
+    <value>Übertragungsprozess</value>
+  </data>
+  <data name="CreateRequest" xml:space="preserve">
+    <value>Antrag erstellen</value>
+  </data>
+  <data name="BoardApproval" xml:space="preserve">
+    <value>Vorstandsgenehmigung</value>
+  </data>
+  <data name="TransferCompletion" xml:space="preserve">
+    <value>Übertragungsabschluss</value>
+  </data>
+  <data name="TransferProcessInfo" xml:space="preserve">
+    <value>Anteilsübertragungen erfordern eine Vorstandsgenehmigung und können nach dem Abschluss nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="RequestDate" xml:space="preserve">
+    <value>Antragsdatum</value>
+  </data>
+  <data name="ApprovalDate" xml:space="preserve">
+    <value>Genehmigungsdatum</value>
+  </data>
+  <data name="CompletionDate" xml:space="preserve">
+    <value>Abschlussdatum</value>
+  </data>
+  <data name="ApprovedBy" xml:space="preserve">
+    <value>Genehmigt von</value>
+  </data>
+  <data name="UnitValue" xml:space="preserve">
+    <value>Stückwert</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Aktionen</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Genehmigen</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Ablehnen</value>
+  </data>
+  <data name="Complete" xml:space="preserve">
+    <value>Abschließen</value>
+  </data>
+  <data name="Transfer" xml:space="preserve">
+    <value>Übertragen</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>Ansehen</value>
+  </data>
+  <data name="NoActionsAvailable" xml:space="preserve">
+    <value>Keine Aktionen für diese Übertragung verfügbar.</value>
+  </data>
+  <data name="TransferTimeline" xml:space="preserve">
+    <value>Übertragungsverlauf</value>
+  </data>
+  <data name="RequestCreated" xml:space="preserve">
+    <value>Antrag erstellt</value>
+  </data>
+  <data name="RequestApproved" xml:space="preserve">
+    <value>Antrag genehmigt</value>
+  </data>
+  <data name="RequestRejected" xml:space="preserve">
+    <value>Antrag abgelehnt</value>
+  </data>
+  <data name="TransferCompleted" xml:space="preserve">
+    <value>Übertragung abgeschlossen</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>Von</value>
+  </data>
+  <data name="TransferInformation" xml:space="preserve">
+    <value>Übertragungsinformationen</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Grundinformationen</value>
+  </data>
+  <data name="TransferDetails" xml:space="preserve">
+    <value>Übertragungsdetails</value>
+  </data>
+  <data name="TransferNotFound" xml:space="preserve">
+    <value>Übertragung nicht gefunden.</value>
+  </data>
+  <data name="NoTransfersFound" xml:space="preserve">
+    <value>Keine Übertragungen gefunden.</value>
+  </data>
+  
+  <!-- Transfer Status -->
+  <data name="Pending" xml:space="preserve">
+    <value>Ausstehend</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Genehmigt</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Abgelehnt</value>
+  </data>
+  
+  <!-- Transfer Actions & Confirmations -->
+  <data name="NoPermissionToApprove" xml:space="preserve">
+    <value>Sie haben keine Berechtigung, Anteilsübertragungen zu genehmigen</value>
+  </data>
+  <data name="NoPermissionToReject" xml:space="preserve">
+    <value>Sie haben keine Berechtigung, Anteilsübertragungen abzulehnen</value>
+  </data>
+  <data name="ApproveTransferConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diese Anteilsübertragung genehmigen möchten?</value>
+  </data>
+  <data name="RejectTransfer" xml:space="preserve">
+    <value>Übertragung ablehnen</value>
+  </data>
+  <data name="RejectReason" xml:space="preserve">
+    <value>Grund für die Ablehnung:</value>
+  </data>
+  <data name="CompleteTransferConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diese Übertragung abschließen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="CancelTransferConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diese Übertragung stornieren möchten?</value>
+  </data>
+  
+  <!-- Transfer Success Messages -->
+  <data name="TransferCreatedSuccessfully" xml:space="preserve">
+    <value>Anteilsübertragung erfolgreich erstellt.</value>
+  </data>
+  <data name="TransferApprovedSuccessfully" xml:space="preserve">
+    <value>Anteilsübertragung erfolgreich genehmigt.</value>
+  </data>
+  <data name="TransferRejectedSuccessfully" xml:space="preserve">
+    <value>Anteilsübertragung erfolgreich abgelehnt.</value>
+  </data>
+  <data name="TransferCompletedSuccessfully" xml:space="preserve">
+    <value>Anteilsübertragung erfolgreich abgeschlossen.</value>
+  </data>
+  <data name="TransferCancelledSuccessfully" xml:space="preserve">
+    <value>Anteilsübertragung erfolgreich storniert.</value>
+  </data>
+  
+  <!-- Transfer Error Messages -->
+  <data name="ErrorLoadingTransfers" xml:space="preserve">
+    <value>Fehler beim Laden der Übertragungen: {0}</value>
+  </data>
+  <data name="ErrorLoadingTransfer" xml:space="preserve">
+    <value>Fehler beim Laden der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorCreatingTransfer" xml:space="preserve">
+    <value>Fehler beim Erstellen der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorApprovingTransfer" xml:space="preserve">
+    <value>Fehler beim Genehmigen der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorRejectingTransfer" xml:space="preserve">
+    <value>Fehler beim Ablehnen der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorCompletingTransfer" xml:space="preserve">
+    <value>Fehler beim Abschließen der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorCancellingTransfer" xml:space="preserve">
+    <value>Fehler beim Stornieren der Übertragung: {0}</value>
+  </data>
+  <data name="ErrorLoadingMembers" xml:space="preserve">
+    <value>Fehler beim Laden der Mitglieder: {0}</value>
+  </data>
+
+  <!-- Messaging -->
+  <data name="Messages" xml:space="preserve">
+    <value>Nachrichten</value>
+  </data>
+  <data name="SendMessage" xml:space="preserve">
+    <value>Nachricht senden</value>
+  </data>
+  <data name="PaymentReminders" xml:space="preserve">
+    <value>Zahlungserinnerungen</value>
+  </data>
+  <data name="TotalMessages" xml:space="preserve">
+    <value>Nachrichten gesamt</value>
+  </data>
+  <data name="DeliveredMessages" xml:space="preserve">
+    <value>Zugestellt</value>
+  </data>
+  <data name="PendingMessages" xml:space="preserve">
+    <value>Ausstehend</value>
+  </data>
+  <data name="FailedMessages" xml:space="preserve">
+    <value>Fehlgeschlagen</value>
+  </data>
+  <data name="FilterByMessageType" xml:space="preserve">
+    <value>Nach Nachrichtentyp filtern</value>
+  </data>
+  <data name="FilterByChannel" xml:space="preserve">
+    <value>Nach Kanal filtern</value>
+  </data>
+  <data name="AllTypes" xml:space="preserve">
+    <value>Alle Typen</value>
+  </data>
+  <data name="AllChannels" xml:space="preserve">
+    <value>Alle Kanäle</value>
+  </data>
+  <data name="AllStatuses" xml:space="preserve">
+    <value>Alle Status</value>
+  </data>
+  <data name="PaymentReminder" xml:space="preserve">
+    <value>Zahlungserinnerung</value>
+  </data>
+  <data name="DividendNotification" xml:space="preserve">
+    <value>Dividendenbenachrichtigung</value>
+  </data>
+  <data name="GeneralAssemblyNotice" xml:space="preserve">
+    <value>Generalversammlungseinladung</value>
+  </data>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>Willkommensnachricht</value>
+  </data>
+  <data name="ShareCancellationConfirmation" xml:space="preserve">
+    <value>Anteilskündigungsbestätigung</value>
+  </data>
+  <data name="PaymentConfirmation" xml:space="preserve">
+    <value>Zahlungsbestätigung</value>
+  </data>
+  <data name="GeneralBroadcast" xml:space="preserve">
+    <value>Allgemeine Rundnachricht</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-Mail</value>
+  </data>
+  <data name="WhatsApp" xml:space="preserve">
+    <value>WhatsApp</value>
+  </data>
+  <data name="SMS" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>Ausstehend</value>
+  </data>
+  <data name="Queued" xml:space="preserve">
+    <value>In Warteschlange</value>
+  </data>
+  <data name="Sending" xml:space="preserve">
+    <value>Wird gesendet</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>Gesendet</value>
+  </data>
+  <data name="Delivered" xml:space="preserve">
+    <value>Zugestellt</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Fehlgeschlagen</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Abgebrochen</value>
+  </data>
+  <data name="SentAt" xml:space="preserve">
+    <value>Gesendet am</value>
+  </data>
+  <data name="MessageDetails" xml:space="preserve">
+    <value>Nachrichtendetails</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Inhalt</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Wiederholen</value>
+  </data>
+  <data name="MessageRetried" xml:space="preserve">
+    <value>Nachricht wurde zur Wiederholung in die Warteschlange eingereiht</value>
+  </data>
+  <data name="MessageRetryFailed" xml:space="preserve">
+    <value>Wiederholung der Nachricht fehlgeschlagen</value>
+  </data>
+  <data name="CancelMessageConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diese Nachricht abbrechen möchten?</value>
+  </data>
+  <data name="MessageCancelled" xml:space="preserve">
+    <value>Nachricht wurde abgebrochen</value>
+  </data>
+  <data name="MessageCancelFailed" xml:space="preserve">
+    <value>Abbruch der Nachricht fehlgeschlagen</value>
+  </data>
+  <data name="SendPaymentRemindersConfirmation" xml:space="preserve">
+    <value>Zahlungserinnerungen an {0} Mitglieder mit unbezahlten Anteilen senden?</value>
+  </data>
+  <data name="PaymentRemindersSent" xml:space="preserve">
+    <value>Zahlungserinnerungen an {0} Mitglieder gesendet</value>
+  </data>
+  <data name="NoMessagesFound" xml:space="preserve">
+    <value>Keine Nachrichten gefunden</value>
+  </data>
+
+  <!-- Share Creation -->
+  <data name="NewShare" xml:space="preserve">
+    <value>Neuer Anteil</value>
+  </data>
+  <data name="CreateShare" xml:space="preserve">
+    <value>Anteil erstellen</value>
+  </data>
+  <data name="ShareInformation" xml:space="preserve">
+    <value>Anteilsinformationen</value>
+  </data>
+  <data name="SelectMember" xml:space="preserve">
+    <value>Mitglied auswählen</value>
+  </data>
+  <data name="MinimumQuantityNote" xml:space="preserve">
+    <value>Mindestens 1 Anteil erforderlich</value>
+  </data>
+  <data name="NominalValueNote" xml:space="preserve">
+    <value>Basierend auf Genossenschaftsstückelung</value>
+  </data>
+  <data name="CurrentValueNote" xml:space="preserve">
+    <value>Aktueller Marktwert der Anteile</value>
+  </data>
+  <data name="AutoGeneratedPlaceholder" xml:space="preserve">
+    <value>Automatisch generiert</value>
+  </data>
+  <data name="CertificateNumberNote" xml:space="preserve">
+    <value>Wird automatisch generiert</value>
+  </data>
+  <data name="NotesPlaceholder" xml:space="preserve">
+    <value>Optionale Notizen zu dieser Anteilsausgabe</value>
+  </data>
+  <data name="ShareSummary" xml:space="preserve">
+    <value>Anteilsübersicht</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Gesamtwert</value>
+  </data>
+  <data name="PaymentStatus" xml:space="preserve">
+    <value>Zahlungsstatus</value>
+  </data>
+  <data name="Unpaid" xml:space="preserve">
+    <value>Unbezahlt</value>
+  </data>
+  <data name="OutstandingAmount" xml:space="preserve">
+    <value>Ausstehender Betrag</value>
+  </data>
+  <data name="SatzungRules" xml:space="preserve">
+    <value>Satzungsregeln</value>
+  </data>
+  <data name="SatzungRule1" xml:space="preserve">
+    <value>Anteile müssen innerhalb von 30 Tagen vollständig bezahlt werden</value>
+  </data>
+  <data name="SatzungRule2" xml:space="preserve">
+    <value>Jeder Anteil hat einen Nennwert von 250€</value>
+  </data>
+  <data name="SatzungRule3" xml:space="preserve">
+    <value>Maximal 1000 Anteile pro Mitglied</value>
+  </data>
+  <data name="SatzungRule4" xml:space="preserve">
+    <value>Anteile können mit 2-jähriger Kündigungsfrist gekündigt werden</value>
+  </data>
+  <data name="ShareCreatedSuccessfully" xml:space="preserve">
+    <value>Anteil erfolgreich erstellt mit Zertifikatsnummer {0}</value>
+  </data>
+  <data name="ErrorCreatingShare" xml:space="preserve">
+    <value>Fehler beim Erstellen des Anteils: {0}</value>
+  </data>
+  <data name="ErrorLoadingConfiguration" xml:space="preserve">
+    <value>Fehler beim Laden der Konfiguration: {0}</value>
+  </data>
+  <data name="MemberRequired" xml:space="preserve">
+    <value>Bitte wählen Sie ein Mitglied aus</value>
+  </data>
+  <data name="MemberNotFound" xml:space="preserve">
+    <value>Ausgewähltes Mitglied nicht gefunden</value>
+  </data>
+  <data name="MemberNotActive" xml:space="preserve">
+    <value>Ausgewähltes Mitglied ist nicht aktiv</value>
+  </data>
+  <data name="QuantityMustBePositive" xml:space="preserve">
+    <value>Anzahl muss mindestens 1 sein</value>
+  </data>
+  <data name="QuantityTooHigh" xml:space="preserve">
+    <value>Anzahl darf 1000 Anteile nicht überschreiten</value>
+  </data>
+  <data name="ValueMustBePositive" xml:space="preserve">
+    <value>Anteilswert muss positiv sein</value>
+  </data>
+  <data name="IssueDateCannotBeFuture" xml:space="preserve">
+    <value>Ausgabedatum darf nicht in der Zukunft liegen</value>
+  </data>
+  <data name="IssueDateTooOld" xml:space="preserve">
+    <value>Ausgabedatum darf nicht mehr als 1 Jahr in der Vergangenheit liegen</value>
+  </data>
+  <data name="TotalSharesExceedLimit" xml:space="preserve">
+    <value>Mitglied hat bereits {0} Anteile. Maximal erlaubt: {1} weitere Anteile</value>
+  </data>
+  <data name="ErrorCheckingExistingShares" xml:space="preserve">
+    <value>Fehler beim Prüfen vorhandener Anteile: {0}</value>
   </data>
 </root>

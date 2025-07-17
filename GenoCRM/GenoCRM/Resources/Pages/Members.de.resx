@@ -124,4 +124,125 @@
   <data name="JoinDateRequired" xml:space="preserve">
     <value>Beitrittsdatum ist erforderlich.</value>
   </data>
+  
+  <!-- Member Details Page -->
+  <data name="Loading" xml:space="preserve">
+    <value>Lädt...</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>Zurück zur Liste</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Vollständiger Name</value>
+  </data>
+  <data name="AddressInformation" xml:space="preserve">
+    <value>Adressinformationen</value>
+  </data>
+  <data name="LeaveDate" xml:space="preserve">
+    <value>Austrittsdatum</value>
+  </data>
+  <data name="MemberSince" xml:space="preserve">
+    <value>Mitglied seit</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>Tage</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Zusammenfassung</value>
+  </data>
+  <data name="TotalShares" xml:space="preserve">
+    <value>Anteile gesamt</value>
+  </data>
+  <data name="TotalShareValue" xml:space="preserve">
+    <value>Gesamtwert der Anteile</value>
+  </data>
+  <data name="ActiveShares" xml:space="preserve">
+    <value>Aktive Anteile</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>Schnellaktionen</value>
+  </data>
+  <data name="AddShare" xml:space="preserve">
+    <value>Anteil hinzufügen</value>
+  </data>
+  <data name="ViewShares" xml:space="preserve">
+    <value>Anteile anzeigen</value>
+  </data>
+  <data name="ViewDividends" xml:space="preserve">
+    <value>Dividenden anzeigen</value>
+  </data>
+  <data name="MemberShares" xml:space="preserve">
+    <value>Mitgliedsanteile</value>
+  </data>
+  <data name="CertificateNumber" xml:space="preserve">
+    <value>Zertifikat-Nr.</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Anzahl</value>
+  </data>
+  <data name="NominalValue" xml:space="preserve">
+    <value>Nennwert</value>
+  </data>
+  <data name="TotalValue" xml:space="preserve">
+    <value>Gesamtwert</value>
+  </data>
+  <data name="IssueDate" xml:space="preserve">
+    <value>Ausgabedatum</value>
+  </data>
+  <data name="MemberNotFound" xml:space="preserve">
+    <value>Mitglied nicht gefunden</value>
+  </data>
+  <data name="ErrorLoadingMember" xml:space="preserve">
+    <value>Fehler beim Laden des Mitglieds: {0}</value>
+  </data>
+  <data name="ErrorLoadingShares" xml:space="preserve">
+    <value>Fehler beim Laden der Anteile: {0}</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mitglied löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="MemberDeletedSuccessfully" xml:space="preserve">
+    <value>Mitglied erfolgreich gelöscht</value>
+  </data>
+  <data name="ErrorDeletingMember" xml:space="preserve">
+    <value>Fehler beim Löschen des Mitglieds: {0}</value>
+  </data>
+  
+  <!-- Member Form -->
+  <data name="MemberNumberReadonly" xml:space="preserve">
+    <value>Die Mitgliedsnummer wird automatisch generiert und kann nicht geändert werden.</value>
+  </data>
+  <data name="FirstNameLabel" xml:space="preserve">
+    <value>Vorname *</value>
+  </data>
+  <data name="LastNameLabel" xml:space="preserve">
+    <value>Nachname *</value>
+  </data>
+  <data name="JoinDateLabel" xml:space="preserve">
+    <value>Beitrittsdatum *</value>
+  </data>
+  <data name="InitialShareQuantityRequired" xml:space="preserve">
+    <value>Anfangsanteilmenge *</value>
+  </data>
+  <data name="InitialSharesDescription" xml:space="preserve">
+    <value>Anzahl der Anteile, die anfänglich zugeteilt werden sollen ({0}€ pro Anteil).</value>
+  </data>
+  <data name="UpdateMember" xml:space="preserve">
+    <value>Mitglied aktualisieren</value>
+  </data>
+  <data name="MemberUpdatedSuccessfully" xml:space="preserve">
+    <value>Mitglied erfolgreich aktualisiert</value>
+  </data>
+  <data name="MemberCreatedSuccessfully" xml:space="preserve">
+    <value>Mitglied erfolgreich erstellt mit {0} Anteilen</value>
+  </data>
+  <data name="InitialShareQuantityMinimum" xml:space="preserve">
+    <value>Die anfängliche Anteilmenge muss mindestens 1 betragen</value>
+  </data>
+  <data name="ErrorSavingMember" xml:space="preserve">
+    <value>Fehler beim Speichern des Mitglieds: {0}</value>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Gesperrt</value>
+  </data>
 </root>
