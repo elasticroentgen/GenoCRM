@@ -732,6 +732,108 @@
   <data name="Messages" xml:space="preserve">
     <value>Nachrichten</value>
   </data>
+  <data name="AuditLog" xml:space="preserve">
+    <value>Audit-Protokoll</value>
+  </data>
+  <data name="AuditLogDescription" xml:space="preserve">
+    <value>Vollständiger Audit-Trail aller Systemoperationen und Änderungen</value>
+  </data>
+  <data name="EntityType" xml:space="preserve">
+    <value>Entitätstyp</value>
+  </data>
+  <data name="AllEntityTypes" xml:space="preserve">
+    <value>Alle Entitätstypen</value>
+  </data>
+  <data name="AllUsers" xml:space="preserve">
+    <value>Alle Benutzer</value>
+  </data>
+  <data name="FromDate" xml:space="preserve">
+    <value>Von Datum</value>
+  </data>
+  <data name="ToDate" xml:space="preserve">
+    <value>Bis Datum</value>
+  </data>
+  <data name="ShowingResults" xml:space="preserve">
+    <value>Zeige {0} von {1} Ergebnissen</value>
+  </data>
+  <data name="PageOf" xml:space="preserve">
+    <value>Seite {0} von {1}</value>
+  </data>
+  <data name="ViewChanges" xml:space="preserve">
+    <value>Änderungen anzeigen</value>
+  </data>
+  <data name="NoAuditLogsFound" xml:space="preserve">
+    <value>Keine Audit-Protokolle gefunden, die den aktuellen Filtern entsprechen</value>
+  </data>
+  <data name="ChangesFor" xml:space="preserve">
+    <value>Änderungen für</value>
+  </data>
+  <data name="ErrorLoadingFilters" xml:space="preserve">
+    <value>Fehler beim Laden der Filter: {0}</value>
+  </data>
+  <data name="ErrorLoadingAuditLogs" xml:space="preserve">
+    <value>Fehler beim Laden der Audit-Protokolle: {0}</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>Zeitstempel</value>
+  </data>
+  <data name="Entity" xml:space="preserve">
+    <value>Entität</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Reactivate" xml:space="preserve">
+    <value>Reaktivieren</value>
+  </data>
+  <data name="ConsolidateShares" xml:space="preserve">
+    <value>Anteile zusammenfassen</value>
+  </data>
+  <data name="ConsolidationExplanation" xml:space="preserve">
+    <value>Die Anteils-Konsolidierung fasst mehrere Zertifikate zu einem einzigen Zertifikat zusammen und bewahrt dabei die gesamte Zahlungs- und Dividendenhistorie. Dies erleichtert die Verwaltung Ihrer Anteile.</value>
+  </data>
+  <data name="SelectSharesToConsolidate" xml:space="preserve">
+    <value>Anteile zum Zusammenfassen auswählen</value>
+  </data>
+  <data name="ConsolidationPreview" xml:space="preserve">
+    <value>Konsolidierungsvorschau</value>
+  </data>
+  <data name="NoConsolidatableShares" xml:space="preserve">
+    <value>Dieses Mitglied hat keine Anteile, die zusammengefasst werden können. Mindestens 2 aktive Anteile sind erforderlich.</value>
+  </data>
+  <data name="ConsolidationNotes" xml:space="preserve">
+    <value>Konsolidierungsnotizen</value>
+  </data>
+  <data name="ConsolidationNotesPlaceholder" xml:space="preserve">
+    <value>Optionale Notizen zu dieser Konsolidierung...</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Teilweise bezahlt</value>
+  </data>
+  <data name="ConsolidationPartiallyPaidWarning" xml:space="preserve">
+    <value>Einige Anteile sind nicht vollständig bezahlt. Ausstehende Beträge werden im neuen Zertifikat zusammengefasst.</value>
+  </data>
+  <data name="ConfirmConsolidation" xml:space="preserve">
+    <value>Konsolidierung bestätigen</value>
+  </data>
+  <data name="ConfirmConsolidationMessage" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie {0} Anteilszertifikate zusammenfassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="ConsolidationSuccessMessage" xml:space="preserve">
+    <value>{0} Anteilszertifikate wurden erfolgreich zu Zertifikat {1} zusammengefasst.</value>
+  </data>
+  <data name="ErrorValidatingConsolidation" xml:space="preserve">
+    <value>Fehler beim Validieren der Konsolidierung: {0}</value>
+  </data>
+  <data name="ErrorConsolidatingShares" xml:space="preserve">
+    <value>Fehler beim Zusammenfassen der Anteile: {0}</value>
+  </data>
+  <data name="TotalQuantity" xml:space="preserve">
+    <value>Gesamtmenge</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>€{0:F2}</value>
+  </data>
   <data name="SendMessage" xml:space="preserve">
     <value>Nachricht senden</value>
   </data>

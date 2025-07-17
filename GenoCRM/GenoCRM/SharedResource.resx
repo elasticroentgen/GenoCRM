@@ -732,6 +732,108 @@
   <data name="Messages" xml:space="preserve">
     <value>Messages</value>
   </data>
+  <data name="AuditLog" xml:space="preserve">
+    <value>Audit Log</value>
+  </data>
+  <data name="AuditLogDescription" xml:space="preserve">
+    <value>Complete audit trail of all system operations and changes</value>
+  </data>
+  <data name="EntityType" xml:space="preserve">
+    <value>Entity Type</value>
+  </data>
+  <data name="AllEntityTypes" xml:space="preserve">
+    <value>All Entity Types</value>
+  </data>
+  <data name="AllUsers" xml:space="preserve">
+    <value>All Users</value>
+  </data>
+  <data name="FromDate" xml:space="preserve">
+    <value>From Date</value>
+  </data>
+  <data name="ToDate" xml:space="preserve">
+    <value>To Date</value>
+  </data>
+  <data name="ShowingResults" xml:space="preserve">
+    <value>Showing {0} of {1} results</value>
+  </data>
+  <data name="PageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="ViewChanges" xml:space="preserve">
+    <value>View Changes</value>
+  </data>
+  <data name="NoAuditLogsFound" xml:space="preserve">
+    <value>No audit logs found matching the current filters</value>
+  </data>
+  <data name="ChangesFor" xml:space="preserve">
+    <value>Changes for</value>
+  </data>
+  <data name="ErrorLoadingFilters" xml:space="preserve">
+    <value>Error loading filters: {0}</value>
+  </data>
+  <data name="ErrorLoadingAuditLogs" xml:space="preserve">
+    <value>Error loading audit logs: {0}</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
+  <data name="Entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Reactivate" xml:space="preserve">
+    <value>Reactivate</value>
+  </data>
+  <data name="ConsolidateShares" xml:space="preserve">
+    <value>Consolidate Shares</value>
+  </data>
+  <data name="ConsolidationExplanation" xml:space="preserve">
+    <value>Share consolidation combines multiple certificates into a single certificate while preserving all payment and dividend history. This makes it easier to manage your shares.</value>
+  </data>
+  <data name="SelectSharesToConsolidate" xml:space="preserve">
+    <value>Select shares to consolidate</value>
+  </data>
+  <data name="ConsolidationPreview" xml:space="preserve">
+    <value>Consolidation Preview</value>
+  </data>
+  <data name="NoConsolidatableShares" xml:space="preserve">
+    <value>This member has no shares that can be consolidated. At least 2 active shares are required.</value>
+  </data>
+  <data name="ConsolidationNotes" xml:space="preserve">
+    <value>Consolidation Notes</value>
+  </data>
+  <data name="ConsolidationNotesPlaceholder" xml:space="preserve">
+    <value>Optional notes about this consolidation...</value>
+  </data>
+  <data name="PartiallyPaid" xml:space="preserve">
+    <value>Partially Paid</value>
+  </data>
+  <data name="ConsolidationPartiallyPaidWarning" xml:space="preserve">
+    <value>Some shares are not fully paid. Outstanding amounts will be combined in the new certificate.</value>
+  </data>
+  <data name="ConfirmConsolidation" xml:space="preserve">
+    <value>Confirm Consolidation</value>
+  </data>
+  <data name="ConfirmConsolidationMessage" xml:space="preserve">
+    <value>Are you sure you want to consolidate {0} share certificates? This action cannot be undone.</value>
+  </data>
+  <data name="ConsolidationSuccessMessage" xml:space="preserve">
+    <value>Successfully consolidated {0} share certificates into certificate {1}.</value>
+  </data>
+  <data name="ErrorValidatingConsolidation" xml:space="preserve">
+    <value>Error validating consolidation: {0}</value>
+  </data>
+  <data name="ErrorConsolidatingShares" xml:space="preserve">
+    <value>Error consolidating shares: {0}</value>
+  </data>
+  <data name="TotalQuantity" xml:space="preserve">
+    <value>Total Quantity</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>€{0:F2}</value>
+  </data>
   <data name="SendMessage" xml:space="preserve">
     <value>Send Message</value>
   </data>

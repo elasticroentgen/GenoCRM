@@ -1,0 +1,329 @@
+@page "/audit-log"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "ViewAuditLogs")]
+@inject IAuditService AuditService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@SharedLocalizer["AuditLog"]</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>@SharedLocalizer["AuditLog"]</h1>
+            <p class="text-muted">@SharedLocalizer["AuditLogDescription"]</p>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">@SharedLocalizer["Filters"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">@SharedLocalizer["EntityType"]</label>
+                            <select class="form-select" @bind="_selectedEntityType" @onchange="OnFilterChanged">
+                                <option value="">@SharedLocalizer["AllEntityTypes"]</option>
+                                @foreach (var entityType in _entityTypes)
+                                {
+                                    <option value="@entityType">@GetLocalizedEntityType(entityType)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">@SharedLocalizer["User"]</label>
+                            <select class="form-select" @bind="_selectedUser" @onchange="OnFilterChanged">
+                                <option value="">@SharedLocalizer["AllUsers"]</option>
+                                @foreach (var user in _users)
+                                {
+                                    <option value="@user">@user</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">@SharedLocalizer["FromDate"]</label>
+                            <input type="date" class="form-control" @bind="_fromDate" @onchange="OnFilterChanged" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">@SharedLocalizer["ToDate"]</label>
+                            <input type="date" class="form-control" @bind="_toDate" @onchange="OnFilterChanged" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        @SharedLocalizer["ShowingResults", _auditLogs.Count(), _totalCount]
+                    </span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="PreviousPage" disabled="@(_currentPage <= 1)">
+                            <i class="fas fa-chevron-left"></i> @SharedLocalizer["Previous"]
+                        </button>
+                        <span class="btn btn-outline-secondary btn-sm disabled">
+                            @SharedLocalizer["PageOf", _currentPage, _totalPages]
+                        </span>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="NextPage" disabled="@(_currentPage >= _totalPages)">
+                            @SharedLocalizer["Next"] <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>@SharedLocalizer["Timestamp"]</th>
+                                        <th>@SharedLocalizer["User"]</th>
+                                        <th>@SharedLocalizer["Action"]</th>
+                                        <th>@SharedLocalizer["EntityType"]</th>
+                                        <th>@SharedLocalizer["Entity"]</th>
+                                        <th>@SharedLocalizer["Permission"]</th>
+                                        <th>@SharedLocalizer["Details"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var audit in _auditLogs)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small>
+                                                    @audit.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@audit.UserName</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetActionBadgeClass(audit.Action)">
+                                                    @GetLocalizedAction(audit.Action)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @GetLocalizedEntityType(audit.EntityType)
+                                            </td>
+                                            <td>
+                                                <strong>@audit.EntityDescription</strong>
+                                                <br />
+                                                <small class="text-muted">ID: @audit.EntityId</small>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(audit.Permission))
+                                                {
+                                                    <small class="text-muted">@audit.Permission</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(audit.Changes))
+                                                {
+                                                    <button class="btn btn-sm btn-outline-info" @onclick="() => ShowChanges(audit)">
+                                                        <i class="fas fa-eye"></i> @SharedLocalizer["ViewChanges"]
+                                                    </button>
+                                                }
+                                                @if (!string.IsNullOrEmpty(audit.IpAddress))
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">IP: @audit.IpAddress</small>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!_auditLogs.Any())
+        {
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i>
+                        @SharedLocalizer["NoAuditLogsFound"]
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<AuditLog> _auditLogs = new();
+    private List<string> _entityTypes = new();
+    private List<string> _users = new();
+    private bool _isLoading = true;
+    
+    private string? _selectedEntityType;
+    private string? _selectedUser;
+    private DateTime? _fromDate;
+    private DateTime? _toDate;
+    
+    private int _currentPage = 1;
+    private int _pageSize = 50;
+    private int _totalCount;
+    private int _totalPages => (int)Math.Ceiling((double)_totalCount / _pageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFilters();
+        await LoadAuditLogs();
+    }
+
+    private async Task LoadFilters()
+    {
+        try
+        {
+            _entityTypes = (await AuditService.GetAuditedEntityTypesAsync()).ToList();
+            _users = (await AuditService.GetAuditedUsersAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingFilters"], ex.Message));
+        }
+    }
+
+    private async Task LoadAuditLogs()
+    {
+        try
+        {
+            _isLoading = true;
+            
+            _auditLogs = (await AuditService.GetAuditLogsAsync(
+                _currentPage, 
+                _pageSize, 
+                _selectedEntityType, 
+                _selectedUser, 
+                _fromDate, 
+                _toDate)).ToList();
+                
+            _totalCount = await AuditService.GetAuditLogCountAsync(
+                _selectedEntityType, 
+                _selectedUser, 
+                _fromDate, 
+                _toDate);
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingAuditLogs"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnFilterChanged()
+    {
+        _currentPage = 1;
+        await LoadAuditLogs();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            await LoadAuditLogs();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (_currentPage < _totalPages)
+        {
+            _currentPage++;
+            await LoadAuditLogs();
+        }
+    }
+
+    private async Task ShowChanges(AuditLog audit)
+    {
+        if (string.IsNullOrEmpty(audit.Changes))
+            return;
+
+        var title = $"{SharedLocalizer["ChangesFor"]} {audit.EntityDescription}";
+        await ModalService.ShowAlertAsync(title, audit.Changes);
+    }
+
+    private string GetLocalizedEntityType(string entityType)
+    {
+        return entityType switch
+        {
+            "Member" => SharedLocalizer["Member"],
+            "CooperativeShare" => SharedLocalizer["Share"],
+            "Payment" => SharedLocalizer["Payment"],
+            "Dividend" => SharedLocalizer["Dividend"],
+            "ShareTransfer" => SharedLocalizer["ShareTransfer"],
+            "Message" => SharedLocalizer["Message"],
+            "Document" => SharedLocalizer["Document"],
+            "SubordinatedLoan" => SharedLocalizer["Loan"],
+            _ => entityType
+        };
+    }
+
+    private string GetLocalizedAction(string action)
+    {
+        return action switch
+        {
+            "Create" => SharedLocalizer["Create"],
+            "Update" => SharedLocalizer["Update"],
+            "Delete" => SharedLocalizer["Delete"],
+            "Transfer" => SharedLocalizer["Transfer"],
+            "Approve" => SharedLocalizer["Approve"],
+            "Cancel" => SharedLocalizer["Cancel"],
+            "Pay" => SharedLocalizer["Pay"],
+            "Suspend" => SharedLocalizer["Suspend"],
+            "Reactivate" => SharedLocalizer["Reactivate"],
+            _ => action
+        };
+    }
+
+    private string GetActionBadgeClass(string action)
+    {
+        return action switch
+        {
+            "Create" => "bg-success",
+            "Update" => "bg-primary",
+            "Delete" => "bg-danger",
+            "Transfer" => "bg-info",
+            "Approve" => "bg-success",
+            "Cancel" => "bg-warning",
+            "Pay" => "bg-success",
+            "Suspend" => "bg-warning",
+            "Reactivate" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}

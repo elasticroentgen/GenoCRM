@@ -83,7 +83,9 @@ builder.Services.AddScoped<IDividendService, DividendService>();
 builder.Services.AddScoped<IFiscalYearService, FiscalYearService>();
 builder.Services.AddScoped<IShareTransferService, ShareTransferService>();
 builder.Services.AddScoped<IShareApprovalService, ShareApprovalService>();
+builder.Services.AddScoped<IShareConsolidationService, ShareConsolidationService>();
 builder.Services.AddScoped<IMessagingService, MessagingService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Messaging providers
 builder.Services.AddScoped<IEmailProvider, SmtpEmailProvider>();

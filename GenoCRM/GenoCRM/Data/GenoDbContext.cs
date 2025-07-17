@@ -30,6 +30,9 @@ public class GenoDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserGroup> UserGroups { get; set; }
     public DbSet<UserPermission> UserPermissions { get; set; }
+    
+    // Audit Trail
+    public DbSet<AuditLog> AuditLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -176,6 +179,19 @@ public class GenoDbContext : DbContext
         
         modelBuilder.Entity<MessageCampaign>()
             .HasIndex(c => c.ScheduledAt);
+            
+        // AuditLog indexes
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => a.UserName);
+        
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => a.EntityType);
+        
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => new { a.EntityType, a.EntityId });
+        
+        modelBuilder.Entity<AuditLog>()
+            .HasIndex(a => a.Timestamp);
     }
     
     private static void ConfigureMessagingRelationships(ModelBuilder modelBuilder)
@@ -222,7 +238,8 @@ public class GenoDbContext : DbContext
                        e.Entity is SubordinatedLoan || e.Entity is Document ||
                        e.Entity is ShareTransfer || e.Entity is ShareApproval ||
                        e.Entity is Message || e.Entity is MessageTemplate ||
-                       e.Entity is MessagePreference || e.Entity is MessageCampaign)
+                       e.Entity is MessagePreference || e.Entity is MessageCampaign ||
+                       e.Entity is AuditLog)
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
         foreach (var entry in entries)

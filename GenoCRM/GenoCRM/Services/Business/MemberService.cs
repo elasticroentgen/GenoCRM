@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
 
 namespace GenoCRM.Services.Business;
 
@@ -38,14 +39,18 @@ public class MemberService : IMemberService
     private readonly IConfiguration _configuration;
     private readonly IShareService _shareService;
     private readonly IFiscalYearService _fiscalYearService;
+    private readonly IAuditService _auditService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService, IFiscalYearService fiscalYearService)
+    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService, IFiscalYearService fiscalYearService, IAuditService auditService, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _shareService = shareService;
         _fiscalYearService = fiscalYearService;
+        _auditService = auditService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IEnumerable<Member>> GetAllMembersAsync()
@@ -134,6 +139,17 @@ public class MemberService : IMemberService
 
             await transaction.CommitAsync();
 
+            // Log audit trail
+            await AuditHelper.LogAuditAsync(
+                _auditService,
+                _httpContextAccessor,
+                AuditAction.Create,
+                nameof(Member),
+                member.Id.ToString(),
+                AuditHelper.GetMemberDescription(member),
+                Permissions.CreateMembers,
+                new { member.MemberNumber, member.FullName, initialShareQuantity });
+
             _logger.LogInformation("Member created with ID {MemberId}, number {MemberNumber}, and {ShareQuantity} initial shares", 
                 member.Id, member.MemberNumber, initialShareQuantity);
 
@@ -176,6 +192,25 @@ public class MemberService : IMemberService
             existingMember.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // Log audit trail
+            await AuditHelper.LogAuditAsync(
+                _auditService,
+                _httpContextAccessor,
+                AuditAction.Update,
+                nameof(Member),
+                member.Id.ToString(),
+                AuditHelper.GetMemberDescription(existingMember),
+                Permissions.EditMembers,
+                new { 
+                    Changes = new {
+                        FirstName = member.FirstName,
+                        LastName = member.LastName,
+                        Email = member.Email,
+                        Phone = member.Phone,
+                        Status = member.Status
+                    }
+                });
 
             _logger.LogInformation("Member updated with ID {MemberId}", member.Id);
 

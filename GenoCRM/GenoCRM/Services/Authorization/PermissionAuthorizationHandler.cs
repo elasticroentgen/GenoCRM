@@ -74,6 +74,7 @@ public static class AuthorizationPolicies
     public const string CancelShares = "CancelShares";
     public const string ApproveShareTransfers = "ApproveShareTransfers";
     public const string RejectShareTransfers = "RejectShareTransfers";
+    public const string ConsolidateShares = "ConsolidateShares";
     
     public const string ViewDividends = "ViewDividends";
     public const string CalculateDividends = "CalculateDividends";
@@ -92,6 +93,8 @@ public static class AuthorizationPolicies
     public const string ViewMessages = "ViewMessages";
     public const string SendMessages = "SendMessages";
     public const string ManageMessages = "ManageMessages";
+    
+    public const string ViewAuditLogs = "ViewAuditLogs";
     
     // Group-based policies
     public const string AdminGroup = "AdminGroup";
@@ -132,6 +135,9 @@ public static class AuthorizationPolicies
         options.AddPolicy(RejectShareTransfers, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.RejectShareTransfers)));
 
+        options.AddPolicy(ConsolidateShares, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ConsolidateShares)));
+
         options.AddPolicy(ViewDividends, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewDividends)));
         
@@ -171,12 +177,19 @@ public static class AuthorizationPolicies
         options.AddPolicy(ManageMessages, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ManageMessages)));
 
+        options.AddPolicy(ViewAuditLogs, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewAuditLogs)));
+
         // Group-based policies
         options.AddPolicy(AdminGroup, policy => 
             policy.Requirements.Add(new GroupRequirement("Entwickler")));
         
         options.AddPolicy(ManagerGroup, policy => 
             policy.Requirements.Add(new GroupRequirement("Vorstand")));
+        
+        // Aufsichtsrat (supervisory board) policy - can view audit logs
+        options.AddPolicy("AufsichtsratGroup", policy => 
+            policy.Requirements.Add(new GroupRequirement("Aufsichtsrat")));
         
         options.AddPolicy(MemberGroup, policy => 
             policy.Requirements.Add(new GroupRequirement("member")));

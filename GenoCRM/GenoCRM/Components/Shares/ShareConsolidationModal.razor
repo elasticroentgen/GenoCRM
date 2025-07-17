@@ -1,0 +1,350 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "ConsolidateShares")]
+@inject IShareConsolidationService ConsolidationService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<div class="modal fade @(_isVisible ? "show d-block" : "")" tabindex="-1" style="@(_isVisible ? "background-color: rgba(0,0,0,0.5);" : "")">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-compress-alt"></i> @SharedLocalizer["ConsolidateShares"]
+                </h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (_isLoading)
+                {
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+                        </div>
+                    </div>
+                }
+                else if (_availableShares.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        @SharedLocalizer["ConsolidationExplanation"]
+                    </div>
+
+                    <h6>@SharedLocalizer["SelectSharesToConsolidate"]</h6>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="selectAll" 
+                                       @onchange="ToggleSelectAll" />
+                                <label class="form-check-label" for="selectAll">
+                                    @SharedLocalizer["SelectAll"]
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50"></th>
+                                    <th>@SharedLocalizer["Certificate"]</th>
+                                    <th>@SharedLocalizer["Quantity"]</th>
+                                    <th>@SharedLocalizer["Value"]</th>
+                                    <th>@SharedLocalizer["PaidAmount"]</th>
+                                    <th>@SharedLocalizer["Outstanding"]</th>
+                                    <th>@SharedLocalizer["IssueDate"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var share in _availableShares)
+                                {
+                                    <tr class="@(IsShareSelected(share.Id) ? "table-primary" : "")">
+                                        <td>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" 
+                                                       checked="@IsShareSelected(share.Id)"
+                                                       @onchange="@(e => ToggleShareSelection(share.Id, (bool)e.Value!))" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>@share.CertificateNumber</strong>
+                                            @if (!share.IsFullyPaid)
+                                            {
+                                                <br><small class="text-warning">@SharedLocalizer["PartiallyPaid"]</small>
+                                            }
+                                        </td>
+                                        <td>@share.Quantity</td>
+                                        <td>@SharedLocalizer["Currency", share.TotalValue]</td>
+                                        <td>@SharedLocalizer["Currency", share.PaidAmount]</td>
+                                        <td>
+                                            @if (share.OutstandingAmount > 0)
+                                            {
+                                                <span class="text-danger">@SharedLocalizer["Currency", share.OutstandingAmount]</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success">@SharedLocalizer["FullyPaid"]</span>
+                                            }
+                                        </td>
+                                        <td>@share.IssueDate.ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (_selectedShareIds.Count >= 2)
+                    {
+                        <div class="card bg-light">
+                            <div class="card-header">
+                                <h6 class="mb-0">@SharedLocalizer["ConsolidationPreview"]</h6>
+                            </div>
+                            <div class="card-body">
+                                @if (_preview != null)
+                                {
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <dl class="row">
+                                                <dt class="col-sm-6">@SharedLocalizer["TotalQuantity"]:</dt>
+                                                <dd class="col-sm-6"><strong>@_preview.TotalQuantity</strong></dd>
+                                                
+                                                <dt class="col-sm-6">@SharedLocalizer["TotalValue"]:</dt>
+                                                <dd class="col-sm-6"><strong>@SharedLocalizer["Currency", _preview.TotalValue]</strong></dd>
+                                            </dl>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <dl class="row">
+                                                <dt class="col-sm-6">@SharedLocalizer["TotalPaid"]:</dt>
+                                                <dd class="col-sm-6">@SharedLocalizer["Currency", _preview.TotalPaidAmount]</dd>
+                                                
+                                                <dt class="col-sm-6">@SharedLocalizer["Outstanding"]:</dt>
+                                                <dd class="col-sm-6">
+                                                    @if (_preview.TotalOutstandingAmount > 0)
+                                                    {
+                                                        <span class="text-danger">@SharedLocalizer["Currency", _preview.TotalOutstandingAmount]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-success">@SharedLocalizer["Currency", 0]</span>
+                                                    }
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                    
+                                    @if (!_preview.AllFullyPaid)
+                                    {
+                                        <div class="alert alert-warning alert-sm">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            @SharedLocalizer["ConsolidationPartiallyPaidWarning"]
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">@SharedLocalizer["ConsolidationNotes"] (@SharedLocalizer["Optional"])</label>
+                            <textarea class="form-control" rows="2" @bind="_notes" 
+                                      placeholder="@SharedLocalizer["ConsolidationNotesPlaceholder"]"></textarea>
+                        </div>
+                    }
+
+                    @if (_validationResult != null && !_validationResult.IsValid)
+                    {
+                        <div class="alert alert-danger mt-3">
+                            <i class="fas fa-exclamation-circle"></i>
+                            @_validationResult.ErrorMessage
+                        </div>
+                    }
+
+                    @if (_validationResult != null && _validationResult.Warnings.Any())
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <ul class="mb-0">
+                                @foreach (var warning in _validationResult.Warnings)
+                                {
+                                    <li>@warning</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        @SharedLocalizer["NoConsolidatableShares"]
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Close">
+                    @SharedLocalizer["Cancel"]
+                </button>
+                @if (_availableShares.Any() && _selectedShareIds.Count >= 2)
+                {
+                    <button type="button" class="btn btn-primary" @onclick="ConsolidateShares" 
+                            disabled="@(_isProcessing || (_validationResult != null && !_validationResult.IsValid))">
+                        @if (_isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="fas fa-compress-alt"></i> @SharedLocalizer["ConsolidateShares"]
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int MemberId { get; set; }
+    [Parameter] public EventCallback OnConsolidationCompleted { get; set; }
+
+    private bool _isVisible = false;
+    private bool _isLoading = false;
+    private bool _isProcessing = false;
+    private List<CooperativeShare> _availableShares = new();
+    private HashSet<int> _selectedShareIds = new();
+    private ShareConsolidationValidationResult? _validationResult;
+    private ShareConsolidationPreview? _preview;
+    private string _notes = string.Empty;
+
+    public async Task ShowAsync()
+    {
+        _isVisible = true;
+        _selectedShareIds.Clear();
+        _validationResult = null;
+        _preview = null;
+        _notes = string.Empty;
+        
+        await LoadAvailableShares();
+        StateHasChanged();
+    }
+
+    private async Task LoadAvailableShares()
+    {
+        try
+        {
+            _isLoading = true;
+            _availableShares = (await ConsolidationService.GetConsolidatableSharesAsync(MemberId)).ToList();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorLoadingShares"], ex.Message));
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private bool IsShareSelected(int shareId) => _selectedShareIds.Contains(shareId);
+
+    private async Task ToggleShareSelection(int shareId, bool isSelected)
+    {
+        if (isSelected)
+        {
+            _selectedShareIds.Add(shareId);
+        }
+        else
+        {
+            _selectedShareIds.Remove(shareId);
+        }
+
+        await UpdateValidationAndPreview();
+    }
+
+    private async Task ToggleSelectAll(ChangeEventArgs e)
+    {
+        var selectAll = (bool)e.Value!;
+        
+        if (selectAll)
+        {
+            _selectedShareIds.UnionWith(_availableShares.Select(s => s.Id));
+        }
+        else
+        {
+            _selectedShareIds.Clear();
+        }
+
+        await UpdateValidationAndPreview();
+    }
+
+    private async Task UpdateValidationAndPreview()
+    {
+        if (_selectedShareIds.Count >= 2)
+        {
+            try
+            {
+                _validationResult = await ConsolidationService.ValidateConsolidationAsync(_selectedShareIds);
+                _preview = await ConsolidationService.GetConsolidationPreviewAsync(_selectedShareIds);
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    string.Format(SharedLocalizer["ErrorValidatingConsolidation"], ex.Message));
+            }
+        }
+        else
+        {
+            _validationResult = null;
+            _preview = null;
+        }
+    }
+
+    private async Task ConsolidateShares()
+    {
+        if (_selectedShareIds.Count < 2 || (_validationResult != null && !_validationResult.IsValid))
+            return;
+
+        var confirmed = await ModalService.ShowConfirmationAsync(
+            SharedLocalizer["ConfirmConsolidation"],
+            SharedLocalizer["ConfirmConsolidationMessage", _selectedShareIds.Count]);
+
+        if (!confirmed)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            
+            var consolidatedShare = await ConsolidationService.ConsolidateSharesAsync(
+                MemberId, _selectedShareIds, _notes);
+
+            await ModalService.ShowSuccessAsync(
+                SharedLocalizer["Success"],
+                string.Format(SharedLocalizer["ConsolidationSuccessMessage"], 
+                    _selectedShareIds.Count, consolidatedShare.CertificateNumber));
+
+            await OnConsolidationCompleted.InvokeAsync();
+            Close();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["ErrorConsolidatingShares"], ex.Message));
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private void Close()
+    {
+        _isVisible = false;
+        _selectedShareIds.Clear();
+        _validationResult = null;
+        _preview = null;
+        _notes = string.Empty;
+        StateHasChanged();
+    }
+}

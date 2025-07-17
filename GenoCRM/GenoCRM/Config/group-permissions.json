@@ -12,6 +12,7 @@
       "shares.transfer",
       "shares.transfer.approve",
       "shares.transfer.reject",
+      "shares.consolidate",
       "dividends.view",
       "dividends.calculate",
       "dividends.approve",
@@ -44,6 +45,7 @@
       "shares.transfer",
       "shares.transfer.approve",
       "shares.transfer.reject",
+      "shares.consolidate",
       "dividends.view",
       "dividends.calculate",
       "dividends.approve",
@@ -56,7 +58,8 @@
       "reports.view",
       "reports.export",
       "messages.view",
-      "messages.send"
+      "messages.send",
+      "admin.audit.view"
     ],
     "member": [
       "members.view",
@@ -83,7 +86,8 @@
       "dividends.pay",
       "loans.view",
       "loans.approve",
-      "reports.view"
+      "reports.view",
+      "admin.audit.view"
     ],
     "accountant": [
       "members.view",

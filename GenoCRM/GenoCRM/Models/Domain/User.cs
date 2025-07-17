@@ -109,6 +109,7 @@ public static class Permissions
     public const string TransferShares = "shares.transfer";
     public const string ApproveShareTransfers = "shares.transfer.approve";
     public const string RejectShareTransfers = "shares.transfer.reject";
+    public const string ConsolidateShares = "shares.consolidate";
     
     // Dividend management
     public const string ViewDividends = "dividends.view";
@@ -156,6 +157,7 @@ public static class Permissions
         { TransferShares, "Transfer shares between members" },
         { ApproveShareTransfers, "Approve share transfer requests" },
         { RejectShareTransfers, "Reject share transfer requests" },
+        { ConsolidateShares, "Consolidate multiple share certificates" },
         { ViewDividends, "View dividend information" },
         { CalculateDividends, "Calculate dividends" },
         { ApproveDividends, "Approve dividend payments" },

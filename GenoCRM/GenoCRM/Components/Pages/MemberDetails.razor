@@ -14,6 +14,7 @@
 @inject IStringLocalizer<Members> MembersLocalizer
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
+@inject IShareConsolidationService ConsolidationService
 @rendermode InteractiveServer
 
 <PageTitle>@MembersLocalizer["MemberDetails"]</PageTitle>
@@ -197,6 +198,16 @@ else
                             </button>
                         </Authorized>
                     </AuthorizeView>
+                    <AuthorizeView Policy="ConsolidateShares">
+                        <Authorized>
+                            @if (_canConsolidate)
+                            {
+                                <button class="btn btn-outline-warning btn-sm w-100 mb-2" @onclick="ConsolidateShares">
+                                    <i class="fas fa-compress-alt"></i> @SharedLocalizer["ConsolidateShares"]
+                                </button>
+                            }
+                        </Authorized>
+                    </AuthorizeView>
                     </CascadingAuthenticationState>
                 </div>
             </div>
@@ -255,11 +266,14 @@ else
     private int _totalShares;
     private int _activeShares;
     private decimal _totalShareValue;
+    private bool _canConsolidate;
+    private ShareConsolidationModal _consolidationModal = null!;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadMemberDetails();
         await LoadMemberShares();
+        await CheckConsolidationAvailability();
     }
 
     private async Task LoadMemberDetails()
@@ -338,6 +352,31 @@ else
         Navigation.NavigateTo($"/dividends?memberId={MemberId}");
     }
 
+    private async Task CheckConsolidationAvailability()
+    {
+        try
+        {
+            _canConsolidate = await ConsolidationService.CanMemberConsolidateSharesAsync(MemberId);
+        }
+        catch (Exception ex)
+        {
+            // Log error silently
+            _canConsolidate = false;
+        }
+    }
+
+    private async Task ConsolidateShares()
+    {
+        await _consolidationModal.ShowAsync();
+    }
+
+    private async Task OnConsolidationCompleted()
+    {
+        await LoadMemberShares();
+        await CheckConsolidationAvailability();
+        StateHasChanged();
+    }
+
     private int GetMembershipDuration()
     {
         var endDate = _member?.LeaveDate ?? DateTime.Today;
@@ -380,3 +419,7 @@ else
         };
     }
 }
+
+<ShareConsolidationModal @ref="_consolidationModal" 
+                        MemberId="@MemberId" 
+                        OnConsolidationCompleted="OnConsolidationCompleted" />
