@@ -6,6 +6,8 @@
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @using GenoCRM.Resources.Pages
+@using GenoCRM.Components.Shares
+@using GenoCRM.Components.Documents
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject IShareService ShareService
@@ -18,6 +20,34 @@
 @rendermode InteractiveServer
 
 <PageTitle>@MembersLocalizer["MemberDetails"]</PageTitle>
+
+<PageDocumentation PageTitle="@MembersLocalizer["MemberDetailsTitle"]" 
+                   PageDescription="@MembersLocalizer["MemberDetailsDescription"]">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["PersonalInformation"]</div>
+            <div class="help-text">@MembersLocalizer["PersonalInformationHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["MembershipInformation"]</div>
+            <div class="help-text">@MembersLocalizer["MembershipInformationHelp"]</div>
+            <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §3</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["SharesOverview"]</div>
+            <div class="help-text">@MembersLocalizer["SharesOverviewHelp"]</div>
+            <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §7, §8</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["QuickActions"]</div>
+            <div class="help-text">@MembersLocalizer["QuickActionsHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["ConsolidateShares"]</div>
+            <div class="help-text">@MembersLocalizer["ConsolidateSharesHelp"]</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
 
 @if (_member == null)
 {
@@ -157,15 +187,11 @@ else
                 <div class="card-body">
                     <div class="mb-3">
                         <strong>@MembersLocalizer["TotalShares"]:</strong>
-                        <p class="h4 text-primary">@_totalShares</p>
+                        <p class="h4 text-primary">@_activeShares</p>
                     </div>
                     <div class="mb-3">
                         <strong>@MembersLocalizer["TotalShareValue"]:</strong>
                         <p class="h4 text-success">@FormattingService.FormatCurrency(_totalShareValue)</p>
-                    </div>
-                    <div class="mb-3">
-                        <strong>@MembersLocalizer["ActiveShares"]:</strong>
-                        <p>@_activeShares</p>
                     </div>
                 </div>
             </div>
@@ -237,12 +263,12 @@ else
                         <tbody>
                             @foreach (var share in _shares)
                             {
-                                <tr>
-                                    <td>@share.CertificateNumber</td>
-                                    <td>@share.Quantity</td>
-                                    <td>@FormattingService.FormatCurrency(share.NominalValue)</td>
-                                    <td>@FormattingService.FormatCurrency(share.TotalValue)</td>
-                                    <td>@FormattingService.FormatDate(share.IssueDate)</td>
+                                <tr class="@(share.Status != ShareStatus.Active ? "text-muted" : "")">
+                                    <td class="@(share.Status != ShareStatus.Active ? "text-decoration-line-through" : "")">@share.CertificateNumber</td>
+                                    <td class="@(share.Status != ShareStatus.Active ? "text-decoration-line-through" : "")">@share.Quantity</td>
+                                    <td class="@(share.Status != ShareStatus.Active ? "text-decoration-line-through" : "")">@FormattingService.FormatCurrency(share.NominalValue)</td>
+                                    <td class="@(share.Status != ShareStatus.Active ? "text-decoration-line-through" : "")">@FormattingService.FormatCurrency(share.TotalValue)</td>
+                                    <td class="@(share.Status != ShareStatus.Active ? "text-decoration-line-through" : "")">@FormattingService.FormatDate(share.IssueDate)</td>
                                     <td>
                                         <span class="badge bg-@GetShareStatusColor(share.Status)">
                                             @share.Status
@@ -253,6 +279,16 @@ else
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Documents Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-file-alt"></i> @SharedLocalizer["Documents"]</h5>
+            </div>
+            <div class="card-body">
+                <DocumentManager MemberId="@MemberId" CanEdit="true" />
             </div>
         </div>
     }
@@ -358,7 +394,7 @@ else
         {
             _canConsolidate = await ConsolidationService.CanMemberConsolidateSharesAsync(MemberId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log error silently
             _canConsolidate = false;

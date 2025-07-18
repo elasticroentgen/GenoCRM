@@ -1,0 +1,198 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@inject IDocumentService DocumentService
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject ILogger<DocumentEdit> Logger
+
+<div class="document-edit">
+    <EditForm Model="@EditModel" OnValidSubmit="@UpdateDocument">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="title" class="form-label">@SharedLocalizer["Title"] *</label>
+                    <InputText id="title" class="form-control" @bind-Value="EditModel.Title" />
+                    <ValidationMessage For="@(() => EditModel.Title)" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="documentType" class="form-label">@SharedLocalizer["DocumentType"]</label>
+                    <select id="documentType" class="form-select" @bind="EditModel.Type">
+                        @foreach (var type in Enum.GetValues<DocumentType>())
+                        {
+                            <option value="@type">@SharedLocalizer[type.ToString()]</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">@SharedLocalizer["Description"]</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="EditModel.Description" rows="3" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="tags" class="form-label">@SharedLocalizer["Tags"]</label>
+                    <InputText id="tags" class="form-control" @bind-Value="EditModel.Tags" 
+                              placeholder="@SharedLocalizer["TagsPlaceholder"]" />
+                    <div class="form-text">@SharedLocalizer["TagsHelp"]</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="expirationDate" class="form-label">@SharedLocalizer["ExpirationDate"]</label>
+                    <InputDate id="expirationDate" class="form-control" @bind-Value="EditModel.ExpirationDate" />
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <div class="form-check">
+                <InputCheckbox id="isConfidential" class="form-check-input" @bind-Value="EditModel.IsConfidential" />
+                <label class="form-check-label" for="isConfidential">
+                    @SharedLocalizer["IsConfidential"]
+                </label>
+            </div>
+            <div class="form-text">@SharedLocalizer["IsConfidentialHelp"]</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@SharedLocalizer["FileInformation"]</label>
+            <div class="p-3 bg-light rounded">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>@SharedLocalizer["FileName"]:</strong><br />
+                        <span class="text-muted">@Document.FileName</span>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>@SharedLocalizer["FileSize"]:</strong><br />
+                        <span class="text-muted">@Document.FileSizeFormatted</span>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>@SharedLocalizer["ContentType"]:</strong><br />
+                        <span class="text-muted">@Document.ContentType</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                @SharedLocalizer["Cancel"]
+            </button>
+            <button type="submit" class="btn btn-primary" disabled="@IsUpdating">
+                @if (IsUpdating)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                }
+                <i class="fas fa-save"></i> @SharedLocalizer["Save"]
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public Document Document { get; set; } = null!;
+    [Parameter] public EventCallback<Document> OnDocumentUpdated { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private DocumentEditModel EditModel = new();
+    private bool IsUpdating = false;
+
+    protected override void OnInitialized()
+    {
+        EditModel = new DocumentEditModel
+        {
+            Title = Document.Title,
+            Type = Document.Type,
+            Description = Document.Description,
+            Tags = Document.Tags,
+            ExpirationDate = Document.ExpirationDate,
+            IsConfidential = Document.IsConfidential
+        };
+    }
+
+    private async Task UpdateDocument()
+    {
+        try
+        {
+            IsUpdating = true;
+            StateHasChanged();
+
+            // Update document with new values
+            Document.Title = EditModel.Title;
+            Document.Type = EditModel.Type;
+            Document.Description = EditModel.Description;
+            Document.Tags = EditModel.Tags;
+            Document.ExpirationDate = EditModel.ExpirationDate;
+            Document.IsConfidential = EditModel.IsConfidential;
+
+            var success = await DocumentService.UpdateDocumentAsync(Document);
+            if (success)
+            {
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                    SharedLocalizer["DocumentUpdatedSuccessfully"]);
+                
+                await OnDocumentUpdated.InvokeAsync(Document);
+            }
+            else
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["DocumentUpdateError"]);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error updating document {DocumentId}", Document.Id);
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["DocumentUpdateError"], ex.Message));
+        }
+        finally
+        {
+            IsUpdating = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    private class DocumentEditModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public DocumentType Type { get; set; }
+        public string? Description { get; set; }
+        public string? Tags { get; set; }
+        public DateTime? ExpirationDate { get; set; }
+        public bool IsConfidential { get; set; }
+    }
+}
+
+<style>
+    .document-edit {
+        max-width: 800px;
+    }
+    
+    .document-edit .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .document-edit .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    .document-edit .text-muted {
+        color: #6c757d !important;
+    }
+</style>

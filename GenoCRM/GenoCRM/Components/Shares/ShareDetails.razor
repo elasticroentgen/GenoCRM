@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
+@using GenoCRM.Components.Documents
 @attribute [Authorize(Policy = "ViewShares")]
 @inject IShareService ShareService
 @inject NavigationManager Navigation
@@ -271,6 +272,16 @@
                 </div>
             </div>
         }
+
+        <!-- Documents Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-alt"></i> @SharedLocalizer["Documents"]</h5>
+            </div>
+            <div class="card-body">
+                <DocumentManager ShareId="@ShareId" CanEdit="@CanEdit()" />
+            </div>
+        </div>
 
         <div class="card">
             <div class="card-header">

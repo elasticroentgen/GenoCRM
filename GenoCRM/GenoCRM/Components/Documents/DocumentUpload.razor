@@ -1,0 +1,193 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@using Microsoft.AspNetCore.Components.Forms
+@inject IDocumentService DocumentService
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject ILogger<DocumentUpload> Logger
+
+<div class="document-upload">
+    <div class="mb-3">
+        <label for="documentType" class="form-label">@SharedLocalizer["DocumentType"]</label>
+        <select id="documentType" class="form-select" @bind="SelectedDocumentType">
+            @foreach (var type in Enum.GetValues<DocumentType>())
+            {
+                <option value="@type">@SharedLocalizer[type.ToString()]</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">@SharedLocalizer["Description"]</label>
+        <textarea id="description" class="form-control" @bind="Description" rows="3" 
+                  placeholder="@SharedLocalizer["DocumentDescriptionPlaceholder"]"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="fileInput" class="form-label">@SharedLocalizer["SelectFile"]</label>
+        <InputFile id="fileInput" class="form-control" OnChange="@HandleFileSelected" accept="@AcceptedFileTypes" />
+        <div class="form-text">
+            @SharedLocalizer["AllowedFileTypes"]: @AcceptedFileTypes<br />
+            @SharedLocalizer["MaxFileSize"]: @MaxFileSizeFormatted
+        </div>
+    </div>
+
+    @if (SelectedFile != null)
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-file"></i>
+            <strong>@SharedLocalizer["SelectedFile"]:</strong> @SelectedFile.Name (@FormatFileSize(SelectedFile.Size))
+        </div>
+    }
+
+    <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">
+            @SharedLocalizer["Cancel"]
+        </button>
+        <button type="button" class="btn btn-primary" @onclick="UploadFile" disabled="@(SelectedFile == null || IsUploading)">
+            @if (IsUploading)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            }
+            <i class="fas fa-upload"></i> @SharedLocalizer["Upload"]
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? MemberId { get; set; }
+    [Parameter] public int? ShareId { get; set; }
+    [Parameter] public EventCallback<Document> OnDocumentUploaded { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private IBrowserFile? SelectedFile;
+    private DocumentType SelectedDocumentType = DocumentType.Other;
+    private string Description = string.Empty;
+    private bool IsUploading = false;
+    private string AcceptedFileTypes = ".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt";
+    private long MaxFileSize = 10485760; // 10MB
+    private string MaxFileSizeFormatted => FormatFileSize(MaxFileSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Get configuration for file restrictions
+            var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt" };
+            AcceptedFileTypes = string.Join(",", allowedExtensions);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error initializing document upload component");
+        }
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            SelectedFile = e.File;
+
+            // Validate file type
+            if (!await DocumentService.IsFileTypeAllowedAsync(SelectedFile.Name))
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["FileTypeNotAllowed"]);
+                SelectedFile = null;
+                return;
+            }
+
+            // Validate file size
+            if (!await DocumentService.IsFileSizeAllowedAsync(SelectedFile.Size))
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["FileSizeExceeded"]);
+                SelectedFile = null;
+                return;
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error handling file selection");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                SharedLocalizer["FileSelectionError"]);
+        }
+    }
+
+    private async Task UploadFile()
+    {
+        if (SelectedFile == null) return;
+
+        try
+        {
+            IsUploading = true;
+            StateHasChanged();
+
+            var document = await DocumentService.UploadDocumentAsync(
+                SelectedFile, 
+                MemberId, 
+                ShareId, 
+                SelectedDocumentType, 
+                Description);
+
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                SharedLocalizer["DocumentUploadedSuccessfully"]);
+
+            await OnDocumentUploaded.InvokeAsync(document);
+
+            // Reset form
+            SelectedFile = null;
+            Description = string.Empty;
+            SelectedDocumentType = DocumentType.Other;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error uploading document");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                string.Format(SharedLocalizer["DocumentUploadError"], ex.Message));
+        }
+        finally
+        {
+            IsUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
+
+<style>
+    .document-upload {
+        max-width: 600px;
+    }
+    
+    .document-upload .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
+</style>

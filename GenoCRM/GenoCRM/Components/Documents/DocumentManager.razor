@@ -1,0 +1,140 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@inject IDocumentService DocumentService
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject ILogger<DocumentManager> Logger
+
+<div class="document-manager">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>@SharedLocalizer["Documents"]</h4>
+        <button class="btn btn-primary" @onclick="ShowUploadDialog">
+            <i class="fas fa-plus"></i> @SharedLocalizer["UploadDocument"]
+        </button>
+    </div>
+
+    @if (ShowUpload)
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">@SharedLocalizer["UploadDocument"]</h5>
+            </div>
+            <div class="card-body">
+                <DocumentUpload MemberId="@MemberId" 
+                               ShareId="@ShareId" 
+                               OnDocumentUploaded="@OnDocumentUploaded"
+                               OnCancel="@HideUploadDialog" />
+            </div>
+        </div>
+    }
+
+    @if (ShowEdit && EditingDocument != null)
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">@SharedLocalizer["EditDocument"]</h5>
+            </div>
+            <div class="card-body">
+                <DocumentEdit Document="@EditingDocument" 
+                             OnDocumentUpdated="@OnDocumentUpdated"
+                             OnCancel="@HideEditDialog" />
+            </div>
+        </div>
+    }
+
+    <DocumentList MemberId="@MemberId" 
+                  ShareId="@ShareId" 
+                  CanEdit="@CanEdit"
+                  OnDocumentEdit="@OnDocumentEdit"
+                  OnDocumentDeleted="@OnDocumentDeleted"
+                  @ref="DocumentListRef" />
+</div>
+
+@code {
+    [Parameter] public int? MemberId { get; set; }
+    [Parameter] public int? ShareId { get; set; }
+    [Parameter] public bool CanEdit { get; set; } = true;
+    [Parameter] public EventCallback<Document> OnDocumentChanged { get; set; }
+
+    private bool ShowUpload = false;
+    private bool ShowEdit = false;
+    private Document? EditingDocument;
+    private DocumentList? DocumentListRef;
+
+    private void ShowUploadDialog()
+    {
+        ShowUpload = true;
+        ShowEdit = false;
+        StateHasChanged();
+    }
+
+    private void HideUploadDialog()
+    {
+        ShowUpload = false;
+        StateHasChanged();
+    }
+
+    private void ShowEditDialog(Document document)
+    {
+        EditingDocument = document;
+        ShowEdit = true;
+        ShowUpload = false;
+        StateHasChanged();
+    }
+
+    private void HideEditDialog()
+    {
+        ShowEdit = false;
+        EditingDocument = null;
+        StateHasChanged();
+    }
+
+    private async Task OnDocumentUploaded(Document document)
+    {
+        HideUploadDialog();
+        await RefreshDocuments();
+        await OnDocumentChanged.InvokeAsync(document);
+    }
+
+    private async Task OnDocumentUpdated(Document document)
+    {
+        HideEditDialog();
+        await RefreshDocuments();
+        await OnDocumentChanged.InvokeAsync(document);
+    }
+
+    private async Task OnDocumentEdit(Document document)
+    {
+        ShowEditDialog(document);
+    }
+
+    private async Task OnDocumentDeleted(Document document)
+    {
+        await OnDocumentChanged.InvokeAsync(document);
+    }
+
+    private async Task RefreshDocuments()
+    {
+        if (DocumentListRef != null)
+        {
+            await DocumentListRef.LoadDocuments();
+        }
+    }
+}
+
+<style>
+    .document-manager .card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+    
+    .document-manager .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .document-manager .card-body {
+        padding: 1rem;
+    }
+</style>

@@ -6,8 +6,9 @@ public class Document
 {
     public int Id { get; set; }
     
-    [Required]
-    public int MemberId { get; set; }
+    public int? MemberId { get; set; }
+    
+    public int? ShareId { get; set; }
     
     [Required]
     [StringLength(200)]
@@ -52,7 +53,8 @@ public class Document
     public string? UpdatedBy { get; set; }
     
     // Navigation properties
-    public virtual Member Member { get; set; } = null!;
+    public virtual Member? Member { get; set; }
+    public virtual CooperativeShare? Share { get; set; }
     public virtual ICollection<DocumentVersion> Versions { get; set; } = new List<DocumentVersion>();
     
     // Computed properties
@@ -110,6 +112,8 @@ public enum DocumentType
 {
     MembershipApplication,
     ShareCertificate,
+    SharePurchaseAgreement,
+    PaymentReceipt,
     LoanAgreement,
     DividendNotice,
     TaxDocument,
@@ -117,6 +121,9 @@ public enum DocumentType
     Meeting,
     Legal,
     Financial,
+    IdentificationDocument,
+    ContractDocument,
+    GeneratedDocument,
     Other
 }
 

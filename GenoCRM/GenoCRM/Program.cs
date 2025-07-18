@@ -8,6 +8,8 @@ using GenoCRM.Services.Authorization;
 using GenoCRM.Services.Configuration;
 using GenoCRM.Services.Localization;
 using GenoCRM.Services.UI;
+using GenoCRM.Services.Storage;
+using GenoCRM.Services.PDF;
 using GenoCRM.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -86,6 +88,7 @@ builder.Services.AddScoped<IShareApprovalService, ShareApprovalService>();
 builder.Services.AddScoped<IShareConsolidationService, ShareConsolidationService>();
 builder.Services.AddScoped<IMessagingService, MessagingService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // Messaging providers
 builder.Services.AddScoped<IEmailProvider, SmtpEmailProvider>();
@@ -102,8 +105,11 @@ builder.Services.AddHttpClient<IWhatsAppProvider, WhatsAppProvider>();
 builder.Services.AddHttpClient<ISmsProvider, SmsProvider>();
 
 // Integration services
-builder.Services.AddHttpClient<INextcloudService, NextcloudService>();
-builder.Services.AddScoped<INextcloudService, NextcloudService>();
+builder.Services.AddHttpClient<INextcloudDocumentService, NextcloudDocumentService>();
+builder.Services.AddScoped<INextcloudDocumentService, NextcloudDocumentService>();
+
+// PDF generation services
+builder.Services.AddScoped<IPdfGenerationService, PdfGenerationService>();
 
 // Authentication services
 builder.Services.AddHttpClient<INextcloudAuthService, NextcloudAuthService>();

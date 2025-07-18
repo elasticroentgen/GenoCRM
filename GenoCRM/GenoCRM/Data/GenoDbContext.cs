@@ -125,6 +125,9 @@ public class GenoDbContext : DbContext
             .HasIndex(d => d.MemberId);
         
         modelBuilder.Entity<Document>()
+            .HasIndex(d => d.ShareId);
+        
+        modelBuilder.Entity<Document>()
             .HasIndex(d => d.Type);
         
         modelBuilder.Entity<Document>()

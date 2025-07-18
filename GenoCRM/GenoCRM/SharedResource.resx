@@ -799,7 +799,7 @@
     <value>Consolidation Preview</value>
   </data>
   <data name="NoConsolidatableShares" xml:space="preserve">
-    <value>This member has no shares that can be consolidated. At least 2 active shares are required.</value>
+    <value>This member has no shares that can be consolidated. At least 2 active, fully paid shares are required.</value>
   </data>
   <data name="ConsolidationNotes" xml:space="preserve">
     <value>Consolidation Notes</value>
@@ -1054,5 +1054,402 @@
   </data>
   <data name="ErrorCheckingExistingShares" xml:space="preserve">
     <value>Error checking existing shares: {0}</value>
+  </data>
+  <data name="CalculateDividends" xml:space="preserve">
+    <value>Calculate Dividends</value>
+  </data>
+  <data name="AllYears" xml:space="preserve">
+    <value>All Years</value>
+  </data>
+  <data name="TotalDividends" xml:space="preserve">
+    <value>Total Dividends</value>
+  </data>
+  <data name="BaseAmount" xml:space="preserve">
+    <value>Base Amount</value>
+  </data>
+  <data name="Rate" xml:space="preserve">
+    <value>Rate</value>
+  </data>
+  <data name="DividendAmount" xml:space="preserve">
+    <value>Dividend Amount</value>
+  </data>
+  <data name="TaxWithheld" xml:space="preserve">
+    <value>Tax Withheld</value>
+  </data>
+  <data name="NetAmount" xml:space="preserve">
+    <value>Net Amount</value>
+  </data>
+  <data name="DeclarationDate" xml:space="preserve">
+    <value>Declaration Date</value>
+  </data>
+  <data name="ErrorProcessingRequest" xml:space="preserve">
+    <value>An error occurred while processing your request.</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>Request ID</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>Development Mode</value>
+  </data>
+  <data name="DevelopmentModeExplanation" xml:space="preserve">
+    <value>Swapping to Development environment will display more detailed information about the error that occurred.</value>
+  </data>
+  <data name="DevelopmentModeWarning" xml:space="preserve">
+    <value>The Development environment shouldn't be enabled for deployed applications.</value>
+  </data>
+  <data name="DevelopmentModeInstructions" xml:space="preserve">
+    <value>It can result in displaying sensitive information from exceptions to end users. For local debugging, enable the Development environment by setting the ASPNETCORE_ENVIRONMENT environment variable to Development and restarting the app.</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="NoPermissionToAccess" xml:space="preserve">
+    <value>You don't have permission to access this resource.</value>
+  </data>
+  <data name="LoggedInAs" xml:space="preserve">
+    <value>Logged in as</value>
+  </data>
+  <data name="YourGroups" xml:space="preserve">
+    <value>Your groups</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>Go Home</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DebugInfo" xml:space="preserve">
+    <value>Debug Info</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="UnhandledError" xml:space="preserve">
+    <value>An unhandled error has occurred.</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="SatzungReference" xml:space="preserve">
+    <value>Satzung Reference</value>
+  </data>
+  <data name="ShareListTitle" xml:space="preserve">
+    <value>Share Management</value>
+  </data>
+  <data name="ShareListDescription" xml:space="preserve">
+    <value>Manage cooperative shares and certificates. View share details, track payments, and handle transfers.</value>
+  </data>
+  <data name="ShareInformationHelp" xml:space="preserve">
+    <value>Each share represents €250 of capital in the cooperative. Shares can be Active, Cancelled, Transferred, or Suspended.</value>
+  </data>
+  <data name="ShareStatusHelp" xml:space="preserve">
+    <value>Share status indicates current state: Active shares have voting rights, Cancelled shares are returned, Transferred shares changed ownership, Suspended shares are temporarily inactive.</value>
+  </data>
+  <data name="PaymentStatusHelp" xml:space="preserve">
+    <value>Shows payment progress: Fully Paid (green), Partially Paid (yellow), or Unpaid (red). Members must pay full amount for voting rights.</value>
+  </data>
+  <data name="ShareActionsHelp" xml:space="preserve">
+    <value>Available actions: View details, Edit share, Record payment, Cancel share, or Transfer to another member.</value>
+  </data>
+  <data name="ShareTransfersHelp" xml:space="preserve">
+    <value>Transfer shares between members. Requires board approval and affects voting rights. Both members must be active.</value>
+  </data>
+  <data name="CreateShareTitle" xml:space="preserve">
+    <value>Create New Share</value>
+  </data>
+  <data name="CreateShareDescription" xml:space="preserve">
+    <value>Issue new shares to members. Each share has a nominal value of €250 and must be paid in full.</value>
+  </data>
+  <data name="MemberSelection" xml:space="preserve">
+    <value>Member Selection</value>
+  </data>
+  <data name="MemberSelectionHelp" xml:space="preserve">
+    <value>Select the member who will own these shares. Only active members can receive new shares.</value>
+  </data>
+  <data name="ShareQuantity" xml:space="preserve">
+    <value>Share Quantity</value>
+  </data>
+  <data name="ShareQuantityHelp" xml:space="preserve">
+    <value>Number of shares to issue. Minimum 1 share, maximum 1000 shares per member total.</value>
+  </data>
+  <data name="ShareValue" xml:space="preserve">
+    <value>Share Value</value>
+  </data>
+  <data name="ShareValueHelp" xml:space="preserve">
+    <value>Share value is fixed at €250 per share as defined in the Satzung. Total value = Quantity × €250.</value>
+  </data>
+  <data name="CertificateNumberHelp" xml:space="preserve">
+    <value>Unique certificate number automatically generated. Format: CERT-YYYY-NNNN (e.g., CERT-2024-0001).</value>
+  </data>
+  <data name="SatzungRulesHelp" xml:space="preserve">
+    <value>All shares must comply with cooperative bylaws: €250 nominal value, maximum 1000 shares per member, 2-year cancellation notice required.</value>
+  </data>
+  <data name="DividendListTitle" xml:space="preserve">
+    <value>Dividend Management</value>
+  </data>
+  <data name="DividendListDescription" xml:space="preserve">
+    <value>Calculate, approve, and distribute dividends to members based on their share holdings and cooperative surplus.</value>
+  </data>
+  <data name="DividendCalculation" xml:space="preserve">
+    <value>Dividend Calculation</value>
+  </data>
+  <data name="DividendCalculationHelp" xml:space="preserve">
+    <value>Dividends are calculated based on share holdings and cooperative surplus. Use the Calculate Dividends button to compute amounts for all members.</value>
+  </data>
+  <data name="DividendStatusHelp" xml:space="preserve">
+    <value>Dividend status: Declared (calculated), Approved (board approved), Paid (distributed), Cancelled (rejected).</value>
+  </data>
+  <data name="DividendApproval" xml:space="preserve">
+    <value>Dividend Approval</value>
+  </data>
+  <data name="DividendApprovalHelp" xml:space="preserve">
+    <value>Dividends must be approved by the board before payment. Only approved dividends can be marked as paid.</value>
+  </data>
+  <data name="TaxWithheldHelp" xml:space="preserve">
+    <value>Tax withholding may apply to dividend payments. Net amount is shown after deducting any applicable taxes.</value>
+  </data>
+  <data name="DividendFilters" xml:space="preserve">
+    <value>Dividend Filters</value>
+  </data>
+  <data name="DividendFiltersHelp" xml:space="preserve">
+    <value>Filter dividends by fiscal year and status. Use filters to view specific periods or track payment progress.</value>
+  </data>
+  <data name="MessagesTitle" xml:space="preserve">
+    <value>Message Management</value>
+  </data>
+  <data name="MessagesDescription" xml:space="preserve">
+    <value>Send notifications to members via email, SMS, or WhatsApp. Track message delivery and manage payment reminders.</value>
+  </data>
+  <data name="MessageTypes" xml:space="preserve">
+    <value>Message Types</value>
+  </data>
+  <data name="MessageTypesHelp" xml:space="preserve">
+    <value>Different message types: Payment Reminders, Dividend Notifications, General Assembly Notices, Welcome Messages, and General Broadcasts.</value>
+  </data>
+  <data name="MessageChannels" xml:space="preserve">
+    <value>Message Channels</value>
+  </data>
+  <data name="MessageChannelsHelp" xml:space="preserve">
+    <value>Send messages via Email (default), SMS (text messages), or WhatsApp (requires integration setup).</value>
+  </data>
+  <data name="MessageStatusHelp" xml:space="preserve">
+    <value>Message status: Pending (queued), Sending (in progress), Sent (delivered to provider), Delivered (confirmed receipt), Failed (delivery error).</value>
+  </data>
+  <data name="PaymentRemindersHelp" xml:space="preserve">
+    <value>Automatically send payment reminders to members with outstanding share payments. Reminders are sent to all members with unpaid shares.</value>
+  </data>
+  <data name="MessageActionsHelp" xml:space="preserve">
+    <value>Available actions: View message details, Retry failed messages, Cancel pending messages. Failed messages can be retried or cancelled.</value>
+  </data>
+  <data name="AuditLogTitle" xml:space="preserve">
+    <value>Audit Log</value>
+  </data>
+  <data name="AuditLogPurpose" xml:space="preserve">
+    <value>Audit Log Purpose</value>
+  </data>
+  <data name="AuditLogPurposeHelp" xml:space="preserve">
+    <value>The audit log tracks all changes to the system for compliance and security. Every modification is recorded with user, timestamp, and details.</value>
+  </data>
+  <data name="AuditLogFiltersHelp" xml:space="preserve">
+    <value>Filter audit entries by user, entity type, date range, and action type. Use filters to investigate specific changes or time periods.</value>
+  </data>
+  <data name="AuditLogPermissions" xml:space="preserve">
+    <value>Audit Log Permissions</value>
+  </data>
+  <data name="AuditLogPermissionsHelp" xml:space="preserve">
+    <value>Only Vorstand (board) and Aufsichtsrat (supervisory board) members can view audit logs. The log is read-only and cannot be modified.</value>
+  </data>
+  <data name="AuditLogEntries" xml:space="preserve">
+    <value>Audit Log Entries</value>
+  </data>
+  <data name="AuditLogEntriesHelp" xml:space="preserve">
+    <value>Each entry shows: User who made the change, Action performed, Entity affected, Timestamp, and Permission used.</value>
+  </data>
+  <data name="ViewChangesHelp" xml:space="preserve">
+    <value>Click 'View Changes' to see detailed information about what was modified in each audit entry.</value>
+  </data>
+  
+  <!-- Document Management -->
+  <data name="Documents" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="DocumentType" xml:space="preserve">
+    <value>Document Type</value>
+  </data>
+  <data name="DocumentDetails" xml:space="preserve">
+    <value>Document Details</value>
+  </data>
+  <data name="UploadDocument" xml:space="preserve">
+    <value>Upload Document</value>
+  </data>
+  <data name="EditDocument" xml:space="preserve">
+    <value>Edit Document</value>
+  </data>
+  <data name="SelectFile" xml:space="preserve">
+    <value>Select File</value>
+  </data>
+  <data name="SelectedFile" xml:space="preserve">
+    <value>Selected File</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>File Name</value>
+  </data>
+  <data name="FileSize" xml:space="preserve">
+    <value>File Size</value>
+  </data>
+  <data name="FileInformation" xml:space="preserve">
+    <value>File Information</value>
+  </data>
+  <data name="ContentType" xml:space="preserve">
+    <value>Content Type</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created At</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="ExpirationDate" xml:space="preserve">
+    <value>Expiration Date</value>
+  </data>
+  <data name="Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="IsConfidential" xml:space="preserve">
+    <value>Is Confidential</value>
+  </data>
+  <data name="Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Confidential" xml:space="preserve">
+    <value>Confidential</value>
+  </data>
+  <data name="NoDocumentsFound" xml:space="preserve">
+    <value>No documents found</value>
+  </data>
+  <data name="DocumentDescriptionPlaceholder" xml:space="preserve">
+    <value>Enter document description...</value>
+  </data>
+  <data name="DocumentUploadedSuccessfully" xml:space="preserve">
+    <value>Document uploaded successfully</value>
+  </data>
+  <data name="DocumentUpdatedSuccessfully" xml:space="preserve">
+    <value>Document updated successfully</value>
+  </data>
+  <data name="DocumentDeletedSuccessfully" xml:space="preserve">
+    <value>Document deleted successfully</value>
+  </data>
+  <data name="DocumentUploadError" xml:space="preserve">
+    <value>Document upload failed: {0}</value>
+  </data>
+  <data name="DocumentUpdateError" xml:space="preserve">
+    <value>Document update failed: {0}</value>
+  </data>
+  <data name="DocumentDeleteError" xml:space="preserve">
+    <value>Document deletion failed</value>
+  </data>
+  <data name="DocumentDownloadError" xml:space="preserve">
+    <value>Document download failed</value>
+  </data>
+  <data name="DocumentViewError" xml:space="preserve">
+    <value>Document view failed</value>
+  </data>
+  <data name="DocumentNotFound" xml:space="preserve">
+    <value>Document not found</value>
+  </data>
+  <data name="ErrorLoadingDocuments" xml:space="preserve">
+    <value>Error loading documents</value>
+  </data>
+  <data name="FileSelectionError" xml:space="preserve">
+    <value>File selection error</value>
+  </data>
+  <data name="FileTypeNotAllowed" xml:space="preserve">
+    <value>File type not allowed</value>
+  </data>
+  <data name="FileSizeExceeded" xml:space="preserve">
+    <value>File size exceeds maximum limit</value>
+  </data>
+  <data name="AllowedFileTypes" xml:space="preserve">
+    <value>Allowed file types</value>
+  </data>
+  <data name="MaxFileSize" xml:space="preserve">
+    <value>Max file size</value>
+  </data>
+  <data name="TagsPlaceholder" xml:space="preserve">
+    <value>Enter tags separated by commas...</value>
+  </data>
+  <data name="TagsHelp" xml:space="preserve">
+    <value>Tags help organize and search documents</value>
+  </data>
+  <data name="IsConfidentialHelp" xml:space="preserve">
+    <value>Confidential documents require special permissions to access</value>
+  </data>
+  <data name="ConfirmDeleteDocument" xml:space="preserve">
+    <value>Are you sure you want to delete the document '{0}'?</value>
+  </data>
+  
+  <!-- Document Types -->
+  <data name="MembershipApplication" xml:space="preserve">
+    <value>Membership Application</value>
+  </data>
+  <data name="ShareCertificate" xml:space="preserve">
+    <value>Share Certificate</value>
+  </data>
+  <data name="SharePurchaseAgreement" xml:space="preserve">
+    <value>Share Purchase Agreement</value>
+  </data>
+  <data name="PaymentReceipt" xml:space="preserve">
+    <value>Payment Receipt</value>
+  </data>
+  <data name="LoanAgreement" xml:space="preserve">
+    <value>Loan Agreement</value>
+  </data>
+  <data name="DividendNotice" xml:space="preserve">
+    <value>Dividend Notice</value>
+  </data>
+  <data name="TaxDocument" xml:space="preserve">
+    <value>Tax Document</value>
+  </data>
+  <data name="Correspondence" xml:space="preserve">
+    <value>Correspondence</value>
+  </data>
+  <data name="Meeting" xml:space="preserve">
+    <value>Meeting</value>
+  </data>
+  <data name="Legal" xml:space="preserve">
+    <value>Legal</value>
+  </data>
+  <data name="Financial" xml:space="preserve">
+    <value>Financial</value>
+  </data>
+  <data name="IdentificationDocument" xml:space="preserve">
+    <value>Identification Document</value>
+  </data>
+  <data name="ContractDocument" xml:space="preserve">
+    <value>Contract Document</value>
+  </data>
+  <data name="GeneratedDocument" xml:space="preserve">
+    <value>Generated Document</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
   </data>
 </root>

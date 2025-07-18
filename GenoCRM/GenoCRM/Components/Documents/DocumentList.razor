@@ -1,0 +1,305 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.UI
+@using GenoCRM.Services.Localization
+@inject IDocumentService DocumentService
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+@inject IJSRuntime JSRuntime
+@inject ILogger<DocumentList> Logger
+
+<div class="document-list">
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+            </div>
+        </div>
+    }
+    else if (Documents?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>@SharedLocalizer["DocumentType"]</th>
+                        <th>@SharedLocalizer["Title"]</th>
+                        <th>@SharedLocalizer["Description"]</th>
+                        <th>@SharedLocalizer["FileSize"]</th>
+                        <th>@SharedLocalizer["CreatedAt"]</th>
+                        <th>@SharedLocalizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var document in Documents)
+                    {
+                        <tr>
+                            <td>
+                                <i class="@GetDocumentIcon(document.Type)"></i>
+                                @SharedLocalizer[document.Type.ToString()]
+                            </td>
+                            <td>
+                                <strong>@document.Title</strong>
+                                @if (document.IsExpired)
+                                {
+                                    <span class="badge bg-danger ms-2">@SharedLocalizer["Expired"]</span>
+                                }
+                                @if (document.IsConfidential)
+                                {
+                                    <span class="badge bg-warning ms-2">@SharedLocalizer["Confidential"]</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(document.Description))
+                                {
+                                    <small class="text-muted">@document.Description</small>
+                                }
+                            </td>
+                            <td>@document.FileSizeFormatted</td>
+                            <td>@FormattingService.FormatDateTime(document.CreatedAt)</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            @onclick="() => DownloadDocument(document.Id)"
+                                            title="@SharedLocalizer["Download"]">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            @onclick="() => ViewDocument(document)"
+                                            title="@SharedLocalizer["View"]">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    @if (CanEdit)
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                @onclick="() => EditDocument(document)"
+                                                title="@SharedLocalizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                @onclick="() => DeleteDocument(document)"
+                                                title="@SharedLocalizer["Delete"]">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            @SharedLocalizer["NoDocumentsFound"]
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int? MemberId { get; set; }
+    [Parameter] public int? ShareId { get; set; }
+    [Parameter] public bool CanEdit { get; set; } = true;
+    [Parameter] public EventCallback<Document> OnDocumentEdit { get; set; }
+    [Parameter] public EventCallback<Document> OnDocumentDeleted { get; set; }
+
+    private List<Document>? Documents;
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocuments();
+    }
+
+    public async Task LoadDocuments()
+    {
+        try
+        {
+            IsLoading = true;
+            StateHasChanged();
+
+            if (MemberId.HasValue)
+            {
+                Documents = (await DocumentService.GetDocumentsByMemberIdAsync(MemberId.Value)).ToList();
+            }
+            else if (ShareId.HasValue)
+            {
+                Documents = (await DocumentService.GetDocumentsByShareIdAsync(ShareId.Value)).ToList();
+            }
+            else
+            {
+                Documents = (await DocumentService.GetAllDocumentsAsync()).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading documents");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                SharedLocalizer["ErrorLoadingDocuments"]);
+            Documents = new List<Document>();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DownloadDocument(int documentId)
+    {
+        try
+        {
+            var document = Documents?.FirstOrDefault(d => d.Id == documentId);
+            if (document == null) return;
+
+            var stream = await DocumentService.DownloadDocumentAsync(documentId);
+            if (stream == null)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                    SharedLocalizer["DocumentNotFound"]);
+                return;
+            }
+
+            var fileName = document.FileName;
+            var fileBytes = new byte[stream.Length];
+            await stream.ReadAsync(fileBytes, 0, fileBytes.Length);
+
+            // Use JavaScript to trigger download
+            await JSRuntime.InvokeVoidAsync("downloadFile", fileName, Convert.ToBase64String(fileBytes));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error downloading document {DocumentId}", documentId);
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                SharedLocalizer["DocumentDownloadError"]);
+        }
+    }
+
+    private async Task ViewDocument(Document document)
+    {
+        try
+        {
+            // For now, just show document details
+            var details = $"{SharedLocalizer["Title"]}: {document.Title}\n" +
+                         $"{SharedLocalizer["DocumentType"]}: {SharedLocalizer[document.Type.ToString()]}\n" +
+                         $"{SharedLocalizer["FileSize"]}: {document.FileSizeFormatted}\n" +
+                         $"{SharedLocalizer["CreatedAt"]}: {FormattingService.FormatDateTime(document.CreatedAt)}\n" +
+                         $"{SharedLocalizer["CreatedBy"]}: {document.CreatedBy ?? "Unknown"}";
+
+            if (!string.IsNullOrEmpty(document.Description))
+            {
+                details += $"\n{SharedLocalizer["Description"]}: {document.Description}";
+            }
+
+            if (document.ExpirationDate.HasValue)
+            {
+                details += $"\n{SharedLocalizer["ExpirationDate"]}: {FormattingService.FormatDate(document.ExpirationDate.Value)}";
+            }
+
+            await ModalService.ShowSuccessAsync(SharedLocalizer["DocumentDetails"], details);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error viewing document {DocumentId}", document.Id);
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                SharedLocalizer["DocumentViewError"]);
+        }
+    }
+
+    private async Task EditDocument(Document document)
+    {
+        await OnDocumentEdit.InvokeAsync(document);
+    }
+
+    private async Task DeleteDocument(Document document)
+    {
+        try
+        {
+            var confirmed = await ModalService.ShowConfirmationAsync(
+                SharedLocalizer["ConfirmDelete"], 
+                string.Format(SharedLocalizer["ConfirmDeleteDocument"], document.Title));
+
+            if (confirmed)
+            {
+                var success = await DocumentService.DeleteDocumentAsync(document.Id);
+                if (success)
+                {
+                    await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
+                        SharedLocalizer["DocumentDeletedSuccessfully"]);
+                    
+                    Documents?.Remove(document);
+                    await OnDocumentDeleted.InvokeAsync(document);
+                    StateHasChanged();
+                }
+                else
+                {
+                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                        SharedLocalizer["DocumentDeleteError"]);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error deleting document {DocumentId}", document.Id);
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                SharedLocalizer["DocumentDeleteError"]);
+        }
+    }
+
+    private string GetDocumentIcon(DocumentType type)
+    {
+        return type switch
+        {
+            DocumentType.ShareCertificate => "fas fa-certificate text-success",
+            DocumentType.SharePurchaseAgreement => "fas fa-handshake text-primary",
+            DocumentType.PaymentReceipt => "fas fa-receipt text-info",
+            DocumentType.MembershipApplication => "fas fa-user-plus text-warning",
+            DocumentType.LoanAgreement => "fas fa-file-contract text-secondary",
+            DocumentType.DividendNotice => "fas fa-coins text-success",
+            DocumentType.TaxDocument => "fas fa-file-invoice-dollar text-danger",
+            DocumentType.Correspondence => "fas fa-envelope text-primary",
+            DocumentType.Legal => "fas fa-gavel text-dark",
+            DocumentType.Financial => "fas fa-chart-line text-success",
+            DocumentType.IdentificationDocument => "fas fa-id-card text-warning",
+            DocumentType.ContractDocument => "fas fa-file-signature text-info",
+            DocumentType.GeneratedDocument => "fas fa-file-code text-secondary",
+            _ => "fas fa-file text-muted"
+        };
+    }
+}
+
+<style>
+    .document-list .table th {
+        background-color: #f8f9fa;
+        border-top: none;
+        font-weight: 600;
+    }
+    
+    .document-list .btn-group .btn {
+        margin-right: 2px;
+    }
+    
+    .document-list .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+    }
+</style>
+
+<script>
+    window.downloadFile = function(filename, base64Data) {
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = 'data:application/octet-stream;base64,' + base64Data;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+</script>
