@@ -14,9 +14,41 @@
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
 @inject ICountryService CountryService
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <PageTitle>@(IsEdit ? MembersLocalizer["EditMember"] : MembersLocalizer["CreateMember"])</PageTitle>
+
+<PageDocumentation PageTitle="@(IsEdit ? MembersLocalizer["EditMemberTitle"] : MembersLocalizer["CreateMemberTitle"])" 
+                   PageDescription="@(IsEdit ? MembersLocalizer["EditMemberDescription"] : MembersLocalizer["CreateMemberDescription"])">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["MemberType"]</div>
+            <div class="help-text">@MembersLocalizer["MemberTypeHelp"]</div>
+            <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §3</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["PersonalInformation"]</div>
+            <div class="help-text">@MembersLocalizer["PersonalInformationFormHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["ContactInformation"]</div>
+            <div class="help-text">@MembersLocalizer["ContactInformationHelp"]</div>
+        </div>
+        @if (!IsEdit)
+        {
+            <div class="help-section">
+                <div class="help-title">@MembersLocalizer["InitialShares"]</div>
+                <div class="help-text">@string.Format(MembersLocalizer["InitialSharesFormHelp"], GetMaxSharesPerMember())</div>
+                <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §5, §7</div>
+            </div>
+        }
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["MemberNumber"]</div>
+            <div class="help-text">@MembersLocalizer["MemberNumberHelp"]</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@(IsEdit ? MembersLocalizer["EditMember"] : MembersLocalizer["CreateMember"])</h1>
@@ -327,5 +359,12 @@
                 _member.Prefix = null;
             }
         }
+    }
+
+    private int GetMaxSharesPerMember()
+    {
+        var maxShares = Configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+        if (maxShares <= 0) maxShares = 100; // Default fallback
+        return maxShares;
     }
 }

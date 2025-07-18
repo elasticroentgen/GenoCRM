@@ -20,7 +20,7 @@ public static class AuditHelper
             var httpContext = httpContextAccessor.HttpContext;
             var user = httpContext?.User;
             
-            var userName = user?.Identity?.Name ?? "System";
+            var userName = user?.Identity?.Name ?? (user?.Identity?.IsAuthenticated == true ? "Unknown" : "System");
             var ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
             var userAgent = httpContext?.Request?.Headers["User-Agent"].FirstOrDefault();
 
@@ -35,9 +35,20 @@ public static class AuditHelper
                 ipAddress,
                 userAgent);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Ignore audit logging errors - they should not break business operations
+            // Log the exception but don't break business operations
+            try
+            {
+                var loggerFactory = httpContextAccessor.HttpContext?.RequestServices?.GetService<ILoggerFactory>();
+                var logger = loggerFactory?.CreateLogger("AuditHelper");
+                logger?.LogError(ex, "Failed to log audit entry for {Action} on {EntityType} {EntityId}", 
+                    action, entityType, entityId);
+            }
+            catch
+            {
+                // If we can't even log the error, just ignore it
+            }
         }
     }
 

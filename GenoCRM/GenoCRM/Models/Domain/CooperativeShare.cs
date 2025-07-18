@@ -45,11 +45,11 @@ public class CooperativeShare
     // Computed properties
     public decimal TotalValue => Quantity * Value;
     
-    public bool IsFullyPaid => Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount) >= TotalValue;
+    public bool IsFullyPaid => Status == ShareStatus.Transferred || Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount) >= TotalValue;
     
-    public decimal PaidAmount => Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
+    public decimal PaidAmount => Status == ShareStatus.Transferred ? TotalValue : Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
     
-    public decimal OutstandingAmount => TotalValue - PaidAmount;
+    public decimal OutstandingAmount => Status == ShareStatus.Transferred ? 0 : TotalValue - PaidAmount;
 }
 
 public enum ShareStatus

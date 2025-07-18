@@ -3,6 +3,7 @@ using System;
 using GenoCRM.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenoCRM.Migrations
 {
     [DbContext(typeof(GenoDbContext))]
-    partial class GenoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717121502_auditlog")]
+    partial class auditlog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -230,7 +233,7 @@ namespace GenoCRM.Migrations
                     b.Property<bool>("IsConfidential")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("MemberId")
+                    b.Property<int>("MemberId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("NextcloudPath")
@@ -238,9 +241,6 @@ namespace GenoCRM.Migrations
 
                     b.Property<string>("NextcloudShareLink")
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("ShareId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -270,8 +270,6 @@ namespace GenoCRM.Migrations
                     b.HasIndex("ExpirationDate");
 
                     b.HasIndex("MemberId");
-
-                    b.HasIndex("ShareId");
 
                     b.HasIndex("Status");
 
@@ -1103,15 +1101,10 @@ namespace GenoCRM.Migrations
                     b.HasOne("GenoCRM.Models.Domain.Member", "Member")
                         .WithMany("Documents")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("GenoCRM.Models.Domain.CooperativeShare", "Share")
-                        .WithMany()
-                        .HasForeignKey("ShareId");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Member");
-
-                    b.Navigation("Share");
                 });
 
             modelBuilder.Entity("GenoCRM.Models.Domain.DocumentVersion", b =>

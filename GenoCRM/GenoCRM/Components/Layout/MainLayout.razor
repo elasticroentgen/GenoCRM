@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
+@inject IStringLocalizer<GenoCRM.SharedResource> Localizer
 <div class="page">
     <div class="sidebar">
         <NavMenu/>
@@ -8,18 +9,18 @@
 
     <main>
         <div class="top-row px-4 d-flex justify-content-between align-items-center">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">@Localizer["About"]</a>
             <AuthorizeView>
                 <Authorized>
                     <div class="d-flex align-items-center">
-                        <span class="me-3">Welcome, @context.User.FindFirst(ClaimTypes.GivenName)?.Value!</span>
+                        <span class="me-3">@Localizer["Welcome"], @context.User.FindFirst(ClaimTypes.GivenName)?.Value!</span>
                         <form method="post" action="/logout">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">@Localizer["Logout"]</button>
                         </form>
                     </div>
                 </Authorized>
                 <NotAuthorized>
-                    <a href="/login" class="btn btn-primary btn-sm">Login</a>
+                    <a href="/login" class="btn btn-primary btn-sm">@Localizer["Login"]</a>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
@@ -33,7 +34,7 @@
 <ModalContainer />
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    @Localizer["UnhandledError"]
+    <a href="." class="reload">@Localizer["Reload"]</a>
     <span class="dismiss">🗙</span>
 </div>

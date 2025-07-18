@@ -9,12 +9,14 @@ public class ShareTransferService : IShareTransferService
     private readonly GenoDbContext _context;
     private readonly ILogger<ShareTransferService> _logger;
     private readonly IShareService _shareService;
+    private readonly IConfiguration _configuration;
 
-    public ShareTransferService(GenoDbContext context, ILogger<ShareTransferService> logger, IShareService shareService)
+    public ShareTransferService(GenoDbContext context, ILogger<ShareTransferService> logger, IShareService shareService, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
         _shareService = shareService;
+        _configuration = configuration;
     }
 
     public async Task<ShareTransfer> CreateShareTransferRequestAsync(int fromMemberId, int toMemberId, int shareId, int quantity)
@@ -143,6 +145,19 @@ public class ShareTransferService : IShareTransferService
                 if (transfer == null || transfer.Status != ShareTransferStatus.Approved)
                 {
                     return false;
+                }
+
+                // Validate max shares per member limit for the recipient
+                var currentActiveShares = await _context.CooperativeShares
+                    .Where(s => s.MemberId == transfer.ToMemberId && s.Status == ShareStatus.Active)
+                    .SumAsync(s => s.Quantity);
+                
+                var maxSharesPerMember = _configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+                if (maxSharesPerMember <= 0) maxSharesPerMember = 100; // Default fallback
+                
+                if (currentActiveShares + transfer.Quantity > maxSharesPerMember)
+                {
+                    throw new InvalidOperationException($"Transferring {transfer.Quantity} shares would exceed the maximum allowed shares per member ({maxSharesPerMember}). Recipient currently has {currentActiveShares} active shares.");
                 }
 
                 // Create new share for the recipient

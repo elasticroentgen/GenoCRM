@@ -18,6 +18,36 @@
 
 <PageTitle>@SharedLocalizer["CreateShare"]</PageTitle>
 
+<PageDocumentation PageTitle="@SharedLocalizer["CreateShareTitle"]" 
+                   PageDescription="@SharedLocalizer["CreateShareDescription"]">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["MemberSelection"]</div>
+            <div class="help-text">@SharedLocalizer["MemberSelectionHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §5</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["ShareQuantity"]</div>
+            <div class="help-text">@SharedLocalizer["ShareQuantityHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §7</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["ShareValue"]</div>
+            <div class="help-text">@SharedLocalizer["ShareValueHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §8</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["CertificateNumber"]</div>
+            <div class="help-text">@SharedLocalizer["CertificateNumberHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["SatzungRules"]</div>
+            <div class="help-text">@SharedLocalizer["SatzungRulesHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §7, §8, §9</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@SharedLocalizer["CreateShare"]</h1>
     <button class="btn btn-secondary" @onclick="GoBack">
@@ -367,10 +397,13 @@ else
             var existingShares = await ShareService.GetSharesByMemberIdAsync(_shareModel.MemberId);
             var totalActiveShares = existingShares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Quantity);
             
-            if (totalActiveShares + _shareModel.Quantity > 1000)
+            var maxSharesPerMember = Configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+            if (maxSharesPerMember <= 0) maxSharesPerMember = 100; // Default fallback
+            
+            if (totalActiveShares + _shareModel.Quantity > maxSharesPerMember)
             {
                 await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
-                    string.Format(SharedLocalizer["TotalSharesExceedLimit"], totalActiveShares, 1000 - totalActiveShares));
+                    string.Format(SharedLocalizer["TotalSharesExceedLimit"], totalActiveShares, maxSharesPerMember - totalActiveShares));
                 return false;
             }
         }

@@ -72,10 +72,6 @@
                                         </td>
                                         <td>
                                             <strong>@share.CertificateNumber</strong>
-                                            @if (!share.IsFullyPaid)
-                                            {
-                                                <br><small class="text-warning">@SharedLocalizer["PartiallyPaid"]</small>
-                                            }
                                         </td>
                                         <td>@share.Quantity</td>
                                         <td>@SharedLocalizer["Currency", share.TotalValue]</td>
@@ -136,13 +132,6 @@
                                         </div>
                                     </div>
                                     
-                                    @if (!_preview.AllFullyPaid)
-                                    {
-                                        <div class="alert alert-warning alert-sm">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            @SharedLocalizer["ConsolidationPartiallyPaidWarning"]
-                                        </div>
-                                    }
                                 }
                             </div>
                         </div>

@@ -18,6 +18,30 @@
 
 <PageTitle>@MembersLocalizer["PageTitle"]</PageTitle>
 
+<PageDocumentation PageTitle="@MembersLocalizer["MemberListTitle"]" 
+                   PageDescription="@MembersLocalizer["MemberListDescription"]">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["SearchAndFilter"]</div>
+            <div class="help-text">@MembersLocalizer["SearchAndFilterHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["MemberStatus"]</div>
+            <div class="help-text">@MembersLocalizer["MemberStatusHelp"]</div>
+            <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §3, §4</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["MemberActions"]</div>
+            <div class="help-text">@MembersLocalizer["MemberActionsHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@MembersLocalizer["AddNewMember"]</div>
+            <div class="help-text">@MembersLocalizer["AddNewMemberHelp"]</div>
+            <div class="satzung-reference">@MembersLocalizer["SatzungReference"] §5</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@MembersLocalizer["PageTitle"]</h1>
     <CascadingAuthenticationState>
@@ -42,7 +66,7 @@
     </div>
     <div class="col-md-6">
         <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
-            <option value="">All Status</option>
+            <option value="">@SharedLocalizer["AllStatus"]</option>
             <option value="Active">@SharedLocalizer["Active"]</option>
             <option value="Inactive">@SharedLocalizer["Inactive"]</option>
             <option value="Suspended">@SharedLocalizer["Suspended"]</option>
@@ -55,7 +79,7 @@
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">@MembersLocalizer["Loading"]</span>
         </div>
     </div>
 }
@@ -66,12 +90,12 @@ else if (_members?.Any() == true)
             <thead class="table-dark">
                 <tr>
                     <th>@SharedLocalizer["MemberNumber"]</th>
-                    <th>Name</th>
+                    <th>@SharedLocalizer["Name"]</th>
                     <th>@SharedLocalizer["Email"]</th>
                     <th>@SharedLocalizer["Status"]</th>
                     <th>@SharedLocalizer["JoinDate"]</th>
                     <th>@SharedLocalizer["Shares"]</th>
-                    <th>Total Value</th>
+                    <th>@SharedLocalizer["TotalValue"]</th>
                     <th>@MembersLocalizer["Actions"]</th>
                 </tr>
             </thead>

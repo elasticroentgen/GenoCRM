@@ -11,6 +11,32 @@
 
 <PageTitle>@SharedLocalizer["AuditLog"]</PageTitle>
 
+<PageDocumentation PageTitle="@SharedLocalizer["AuditLogTitle"]" 
+                   PageDescription="@SharedLocalizer["AuditLogDescription"]">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["AuditLogPurpose"]</div>
+            <div class="help-text">@SharedLocalizer["AuditLogPurposeHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["AuditLogFilters"]</div>
+            <div class="help-text">@SharedLocalizer["AuditLogFiltersHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["AuditLogPermissions"]</div>
+            <div class="help-text">@SharedLocalizer["AuditLogPermissionsHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["AuditLogEntries"]</div>
+            <div class="help-text">@SharedLocalizer["AuditLogEntriesHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["ViewChanges"]</div>
+            <div class="help-text">@SharedLocalizer["ViewChangesHelp"]</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
+
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
@@ -29,7 +55,7 @@
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">@SharedLocalizer["EntityType"]</label>
-                            <select class="form-select" @bind="_selectedEntityType" @onchange="OnFilterChanged">
+                            <select class="form-select" @bind="_selectedEntityType" @bind:after="OnFilterChanged">
                                 <option value="">@SharedLocalizer["AllEntityTypes"]</option>
                                 @foreach (var entityType in _entityTypes)
                                 {
@@ -39,7 +65,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">@SharedLocalizer["User"]</label>
-                            <select class="form-select" @bind="_selectedUser" @onchange="OnFilterChanged">
+                            <select class="form-select" @bind="_selectedUser" @bind:after="OnFilterChanged">
                                 <option value="">@SharedLocalizer["AllUsers"]</option>
                                 @foreach (var user in _users)
                                 {
@@ -49,11 +75,11 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">@SharedLocalizer["FromDate"]</label>
-                            <input type="date" class="form-control" @bind="_fromDate" @onchange="OnFilterChanged" />
+                            <input type="date" class="form-control" @bind="_fromDate" @bind:after="OnFilterChanged" />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">@SharedLocalizer["ToDate"]</label>
-                            <input type="date" class="form-control" @bind="_toDate" @onchange="OnFilterChanged" />
+                            <input type="date" class="form-control" @bind="_toDate" @bind:after="OnFilterChanged" />
                         </div>
                     </div>
                 </div>
@@ -178,7 +204,7 @@
 </div>
 
 @code {
-    private List<AuditLog> _auditLogs = new();
+    private List<GenoCRM.Models.Domain.AuditLog> _auditLogs = new();
     private List<string> _entityTypes = new();
     private List<string> _users = new();
     private bool _isLoading = true;
@@ -268,7 +294,7 @@
         }
     }
 
-    private async Task ShowChanges(AuditLog audit)
+    private async Task ShowChanges(GenoCRM.Models.Domain.AuditLog audit)
     {
         if (string.IsNullOrEmpty(audit.Changes))
             return;

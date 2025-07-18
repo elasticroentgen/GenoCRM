@@ -27,11 +27,13 @@ public class ShareService : IShareService
 {
     private readonly GenoDbContext _context;
     private readonly ILogger<ShareService> _logger;
+    private readonly IConfiguration _configuration;
 
-    public ShareService(GenoDbContext context, ILogger<ShareService> logger)
+    public ShareService(GenoDbContext context, ILogger<ShareService> logger, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task<IEnumerable<CooperativeShare>> GetAllSharesAsync()
@@ -105,6 +107,19 @@ public class ShareService : IShareService
             if (!memberExists)
             {
                 throw new InvalidOperationException($"Member with ID {share.MemberId} not found");
+            }
+
+            // Validate max shares per member limit
+            var currentActiveShares = await _context.CooperativeShares
+                .Where(s => s.MemberId == share.MemberId && s.Status == ShareStatus.Active)
+                .SumAsync(s => s.Quantity);
+            
+            var maxSharesPerMember = _configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+            if (maxSharesPerMember <= 0) maxSharesPerMember = 100; // Default fallback
+            
+            if (currentActiveShares + share.Quantity > maxSharesPerMember)
+            {
+                throw new InvalidOperationException($"Adding {share.Quantity} shares would exceed the maximum allowed shares per member ({maxSharesPerMember}). Member currently has {currentActiveShares} active shares.");
             }
 
             share.CreatedAt = DateTime.UtcNow;

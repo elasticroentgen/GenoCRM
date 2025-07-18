@@ -245,4 +245,82 @@
   <data name="Suspended" xml:space="preserve">
     <value>Suspended</value>
   </data>
+  <data name="MemberListTitle" xml:space="preserve">
+    <value>Member Management</value>
+  </data>
+  <data name="MemberListDescription" xml:space="preserve">
+    <value>Manage all cooperative members. View member details, create new memberships, and track member status and shares.</value>
+  </data>
+  <data name="SearchAndFilter" xml:space="preserve">
+    <value>Search and Filter</value>
+  </data>
+  <data name="SearchAndFilterHelp" xml:space="preserve">
+    <value>Use the search box to find members by name, email, or member number. Filter by status to view only active, inactive, or suspended members.</value>
+  </data>
+  <data name="MemberStatusHelp" xml:space="preserve">
+    <value>Members can be Active (full voting rights), Inactive (temporary suspension), Offboarding (leaving process), or Terminated (membership ended).</value>
+  </data>
+  <data name="MemberActions" xml:space="preserve">
+    <value>Member Actions</value>
+  </data>
+  <data name="MemberActionsHelp" xml:space="preserve">
+    <value>Click the View button to see detailed member information, shares, and transaction history. Use Edit to modify member details.</value>
+  </data>
+  <data name="AddNewMemberHelp" xml:space="preserve">
+    <value>Add new members to the cooperative. All new members must purchase initial shares as per the Satzung requirements.</value>
+  </data>
+  <data name="SatzungReference" xml:space="preserve">
+    <value>Satzung Reference</value>
+  </data>
+  <data name="MemberDetailsTitle" xml:space="preserve">
+    <value>Member Details</value>
+  </data>
+  <data name="MemberDetailsDescription" xml:space="preserve">
+    <value>View comprehensive member information including personal details, shares, and transaction history.</value>
+  </data>
+  <data name="PersonalInformationHelp" xml:space="preserve">
+    <value>Basic member information including name, contact details, and membership type (Individual or Company).</value>
+  </data>
+  <data name="MembershipInformationHelp" xml:space="preserve">
+    <value>Membership start date, current status, and any termination dates. Shows how long the member has been part of the cooperative.</value>
+  </data>
+  <data name="SharesOverview" xml:space="preserve">
+    <value>Shares Overview</value>
+  </data>
+  <data name="SharesOverviewHelp" xml:space="preserve">
+    <value>Summary of all shares owned by this member, including total value and active share count. Each share represents €250 of capital.</value>
+  </data>
+  <data name="QuickActionsHelp" xml:space="preserve">
+    <value>Quick access to common actions: add new shares, view all shares, view dividends, and consolidate multiple certificates.</value>
+  </data>
+  <data name="ConsolidateSharesHelp" xml:space="preserve">
+    <value>Combine multiple share certificates into a single certificate for easier management. Available only when member has multiple active, fully paid certificates.</value>
+  </data>
+  <data name="CreateMemberTitle" xml:space="preserve">
+    <value>Create New Member</value>
+  </data>
+  <data name="CreateMemberDescription" xml:space="preserve">
+    <value>Register a new member to the cooperative. All fields marked with * are required.</value>
+  </data>
+  <data name="EditMemberTitle" xml:space="preserve">
+    <value>Edit Member</value>
+  </data>
+  <data name="EditMemberDescription" xml:space="preserve">
+    <value>Update member information. Member number cannot be changed after registration.</value>
+  </data>
+  <data name="MemberTypeHelp" xml:space="preserve">
+    <value>Choose Individual for private persons or Company for organizations. This affects the required information fields.</value>
+  </data>
+  <data name="PersonalInformationFormHelp" xml:space="preserve">
+    <value>Enter the member's full name and birth date. For companies, enter the company name and contact person.</value>
+  </data>
+  <data name="ContactInformationHelp" xml:space="preserve">
+    <value>Provide current contact information including email, phone, and complete address. This is used for official correspondence.</value>
+  </data>
+  <data name="InitialSharesFormHelp" xml:space="preserve">
+    <value>New members must purchase at least 1 share (€250). Maximum {0} shares can be purchased initially.</value>
+  </data>
+  <data name="MemberNumberHelp" xml:space="preserve">
+    <value>Unique member number automatically assigned upon registration. Cannot be changed after creation.</value>
+  </data>
 </root>

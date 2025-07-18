@@ -21,6 +21,7 @@ public interface IMemberService
     Task<IEnumerable<Member>> GetMembersByStatusAsync(MemberStatus status);
     Task<string> GenerateNextMemberNumberAsync();
     Task<decimal> GetCurrentShareDenominationAsync();
+    Task<int> GetMaxSharesPerMemberAsync();
     Task<bool> OffboardMemberAsync(int id);
     Task<bool> CanOffboardMemberAsync(int id);
     Task<IEnumerable<Member>> GetMembersReadyForDeletionAsync();
@@ -110,6 +111,13 @@ public class MemberService : IMemberService
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // Validate initial share quantity against max shares per member
+            var maxSharesPerMember = await GetMaxSharesPerMemberAsync();
+            if (initialShareQuantity > maxSharesPerMember)
+            {
+                throw new InvalidOperationException($"Initial share quantity ({initialShareQuantity}) exceeds maximum allowed shares per member ({maxSharesPerMember})");
+            }
+
             // Always auto-generate member number for new members
             member.MemberNumber = await GenerateNextMemberNumberAsync();
 
@@ -386,6 +394,25 @@ public class MemberService : IMemberService
         {
             _logger.LogError(ex, "Error getting share denomination from configuration");
             return Task.FromResult(250.00m); // Default fallback
+        }
+    }
+
+    public Task<int> GetMaxSharesPerMemberAsync()
+    {
+        try
+        {
+            var maxShares = _configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+            if (maxShares <= 0)
+            {
+                _logger.LogWarning("Max shares per member not configured or invalid, using default value of 100");
+                return Task.FromResult(100);
+            }
+            return Task.FromResult(maxShares);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting max shares per member from configuration");
+            return Task.FromResult(100); // Default fallback
         }
     }
 

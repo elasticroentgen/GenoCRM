@@ -31,7 +31,7 @@ public class ShareConsolidationService : IShareConsolidationService
     {
         try
         {
-            return await _context.CooperativeShares
+            var shares = await _context.CooperativeShares
                 .Include(s => s.Payments)
                 .Include(s => s.Dividends)
                 .Where(s => s.MemberId == memberId && 
@@ -39,6 +39,9 @@ public class ShareConsolidationService : IShareConsolidationService
                            s.CancellationDate == null)
                 .OrderBy(s => s.IssueDate)
                 .ToListAsync();
+
+            // Only return fully paid shares
+            return shares.Where(s => s.IsFullyPaid);
         }
         catch (Exception ex)
         {
@@ -112,11 +115,12 @@ public class ShareConsolidationService : IShareConsolidationService
                 return result;
             }
 
-            // Add warnings for partially paid shares
+            // Validate all shares are fully paid
             var partiallyPaidShares = shares.Where(s => !s.IsFullyPaid).ToList();
             if (partiallyPaidShares.Any())
             {
-                result.Warnings.Add($"Some shares are not fully paid: {string.Join(", ", partiallyPaidShares.Select(s => s.CertificateNumber))}");
+                result.ErrorMessage = $"Cannot consolidate shares that are not fully paid: {string.Join(", ", partiallyPaidShares.Select(s => s.CertificateNumber))}";
+                return result;
             }
 
             // Check for pending transfers
@@ -299,13 +303,8 @@ public class ShareConsolidationService : IShareConsolidationService
     {
         try
         {
-            var activeShareCount = await _context.CooperativeShares
-                .Where(s => s.MemberId == memberId && 
-                           s.Status == ShareStatus.Active &&
-                           s.CancellationDate == null)
-                .CountAsync();
-
-            return activeShareCount >= 2;
+            var consolidatableShares = await GetConsolidatableSharesAsync(memberId);
+            return consolidatableShares.Count() >= 2;
         }
         catch (Exception ex)
         {

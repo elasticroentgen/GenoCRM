@@ -10,39 +10,67 @@
 @inject IModalService ModalService
 @rendermode InteractiveServer
 
-<PageTitle>Dividends</PageTitle>
+<PageTitle>@SharedLocalizer["Dividends"]</PageTitle>
+
+<PageDocumentation PageTitle="@SharedLocalizer["DividendListTitle"]" 
+                   PageDescription="@SharedLocalizer["DividendListDescription"]">
+    <HelpContent>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["DividendCalculation"]</div>
+            <div class="help-text">@SharedLocalizer["DividendCalculationHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §11</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["DividendStatus"]</div>
+            <div class="help-text">@SharedLocalizer["DividendStatusHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["DividendApproval"]</div>
+            <div class="help-text">@SharedLocalizer["DividendApprovalHelp"]</div>
+            <div class="satzung-reference">@SharedLocalizer["SatzungReference"] §12</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["TaxWithheld"]</div>
+            <div class="help-text">@SharedLocalizer["TaxWithheldHelp"]</div>
+        </div>
+        <div class="help-section">
+            <div class="help-title">@SharedLocalizer["DividendFilters"]</div>
+            <div class="help-text">@SharedLocalizer["DividendFiltersHelp"]</div>
+        </div>
+    </HelpContent>
+</PageDocumentation>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Dividend Management</h1>
+    <h1>@SharedLocalizer["Dividends"]</h1>
     <button class="btn btn-success" @onclick="CalculateAllDividends">
-        <i class="fas fa-calculator"></i> Calculate Dividends
+        <i class="fas fa-calculator"></i> @SharedLocalizer["CalculateDividends"]
     </button>
 </div>
 
 <div class="row mb-3">
     <div class="col-md-4">
-        <label class="form-label">Fiscal Year</label>
+        <label class="form-label">@SharedLocalizer["Year"]</label>
         <select class="form-select" @bind="_selectedYear" @bind:after="FilterByYear">
-            <option value="0">All Years</option>
+            <option value="0">@SharedLocalizer["AllYears"]</option>
             <option value="2024">2024</option>
             <option value="2023">2023</option>
             <option value="2022">2022</option>
         </select>
     </div>
     <div class="col-md-4">
-        <label class="form-label">Status</label>
+        <label class="form-label">@SharedLocalizer["Status"]</label>
         <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
-            <option value="">All Status</option>
-            <option value="Declared">Declared</option>
-            <option value="Approved">Approved</option>
-            <option value="Paid">Paid</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="">@SharedLocalizer["AllStatus"]</option>
+            <option value="Declared">@SharedLocalizer["Declared"]</option>
+            <option value="Approved">@SharedLocalizer["Approved"]</option>
+            <option value="Paid">@SharedLocalizer["Paid"]</option>
+            <option value="Cancelled">@SharedLocalizer["Cancelled"]</option>
         </select>
     </div>
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center">
-                <h6 class="card-title">Total Dividends (@_selectedYear)</h6>
+                <h6 class="card-title">@SharedLocalizer["TotalDividends"] (@_selectedYear)</h6>
                 <h4 class="text-primary">@_totalDividends.ToString("C")</h4>
             </div>
         </div>
@@ -53,7 +81,7 @@
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
         </div>
     </div>
 }
@@ -63,17 +91,17 @@ else if (_dividends?.Any() == true)
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Member</th>
-                    <th>Fiscal Year</th>
-                    <th>Base Amount</th>
-                    <th>Rate</th>
-                    <th>Dividend Amount</th>
-                    <th>Tax Withheld</th>
-                    <th>Net Amount</th>
-                    <th>Declaration Date</th>
-                    <th>Payment Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>@SharedLocalizer["Member"]</th>
+                    <th>@SharedLocalizer["Year"]</th>
+                    <th>@SharedLocalizer["BaseAmount"]</th>
+                    <th>@SharedLocalizer["Rate"]</th>
+                    <th>@SharedLocalizer["DividendAmount"]</th>
+                    <th>@SharedLocalizer["TaxWithheld"]</th>
+                    <th>@SharedLocalizer["NetAmount"]</th>
+                    <th>@SharedLocalizer["DeclarationDate"]</th>
+                    <th>@SharedLocalizer["PaymentDate"]</th>
+                    <th>@SharedLocalizer["Status"]</th>
+                    <th>@SharedLocalizer["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -108,9 +136,11 @@ else if (_dividends?.Any() == true)
                                         <i class="fas fa-money-bill"></i>
                                     </button>
                                 }
+                                @* TODO: Implement dividend edit page
                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditDividend(dividend.Id)">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                *@
                                 @if (dividend.Status != DividendStatus.Paid)
                                 {
                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDividend(dividend.Id)">
@@ -263,10 +293,11 @@ else
         }
     }
 
-    private void EditDividend(int dividendId)
-    {
-        Navigation.NavigateTo($"/dividends/{dividendId}/edit");
-    }
+    // TODO: Implement dividend edit functionality
+    // private void EditDividend(int dividendId)
+    // {
+    //     Navigation.NavigateTo($"/dividends/{dividendId}/edit");
+    // }
 
     private async Task DeleteDividend(int dividendId)
     {

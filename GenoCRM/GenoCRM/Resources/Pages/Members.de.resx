@@ -245,4 +245,82 @@
   <data name="Suspended" xml:space="preserve">
     <value>Gesperrt</value>
   </data>
+  <data name="MemberListTitle" xml:space="preserve">
+    <value>Mitgliederverwaltung</value>
+  </data>
+  <data name="MemberListDescription" xml:space="preserve">
+    <value>Verwalten Sie alle Genossenschaftsmitglieder. Zeigen Sie Mitgliederdetails an, erstellen Sie neue Mitgliedschaften und verfolgen Sie den Mitgliederstatus und die Anteile.</value>
+  </data>
+  <data name="SearchAndFilter" xml:space="preserve">
+    <value>Suchen und Filtern</value>
+  </data>
+  <data name="SearchAndFilterHelp" xml:space="preserve">
+    <value>Verwenden Sie das Suchfeld, um Mitglieder nach Name, E-Mail oder Mitgliedsnummer zu finden. Filtern Sie nach Status, um nur aktive, inaktive oder gesperrte Mitglieder anzuzeigen.</value>
+  </data>
+  <data name="MemberStatusHelp" xml:space="preserve">
+    <value>Mitglieder können Aktiv (volle Stimmrechte), Inaktiv (vorübergehende Aussetzung), Austritt (Austrittsprozess) oder Beendet (Mitgliedschaft beendet) sein.</value>
+  </data>
+  <data name="MemberActions" xml:space="preserve">
+    <value>Mitgliederaktionen</value>
+  </data>
+  <data name="MemberActionsHelp" xml:space="preserve">
+    <value>Klicken Sie auf Anzeigen, um detaillierte Mitgliederinformationen, Anteile und Transaktionshistorie zu sehen. Verwenden Sie Bearbeiten, um Mitgliederdetails zu ändern.</value>
+  </data>
+  <data name="AddNewMemberHelp" xml:space="preserve">
+    <value>Neue Mitglieder zur Genossenschaft hinzufügen. Alle neuen Mitglieder müssen Anfangsanteile gemäß den Satzungsanforderungen kaufen.</value>
+  </data>
+  <data name="SatzungReference" xml:space="preserve">
+    <value>Satzungsreferenz</value>
+  </data>
+  <data name="MemberDetailsTitle" xml:space="preserve">
+    <value>Mitgliederdetails</value>
+  </data>
+  <data name="MemberDetailsDescription" xml:space="preserve">
+    <value>Zeigen Sie umfassende Mitgliederinformationen einschließlich persönlicher Daten, Anteile und Transaktionshistorie an.</value>
+  </data>
+  <data name="PersonalInformationHelp" xml:space="preserve">
+    <value>Grundlegende Mitgliederinformationen einschließlich Name, Kontaktdaten und Mitgliedschaftstyp (Einzelperson oder Unternehmen).</value>
+  </data>
+  <data name="MembershipInformationHelp" xml:space="preserve">
+    <value>Mitgliedschafts-Startdatum, aktueller Status und eventuelle Beendigungsdaten. Zeigt, wie lange das Mitglied Teil der Genossenschaft ist.</value>
+  </data>
+  <data name="SharesOverview" xml:space="preserve">
+    <value>Anteile-Übersicht</value>
+  </data>
+  <data name="SharesOverviewHelp" xml:space="preserve">
+    <value>Zusammenfassung aller Anteile im Besitz dieses Mitglieds, einschließlich Gesamtwert und Anzahl aktiver Anteile. Jeder Anteil repräsentiert €250 Kapital.</value>
+  </data>
+  <data name="QuickActionsHelp" xml:space="preserve">
+    <value>Schneller Zugriff auf häufige Aktionen: neue Anteile hinzufügen, alle Anteile anzeigen, Dividenden anzeigen und mehrere Zertifikate zusammenführen.</value>
+  </data>
+  <data name="ConsolidateSharesHelp" xml:space="preserve">
+    <value>Mehrere Anteilszertifikate zu einem einzigen Zertifikat für einfachere Verwaltung zusammenführen. Nur verfügbar, wenn das Mitglied mehrere aktive, vollständig bezahlte Zertifikate hat.</value>
+  </data>
+  <data name="CreateMemberTitle" xml:space="preserve">
+    <value>Neues Mitglied erstellen</value>
+  </data>
+  <data name="CreateMemberDescription" xml:space="preserve">
+    <value>Registrieren Sie ein neues Mitglied in der Genossenschaft. Alle mit * markierten Felder sind erforderlich.</value>
+  </data>
+  <data name="EditMemberTitle" xml:space="preserve">
+    <value>Mitglied bearbeiten</value>
+  </data>
+  <data name="EditMemberDescription" xml:space="preserve">
+    <value>Mitgliederinformationen aktualisieren. Die Mitgliedsnummer kann nach der Registrierung nicht geändert werden.</value>
+  </data>
+  <data name="MemberTypeHelp" xml:space="preserve">
+    <value>Wählen Sie Einzelperson für Privatpersonen oder Unternehmen für Organisationen. Dies beeinflusst die erforderlichen Informationsfelder.</value>
+  </data>
+  <data name="PersonalInformationFormHelp" xml:space="preserve">
+    <value>Geben Sie den vollständigen Namen und das Geburtsdatum des Mitglieds ein. Für Unternehmen geben Sie den Firmennamen und die Kontaktperson ein.</value>
+  </data>
+  <data name="ContactInformationHelp" xml:space="preserve">
+    <value>Geben Sie aktuelle Kontaktinformationen einschließlich E-Mail, Telefon und vollständiger Adresse an. Dies wird für die offizielle Korrespondenz verwendet.</value>
+  </data>
+  <data name="InitialSharesFormHelp" xml:space="preserve">
+    <value>Neue Mitglieder müssen mindestens 1 Anteil (€250) kaufen. Maximal {0} Anteile können anfänglich gekauft werden.</value>
+  </data>
+  <data name="MemberNumberHelp" xml:space="preserve">
+    <value>Eindeutige Mitgliedsnummer, die automatisch bei der Registrierung vergeben wird. Kann nach der Erstellung nicht geändert werden.</value>
+  </data>
 </root>

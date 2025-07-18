@@ -29,6 +29,8 @@ public class AuditService : IAuditService
     {
         try
         {
+            _logger.LogInformation("Attempting to log audit entry: User={UserName}, Action={Action}, EntityType={EntityType}, EntityId={EntityId}", 
+                userName, action, entityType, entityId);
             var auditLog = new AuditLog
             {
                 UserName = userName,

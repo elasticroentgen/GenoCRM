@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using GenoCRM.Components.Auth
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
 
 <CascadingAuthenticationState>
     <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
@@ -14,9 +15,9 @@
                     {
                         <div class="container mt-5">
                             <div class="alert alert-danger">
-                                <h4>Access Denied</h4>
-                                <p>You don't have permission to access this page.</p>
-                                <a href="/" class="btn btn-primary">Go Home</a>
+                                <h4>@SharedLocalizer["AccessDenied"]</h4>
+                                <p>@SharedLocalizer["NoPermissionToAccess"]</p>
+                                <a href="/" class="btn btn-primary">@SharedLocalizer["GoHome"]</a>
                             </div>
                         </div>
                     }

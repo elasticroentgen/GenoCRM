@@ -1,0 +1,103 @@
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+
+<div class="page-documentation">
+    @if (!string.IsNullOrEmpty(PageTitle))
+    {
+        <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-info-circle me-2 mt-1"></i>
+                <div>
+                    <strong>@PageTitle</strong>
+                    <p class="mb-0 mt-1">@((MarkupString)PageDescription)</p>
+                </div>
+            </div>
+        </div>
+    }
+    
+    @if (ShowHelpPanel)
+    {
+        <div class="position-fixed" style="top: 20px; right: 20px; z-index: 1040;">
+            <div class="card shadow-lg" style="width: 350px; max-height: 80vh; overflow-y: auto;">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>@SharedLocalizer["Help"]
+                    </h6>
+                    <button class="btn btn-sm btn-outline-light" @onclick="ToggleHelpPanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    @HelpContent
+                </div>
+            </div>
+        </div>
+    }
+    
+    <div class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1040;">
+        <button class="btn btn-primary btn-sm shadow" @onclick="ToggleHelpPanel">
+            <i class="fas fa-question-circle me-1"></i>@SharedLocalizer["Help"]
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string PageTitle { get; set; } = string.Empty;
+    [Parameter] public string PageDescription { get; set; } = string.Empty;
+    [Parameter] public RenderFragment HelpContent { get; set; } = null!;
+    
+    private bool ShowHelpPanel = false;
+    
+    private void ToggleHelpPanel()
+    {
+        ShowHelpPanel = !ShowHelpPanel;
+    }
+}
+
+<style>
+    .page-documentation .alert-info {
+        border-left: 4px solid #0d6efd;
+        background-color: #e7f3ff;
+        border-color: #b8daff;
+    }
+    
+    .page-documentation .card {
+        border: none;
+        border-radius: 8px;
+    }
+    
+    .page-documentation .card-header {
+        border-radius: 8px 8px 0 0;
+        background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+    }
+    
+    .page-documentation .help-section {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .page-documentation .help-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .page-documentation .help-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-documentation .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+    
+    .page-documentation .satzung-reference {
+        font-size: 0.75rem;
+        color: #007bff;
+        font-style: italic;
+        margin-top: 0.25rem;
+    }
+</style>
