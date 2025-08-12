@@ -63,14 +63,23 @@ public class NextcloudDocumentService : INextcloudDocumentService
     {
         try
         {
+            _logger.LogInformation("Uploading file {FileName} to {NextcloudPath}", fileName, nextcloudPath);
+            
             // Ensure directory exists
             var directoryPath = Path.GetDirectoryName(nextcloudPath)?.Replace('\\', '/');
             if (!string.IsNullOrEmpty(directoryPath))
             {
-                await CreateDirectoryAsync(directoryPath);
+                _logger.LogInformation("Creating directory: {DirectoryPath}", directoryPath);
+                var dirResult = await CreateDirectoryAsync(directoryPath);
+                if (!dirResult)
+                {
+                    _logger.LogError("Failed to create directory {DirectoryPath}", directoryPath);
+                    return false;
+                }
             }
 
             var url = $"{_webDavUrl.TrimEnd('/')}/{nextcloudPath.TrimStart('/')}";
+            _logger.LogInformation("Upload URL: {Url}", url);
             
             using var content = new StreamContent(fileStream);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
@@ -83,8 +92,9 @@ public class NextcloudDocumentService : INextcloudDocumentService
                 return true;
             }
             
-            _logger.LogError("Failed to upload file {FileName} to {NextcloudPath}. Status: {StatusCode}", 
-                fileName, nextcloudPath, response.StatusCode);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Failed to upload file {FileName} to {NextcloudPath}. Status: {StatusCode}, Response: {Response}", 
+                fileName, nextcloudPath, response.StatusCode, responseContent);
             return false;
         }
         catch (Exception ex)
@@ -162,21 +172,33 @@ public class NextcloudDocumentService : INextcloudDocumentService
     {
         try
         {
-            var url = $"{_webDavUrl.TrimEnd('/')}/{directoryPath.TrimStart('/')}";
-            var request = new HttpRequestMessage(HttpMethod.Put, url);
-            request.Headers.Add("Content-Type", "application/x-directory");
+            // Create directories recursively
+            var pathParts = directoryPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var currentPath = "";
             
-            var response = await _httpClient.SendAsync(request);
-            
-            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.MethodNotAllowed)
+            foreach (var part in pathParts)
             {
-                // MethodNotAllowed means directory already exists
-                return true;
+                currentPath += "/" + part;
+                
+                if (!await DirectoryExistsAsync(currentPath))
+                {
+                    var url = $"{_webDavUrl.TrimEnd('/')}{currentPath}/";
+                    var request = new HttpRequestMessage(new HttpMethod("MKCOL"), url);
+                    
+                    var response = await _httpClient.SendAsync(request);
+                    
+                    if (!response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.MethodNotAllowed)
+                    {
+                        _logger.LogError("Failed to create directory {DirectoryPath}. Status: {StatusCode}, Response: {Response}", 
+                            currentPath, response.StatusCode, await response.Content.ReadAsStringAsync());
+                        return false;
+                    }
+                    
+                    _logger.LogInformation("Created directory: {DirectoryPath}", currentPath);
+                }
             }
             
-            _logger.LogError("Failed to create directory {DirectoryPath}. Status: {StatusCode}", 
-                directoryPath, response.StatusCode);
-            return false;
+            return true;
         }
         catch (Exception ex)
         {
@@ -189,7 +211,7 @@ public class NextcloudDocumentService : INextcloudDocumentService
     {
         try
         {
-            var url = $"{_webDavUrl.TrimEnd('/')}/{directoryPath.TrimStart('/')}";
+            var url = $"{_webDavUrl.TrimEnd('/')}{directoryPath.TrimStart('/')}/";
             var request = new HttpRequestMessage(HttpMethod.Head, url);
             var response = await _httpClient.SendAsync(request);
             

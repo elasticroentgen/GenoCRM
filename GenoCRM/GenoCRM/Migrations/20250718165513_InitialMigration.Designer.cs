@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenoCRM.Migrations
 {
     [DbContext(typeof(GenoDbContext))]
-    [Migration("20250717105656_AddAuditLog")]
-    partial class AddAuditLog
+    [Migration("20250718165513_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -233,7 +233,7 @@ namespace GenoCRM.Migrations
                     b.Property<bool>("IsConfidential")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("MemberId")
+                    b.Property<int?>("MemberId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("NextcloudPath")
@@ -241,6 +241,9 @@ namespace GenoCRM.Migrations
 
                     b.Property<string>("NextcloudShareLink")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("ShareId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -270,6 +273,8 @@ namespace GenoCRM.Migrations
                     b.HasIndex("ExpirationDate");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("ShareId");
 
                     b.HasIndex("Status");
 
@@ -1101,10 +1106,15 @@ namespace GenoCRM.Migrations
                     b.HasOne("GenoCRM.Models.Domain.Member", "Member")
                         .WithMany("Documents")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GenoCRM.Models.Domain.CooperativeShare", "Share")
+                        .WithMany()
+                        .HasForeignKey("ShareId");
 
                     b.Navigation("Member");
+
+                    b.Navigation("Share");
                 });
 
             modelBuilder.Entity("GenoCRM.Models.Domain.DocumentVersion", b =>

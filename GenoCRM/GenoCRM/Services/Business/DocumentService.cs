@@ -60,18 +60,32 @@ public class DocumentService : IDocumentService
                 nextcloudPath = _nextcloudService.GetGeneratedDocumentPath(uniqueFileName);
             }
 
-            // Upload to Nextcloud
-            using var stream = file.OpenReadStream();
-            var uploadSuccess = await _nextcloudService.UploadFileAsync(stream, nextcloudPath, uniqueFileName);
-            
-            if (!uploadSuccess)
+            // Read file into memory for upload and hash calculation
+            byte[] fileData;
+            using (var stream = file.OpenReadStream())
             {
-                throw new InvalidOperationException("Failed to upload file to Nextcloud");
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                fileData = memoryStream.ToArray();
             }
 
-            // Calculate file hash
-            stream.Position = 0;
-            var fileHash = await CalculateFileHashAsync(stream);
+            // Upload to Nextcloud
+            using (var uploadStream = new MemoryStream(fileData))
+            {
+                var uploadSuccess = await _nextcloudService.UploadFileAsync(uploadStream, nextcloudPath, uniqueFileName);
+                
+                if (!uploadSuccess)
+                {
+                    throw new InvalidOperationException("Failed to upload file to Nextcloud");
+                }
+            }
+
+            // Calculate file hash (for future use/audit purposes)
+            string fileHash;
+            using (var hashStream = new MemoryStream(fileData))
+            {
+                fileHash = await CalculateFileHashAsync(hashStream);
+            }
 
             // Create document record
             var document = new Document
@@ -490,13 +504,24 @@ public class DocumentService : IDocumentService
             // Use same path structure as original document
             var nextcloudPath = Path.GetDirectoryName(document.NextcloudPath)?.Replace('\\', '/') + "/" + uniqueFileName;
 
-            // Upload to Nextcloud
-            using var stream = file.OpenReadStream();
-            var uploadSuccess = await _nextcloudService.UploadFileAsync(stream, nextcloudPath, uniqueFileName);
-            
-            if (!uploadSuccess)
+            // Read file into memory for upload
+            byte[] fileData;
+            using (var stream = file.OpenReadStream())
             {
-                throw new InvalidOperationException("Failed to upload file version to Nextcloud");
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                fileData = memoryStream.ToArray();
+            }
+
+            // Upload to Nextcloud
+            using (var uploadStream = new MemoryStream(fileData))
+            {
+                var uploadSuccess = await _nextcloudService.UploadFileAsync(uploadStream, nextcloudPath, uniqueFileName);
+                
+                if (!uploadSuccess)
+                {
+                    throw new InvalidOperationException("Failed to upload file version to Nextcloud");
+                }
             }
 
             // Get next version number
