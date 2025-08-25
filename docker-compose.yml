@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  genocrm:
+    image: ghcr.io/${GITHUB_USERNAME}/genocrm:latest
+    container_name: genocrm
+    ports:
+      - "127.0.0.1:8080:8080"  # Only expose to localhost
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=genocrm;Username=genocrm;Password=${DB_PASSWORD:-genocrm123}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - genocrm-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: genocrm-postgres
+    environment:
+      - POSTGRES_DB=genocrm
+      - POSTGRES_USER=genocrm
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-genocrm123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - genocrm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genocrm -d genocrm"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  genocrm-network:
+    driver: bridge

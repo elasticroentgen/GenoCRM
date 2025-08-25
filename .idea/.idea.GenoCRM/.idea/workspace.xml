@@ -12,17 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberForm.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberForm.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Integration/NextcloudService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Integration/NextcloudService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.Development.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,16 +32,16 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/621526284d3e4868b98948aff942206525763e57e194a27623b66c384466/ServiceProviderServiceExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AccessDenied.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Toolset" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="2zrLgyfowr35oQpM45DNsBiB0Pm" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -71,7 +60,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/markus/dev/GenoCRM/GenoCRM.sln",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -193,7 +183,10 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
   </component>
@@ -205,6 +198,7 @@
       <option name="presentableId" value="Default" />
       <updated>1752484361786</updated>
       <workItem from="1752484363619" duration="21905000" />
+      <workItem from="1755014859640" duration="1697000" />
     </task>
     <servers />
   </component>
@@ -242,6 +236,9 @@
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AccessDenied.razor</url>
           <line>18</line>
+          <properties isMultiMethodBreakpoint="true">
+            <option name="multiMethodBreakpoint" value="true" />
+          </properties>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
       </breakpoints>
