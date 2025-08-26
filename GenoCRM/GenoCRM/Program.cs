@@ -20,6 +20,87 @@ using Serilog;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 
+// Load .env file if it exists (for development)
+if (File.Exists(".env"))
+{
+    DotNetEnv.Env.Load();
+}
+
+// Map environment variables to configuration format
+// Nextcloud Integration
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_BASE_URL")))
+    Environment.SetEnvironmentVariable("Nextcloud__BaseUrl", Environment.GetEnvironmentVariable("NEXTCLOUD_BASE_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_WEBDAV_URL")))
+    Environment.SetEnvironmentVariable("Nextcloud__WebDAVUrl", Environment.GetEnvironmentVariable("NEXTCLOUD_WEBDAV_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_USERNAME")))
+    Environment.SetEnvironmentVariable("Nextcloud__Username", Environment.GetEnvironmentVariable("NEXTCLOUD_USERNAME"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_PASSWORD")))
+    Environment.SetEnvironmentVariable("Nextcloud__Password", Environment.GetEnvironmentVariable("NEXTCLOUD_PASSWORD"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_DOCUMENTS_PATH")))
+    Environment.SetEnvironmentVariable("Nextcloud__DocumentsPath", Environment.GetEnvironmentVariable("NEXTCLOUD_DOCUMENTS_PATH"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_MEMBER_DOCUMENTS_PATH")))
+    Environment.SetEnvironmentVariable("Nextcloud__MemberDocumentsPath", Environment.GetEnvironmentVariable("NEXTCLOUD_MEMBER_DOCUMENTS_PATH"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_SHARE_DOCUMENTS_PATH")))
+    Environment.SetEnvironmentVariable("Nextcloud__ShareDocumentsPath", Environment.GetEnvironmentVariable("NEXTCLOUD_SHARE_DOCUMENTS_PATH"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_GENERATED_DOCUMENTS_PATH")))
+    Environment.SetEnvironmentVariable("Nextcloud__GeneratedDocumentsPath", Environment.GetEnvironmentVariable("NEXTCLOUD_GENERATED_DOCUMENTS_PATH"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_MAX_FILE_SIZE")))
+    Environment.SetEnvironmentVariable("Nextcloud__MaxFileSize", Environment.GetEnvironmentVariable("NEXTCLOUD_MAX_FILE_SIZE"));
+
+// Nextcloud OAuth Authentication
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_BASE_URL")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__BaseUrl", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_BASE_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_AUTHORIZE_ENDPOINT")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__AuthorizeEndpoint", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_AUTHORIZE_ENDPOINT"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_TOKEN_ENDPOINT")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__TokenEndpoint", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_TOKEN_ENDPOINT"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_USER_INFO_ENDPOINT")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__UserInfoEndpoint", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_USER_INFO_ENDPOINT"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_CLIENT_ID")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__ClientId", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_CLIENT_ID"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_CLIENT_SECRET")))
+    Environment.SetEnvironmentVariable("NextcloudAuth__ClientSecret", Environment.GetEnvironmentVariable("NEXTCLOUD_AUTH_CLIENT_SECRET"));
+
+// SMTP Email Configuration
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_HOST")))
+    Environment.SetEnvironmentVariable("Smtp__Host", Environment.GetEnvironmentVariable("SMTP_HOST"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_PORT")))
+    Environment.SetEnvironmentVariable("Smtp__Port", Environment.GetEnvironmentVariable("SMTP_PORT"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_USERNAME")))
+    Environment.SetEnvironmentVariable("Smtp__Username", Environment.GetEnvironmentVariable("SMTP_USERNAME"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_PASSWORD")))
+    Environment.SetEnvironmentVariable("Smtp__Password", Environment.GetEnvironmentVariable("SMTP_PASSWORD"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_ENABLE_SSL")))
+    Environment.SetEnvironmentVariable("Smtp__EnableSsl", Environment.GetEnvironmentVariable("SMTP_ENABLE_SSL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL")))
+    Environment.SetEnvironmentVariable("Smtp__FromEmail", Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_FROM_NAME")))
+    Environment.SetEnvironmentVariable("Smtp__FromName", Environment.GetEnvironmentVariable("SMTP_FROM_NAME"));
+
+// WhatsApp Business API
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WHATSAPP_ACCESS_TOKEN")))
+    Environment.SetEnvironmentVariable("WhatsApp__AccessToken", Environment.GetEnvironmentVariable("WHATSAPP_ACCESS_TOKEN"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WHATSAPP_API_URL")))
+    Environment.SetEnvironmentVariable("WhatsApp__ApiUrl", Environment.GetEnvironmentVariable("WHATSAPP_API_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WHATSAPP_PHONE_NUMBER_ID")))
+    Environment.SetEnvironmentVariable("WhatsApp__PhoneNumberId", Environment.GetEnvironmentVariable("WHATSAPP_PHONE_NUMBER_ID"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WHATSAPP_WEBHOOK_VERIFY_TOKEN")))
+    Environment.SetEnvironmentVariable("WhatsApp__WebhookVerifyToken", Environment.GetEnvironmentVariable("WHATSAPP_WEBHOOK_VERIFY_TOKEN"));
+
+// SMS Provider API
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_API_KEY")))
+    Environment.SetEnvironmentVariable("Sms__ApiKey", Environment.GetEnvironmentVariable("SMS_API_KEY"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_API_URL")))
+    Environment.SetEnvironmentVariable("Sms__ApiUrl", Environment.GetEnvironmentVariable("SMS_API_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_STATUS_URL")))
+    Environment.SetEnvironmentVariable("Sms__StatusUrl", Environment.GetEnvironmentVariable("SMS_STATUS_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_FROM_NUMBER")))
+    Environment.SetEnvironmentVariable("Sms__FromNumber", Environment.GetEnvironmentVariable("SMS_FROM_NUMBER"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_DEFAULT_RATE")))
+    Environment.SetEnvironmentVariable("Sms__DefaultRate", Environment.GetEnvironmentVariable("SMS_DEFAULT_RATE"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_PROVIDER")))
+    Environment.SetEnvironmentVariable("Sms__Provider", Environment.GetEnvironmentVariable("SMS_PROVIDER"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog

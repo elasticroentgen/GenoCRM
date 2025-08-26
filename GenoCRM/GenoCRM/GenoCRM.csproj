@@ -41,6 +41,9 @@
         <!-- Logging -->
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
+        
+        <!-- Environment Variables -->
+        <PackageReference Include="DotNetEnv" Version="3.1.1"/>
     </ItemGroup>
 
     <ItemGroup>

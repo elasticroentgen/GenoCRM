@@ -10,6 +10,43 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=genocrm;Username=genocrm;Password=${DB_PASSWORD:-genocrm123}
+      # Nextcloud Integration
+      - Nextcloud__BaseUrl=${NEXTCLOUD_BASE_URL}
+      - Nextcloud__WebDAVUrl=${NEXTCLOUD_WEBDAV_URL}
+      - Nextcloud__Username=${NEXTCLOUD_USERNAME}
+      - Nextcloud__Password=${NEXTCLOUD_PASSWORD}
+      - Nextcloud__DocumentsPath=${NEXTCLOUD_DOCUMENTS_PATH}
+      - Nextcloud__MemberDocumentsPath=${NEXTCLOUD_MEMBER_DOCUMENTS_PATH}
+      - Nextcloud__ShareDocumentsPath=${NEXTCLOUD_SHARE_DOCUMENTS_PATH}
+      - Nextcloud__GeneratedDocumentsPath=${NEXTCLOUD_GENERATED_DOCUMENTS_PATH}
+      - Nextcloud__MaxFileSize=${NEXTCLOUD_MAX_FILE_SIZE}
+      # Nextcloud OAuth Authentication
+      - NextcloudAuth__BaseUrl=${NEXTCLOUD_AUTH_BASE_URL}
+      - NextcloudAuth__AuthorizeEndpoint=${NEXTCLOUD_AUTH_AUTHORIZE_ENDPOINT}
+      - NextcloudAuth__TokenEndpoint=${NEXTCLOUD_AUTH_TOKEN_ENDPOINT}
+      - NextcloudAuth__UserInfoEndpoint=${NEXTCLOUD_AUTH_USER_INFO_ENDPOINT}
+      - NextcloudAuth__ClientId=${NEXTCLOUD_AUTH_CLIENT_ID}
+      - NextcloudAuth__ClientSecret=${NEXTCLOUD_AUTH_CLIENT_SECRET}
+      # SMTP Email Configuration
+      - Smtp__Host=${SMTP_HOST}
+      - Smtp__Port=${SMTP_PORT}
+      - Smtp__Username=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
+      - Smtp__FromEmail=${SMTP_FROM_EMAIL}
+      - Smtp__FromName=${SMTP_FROM_NAME}
+      # Optional: WhatsApp Business API
+      - WhatsApp__AccessToken=${WHATSAPP_ACCESS_TOKEN:-}
+      - WhatsApp__ApiUrl=${WHATSAPP_API_URL:-}
+      - WhatsApp__PhoneNumberId=${WHATSAPP_PHONE_NUMBER_ID:-}
+      - WhatsApp__WebhookVerifyToken=${WHATSAPP_WEBHOOK_VERIFY_TOKEN:-}
+      # Optional: SMS Provider API
+      - Sms__ApiKey=${SMS_API_KEY:-}
+      - Sms__ApiUrl=${SMS_API_URL:-}
+      - Sms__StatusUrl=${SMS_STATUS_URL:-}
+      - Sms__FromNumber=${SMS_FROM_NUMBER:-}
+      - Sms__DefaultRate=${SMS_DEFAULT_RATE:-}
+      - Sms__Provider=${SMS_PROVIDER:-}
     depends_on:
       postgres:
         condition: service_healthy
