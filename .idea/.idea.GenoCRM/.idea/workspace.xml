@@ -10,14 +10,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-    </list>
+    <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

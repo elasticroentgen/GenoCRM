@@ -101,6 +101,12 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_DEFAULT_RATE")
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_PROVIDER")))
     Environment.SetEnvironmentVariable("Sms__Provider", Environment.GetEnvironmentVariable("SMS_PROVIDER"));
 
+// Database Configuration
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_PROVIDER")))
+    Environment.SetEnvironmentVariable("Database__Provider", Environment.GetEnvironmentVariable("DATABASE_PROVIDER"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")))
+    Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
@@ -155,8 +161,23 @@ builder.Services.AddScoped<Microsoft.AspNetCore.Components.Authorization.Authent
 builder.Services.AddControllers();
 
 // Database configuration
+var databaseProvider = builder.Configuration["Database:Provider"]?.ToLowerInvariant() ?? "sqlite";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<GenoDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    switch (databaseProvider)
+    {
+        case "postgresql":
+        case "postgres":
+            options.UseNpgsql(connectionString);
+            break;
+        case "sqlite":
+        default:
+            options.UseSqlite(connectionString);
+            break;
+    }
+});
 
 // Business services
 builder.Services.AddScoped<IMemberService, MemberService>();
