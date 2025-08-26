@@ -334,15 +334,31 @@ app.MapRazorComponents<App>()
 // Map API controllers
 app.MapControllers();
 
-// Seed database in development
-if (app.Environment.IsDevelopment())
+// Apply database migrations and seed data
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
+    var context = scope.ServiceProvider.GetRequiredService<GenoDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
+    try
     {
-        var context = scope.ServiceProvider.GetRequiredService<GenoDbContext>();
-        await context.Database.EnsureCreatedAsync();
-        //await GenoCRM.Data.SeedData.SeedAsync(context);
-        await GenoCRM.Data.MessagingSeedData.SeedAsync(context);
+        logger.LogInformation("Applying database migrations...");
+        await context.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully.");
+        
+        // Seed data in development
+        if (app.Environment.IsDevelopment())
+        {
+            logger.LogInformation("Seeding development data...");
+            //await GenoCRM.Data.SeedData.SeedAsync(context);
+            await GenoCRM.Data.MessagingSeedData.SeedAsync(context);
+            logger.LogInformation("Development data seeded successfully.");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying database migrations or seeding data.");
+        throw;
     }
 }
 
