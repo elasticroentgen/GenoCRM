@@ -44,6 +44,22 @@ public class GenoDbContext : DbContext
         // Global query filters
         modelBuilder.Entity<Member>().HasQueryFilter(m => m.Status != MemberStatus.Terminated);
         modelBuilder.Entity<Document>().HasQueryFilter(d => d.Status != DocumentStatus.Deleted);
+        
+        // Matching query filters for entities with Member relationships
+        modelBuilder.Entity<CooperativeShare>().HasQueryFilter(cs => cs.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<Dividend>().HasQueryFilter(d => d.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<Message>().HasQueryFilter(m => m.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<MessagePreference>().HasQueryFilter(mp => mp.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<Payment>().HasQueryFilter(p => p.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<ShareApproval>().HasQueryFilter(sa => sa.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<ShareTransfer>().HasQueryFilter(st => st.FromMember.Status != MemberStatus.Terminated && st.ToMember.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<SubordinatedLoan>().HasQueryFilter(sl => sl.Member.Status != MemberStatus.Terminated);
+        
+        // Matching query filter for LoanInterest with SubordinatedLoan relationship
+        modelBuilder.Entity<LoanInterest>().HasQueryFilter(li => li.SubordinatedLoan.Member.Status != MemberStatus.Terminated);
+        
+        // Matching query filter for DocumentVersion with Document relationship
+        modelBuilder.Entity<DocumentVersion>().HasQueryFilter(dv => dv.Document.Status != DocumentStatus.Deleted);
 
         // Index configurations
         ConfigureIndexes(modelBuilder);
