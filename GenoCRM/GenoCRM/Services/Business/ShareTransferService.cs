@@ -202,9 +202,9 @@ public class ShareTransferService : IShareTransferService
                 return true;
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex) when (
-                ex.InnerException is Microsoft.Data.Sqlite.SqliteException sqliteEx &&
-                sqliteEx.SqliteErrorCode == 19 && // SQLITE_CONSTRAINT
-                sqliteEx.Message.Contains("UNIQUE constraint failed: CooperativeShares.CertificateNumber") &&
+                ex.InnerException is Npgsql.PostgresException pgEx &&
+                pgEx.SqlState == "23505" && // unique_violation
+                pgEx.Message.Contains("duplicate key value violates unique constraint") &&
                 attempt < maxRetries - 1)
             {
                 _logger.LogWarning(ex, "Certificate number collision detected on attempt {Attempt}, retrying share transfer completion for {TransferId}", 

@@ -102,8 +102,6 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_PROVIDER")))
     Environment.SetEnvironmentVariable("Sms__Provider", Environment.GetEnvironmentVariable("SMS_PROVIDER"));
 
 // Database Configuration
-if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_PROVIDER")))
-    Environment.SetEnvironmentVariable("Database__Provider", Environment.GetEnvironmentVariable("DATABASE_PROVIDER"));
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")))
     Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"));
 
@@ -160,22 +158,18 @@ builder.Services.AddScoped<Microsoft.AspNetCore.Components.Authorization.Authent
 // Add API controllers
 builder.Services.AddControllers();
 
-// Database configuration
-var databaseProvider = builder.Configuration["Database:Provider"]?.ToLowerInvariant() ?? "sqlite";
+// Database configuration - PostgreSQL only
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<GenoDbContext>(options =>
 {
-    switch (databaseProvider)
+    options.UseNpgsql(connectionString);
+    
+    // In development, suppress the pending model changes warning to allow more flexible migration handling
+    if (builder.Environment.IsDevelopment())
     {
-        case "postgresql":
-        case "postgres":
-            options.UseNpgsql(connectionString);
-            break;
-        case "sqlite":
-        default:
-            options.UseSqlite(connectionString);
-            break;
+        options.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
 });
 
@@ -343,8 +337,18 @@ using (var scope = app.Services.CreateScope())
     try
     {
         logger.LogInformation("Applying database migrations...");
-        await context.Database.MigrateAsync();
-        logger.LogInformation("Database migrations applied successfully.");
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation("Found {Count} pending migrations: {Migrations}", 
+                pendingMigrations.Count(), string.Join(", ", pendingMigrations));
+            await context.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            logger.LogInformation("Database is up to date, no migrations to apply.");
+        }
         
         // Seed data in development
         if (app.Environment.IsDevelopment())
