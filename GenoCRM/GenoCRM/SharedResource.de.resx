@@ -998,6 +998,9 @@
   <data name="Unpaid" xml:space="preserve">
     <value>Unbezahlt</value>
   </data>
+  <data name="UnpaidShares" xml:space="preserve">
+    <value>Unbezahlte Anteile</value>
+  </data>
   <data name="OutstandingAmount" xml:space="preserve">
     <value>Ausstehender Betrag</value>
   </data>

@@ -21,6 +21,8 @@ public interface IShareService
     Task<IEnumerable<CooperativeShare>> GetActiveSharesAsync();
     Task<IEnumerable<CooperativeShare>> GetNonActiveSharesAsync();
     Task<decimal> GetOffboardingSharesValueAsync();
+    Task<decimal> GetActiveShareCapitalAsync();
+    Task<decimal> GetUnpaidShareCapitalAsync();
 }
 
 public class ShareService : IShareService
@@ -453,6 +455,45 @@ public class ShareService : IShareService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error calculating offboarding shares value");
+            throw;
+        }
+    }
+
+    public async Task<decimal> GetActiveShareCapitalAsync()
+    {
+        try
+        {
+            var activeShares = await _context.CooperativeShares
+                .Include(s => s.Payments)
+                .Where(s => s.Status == ShareStatus.Active)
+                .ToListAsync();
+
+            return activeShares
+                .Where(s => s.IsFullyPaid)
+                .Sum(s => s.Value * s.Quantity);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating active share capital");
+            throw;
+        }
+    }
+    public async Task<decimal> GetUnpaidShareCapitalAsync()
+    {
+        try
+        {
+            var activeShares = await _context.CooperativeShares
+                .Include(s => s.Payments)
+                .Where(s => s.Status == ShareStatus.Active)
+                .ToListAsync();
+
+            return activeShares
+                .Where(s => !s.IsFullyPaid)
+                .Sum(s => s.Value * s.Quantity);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating unpaid share capital");
             throw;
         }
     }

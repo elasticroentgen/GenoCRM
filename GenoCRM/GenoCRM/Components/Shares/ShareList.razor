@@ -53,16 +53,25 @@
 </div>
 
 <div class="row mb-3">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">@SharedLocalizer["TotalShareCapital"]</h5>
-                <h3 class="text-success">@FormattingService.FormatCurrency(_totalShareCapital)</h3>
+                <h3 class="text-success">@FormattingService.FormatCurrency(_activeShareCapital)</h3>
                 <small class="text-muted">@SharedLocalizer["ActiveSharesOnly"]</small>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@SharedLocalizer["UnpaidShares"]</h5>
+                <h3 class="text-warning">@FormattingService.FormatCurrency(_unpaidShareCapital)</h3>
+                <small class="text-muted">@SharedLocalizer["Unpaid"]</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">@SharedLocalizer["OffboardingShares"]</h5>
@@ -71,7 +80,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group">
             <label for="statusFilter" class="form-label">@SharedLocalizer["FilterByStatus"]</label>
             <select id="statusFilter" class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
@@ -355,12 +364,16 @@ else
     private string _selectedStatus = string.Empty;
     private bool _isLoading = true;
     private decimal _totalShareCapital;
+    private decimal _unpaidShareCapital;
+    private decimal _activeShareCapital;
     private decimal _offboardingSharesValue;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadShares();
         await LoadTotalCapital();
+        await LoadActiveCapital();
+        await LoadUnpaidCapital();
         await LoadOffboardingValue();
     }
 
@@ -388,6 +401,30 @@ else
         try
         {
             _totalShareCapital = await ShareService.GetTotalShareCapitalAsync();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingTotalCapital"], ex.Message));
+        }
+    }
+    private async Task LoadActiveCapital()
+    {
+        try
+        {
+            _activeShareCapital = await ShareService.GetActiveShareCapitalAsync();
+            
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorLoadingTotalCapital"], ex.Message));
+        }
+    }
+    private async Task LoadUnpaidCapital()
+    {
+        try
+        {
+            _unpaidShareCapital = await ShareService.GetUnpaidShareCapitalAsync();
+            
         }
         catch (Exception ex)
         {
@@ -463,6 +500,7 @@ else
                 await ShareService.DeleteShareAsync(shareId);
                 await LoadShares();
                 await LoadTotalCapital();
+                await LoadActiveCapital();
                 await LoadOffboardingValue();
                 await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["ShareCancelledSuccessfully"]);
             }
