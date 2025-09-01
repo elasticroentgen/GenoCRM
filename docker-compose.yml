@@ -57,6 +57,8 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: genocrm-postgres
+    ports:
+      - "127.0.0.1:5432:5432"  # Expose PostgreSQL for local development
     environment:
       - POSTGRES_DB=genocrm
       - POSTGRES_USER=genocrm

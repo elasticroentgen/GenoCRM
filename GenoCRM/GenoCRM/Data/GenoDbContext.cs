@@ -273,14 +273,24 @@ public class GenoDbContext : DbContext
             }
             
             // Handle timestamp properties
+            var entityType = entry.Entity.GetType();
+            
             if (entry.State == EntityState.Added)
             {
-                if (entry.Property("CreatedAt").CurrentValue == null)
-                    entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
+                var createdAtProperty = entityType.GetProperty("CreatedAt");
+                if (createdAtProperty != null)
+                {
+                    var propEntry = entry.Property("CreatedAt");
+                    if (propEntry.CurrentValue == null)
+                        propEntry.CurrentValue = DateTime.UtcNow;
+                }
             }
             
-            if (entry.Property("UpdatedAt") != null)
+            var updatedAtProperty = entityType.GetProperty("UpdatedAt");
+            if (updatedAtProperty != null)
+            {
                 entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow;
+            }
         }
     }
 }
