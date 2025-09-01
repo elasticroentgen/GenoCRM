@@ -11,9 +11,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/ShareService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/ShareService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

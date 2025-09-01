@@ -76,7 +76,7 @@ public class Member
         ? $"{(string.IsNullOrEmpty(Prefix) ? "" : $"{Prefix} ")}{FirstName} {LastName}".Trim()
         : CompanyName;
     
-    public decimal TotalShareValue => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Value);
+    public decimal TotalShareValue => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.TotalValue);
     
     public int TotalShareCount => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Quantity);
 }
