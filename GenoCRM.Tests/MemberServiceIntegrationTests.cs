@@ -6,6 +6,9 @@ using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Moq;
+using System.Security.Claims;
 
 namespace GenoCRM.Tests;
 
@@ -27,6 +30,7 @@ public class MemberServiceIntegrationTests : IDisposable
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["CooperativeSettings:ShareDenomination"] = "250.00",
+                ["CooperativeSettings:MaxSharesPerMember"] = "100",
                 ["CooperativeSettings:FiscalYearStartMonth"] = "1",
                 ["CooperativeSettings:FiscalYearStartDay"] = "1"
             })
@@ -39,6 +43,20 @@ public class MemberServiceIntegrationTests : IDisposable
         services.AddDbContext<GenoDbContext>(options =>
             options.UseInMemoryDatabase(databaseName: databaseName)
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
+        
+        // Add missing services that MemberService requires
+        var mockAuditService = new Mock<IAuditService>();
+        var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        
+        // Setup HTTP context with mock user
+        var mockHttpContext = new Mock<HttpContext>();
+        var mockUser = new Mock<ClaimsPrincipal>();
+        mockUser.Setup(x => x.Identity!.Name).Returns("integration-test-user");
+        mockHttpContext.Setup(x => x.User).Returns(mockUser.Object);
+        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
+        
+        services.AddSingleton(mockAuditService.Object);
+        services.AddSingleton(mockHttpContextAccessor.Object);
         
         // Add services
         services.AddScoped<IMemberService, MemberService>();

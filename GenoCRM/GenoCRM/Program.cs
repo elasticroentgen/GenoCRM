@@ -161,6 +161,9 @@ builder.Services.AddControllers();
 // Database configuration - PostgreSQL only
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+// Configure Npgsql to handle DateTime as UTC globally
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 builder.Services.AddDbContext<GenoDbContext>(options =>
 {
     options.UseNpgsql(connectionString);

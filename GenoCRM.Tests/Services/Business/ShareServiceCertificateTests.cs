@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using GenoCRM.Data;
@@ -12,6 +13,7 @@ public class ShareServiceCertificateTests : IDisposable
 {
     private readonly GenoDbContext _context;
     private readonly Mock<ILogger<ShareService>> _mockLogger;
+    private readonly IConfiguration _configuration;
     private readonly ShareService _shareService;
 
     public ShareServiceCertificateTests()
@@ -22,7 +24,19 @@ public class ShareServiceCertificateTests : IDisposable
 
         _context = new GenoDbContext(options);
         _mockLogger = new Mock<ILogger<ShareService>>();
-        _shareService = new ShareService(_context, _mockLogger.Object);
+        
+        // Create a real configuration with in-memory values
+        var inMemorySettings = new Dictionary<string, string>
+        {
+            {"CooperativeSettings:ShareDenomination", "250.00"},
+            {"CooperativeSettings:MaxSharesPerMember", "100"}
+        };
+        
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
+            
+        _shareService = new ShareService(_context, _mockLogger.Object, _configuration);
     }
 
     [Fact]
@@ -38,7 +52,23 @@ public class ShareServiceCertificateTests : IDisposable
     [Fact]
     public async Task GenerateNextCertificateNumberAsync_WithExistingShares_ShouldReturnCorrectNextNumber()
     {
-        // Arrange
+        // Arrange - First create a member to reference
+        var member = new Member
+        {
+            Id = 1,
+            MemberNumber = "M001",
+            FirstName = "Test",
+            LastName = "Member",
+            Email = "test@example.com",
+            Status = MemberStatus.Active,
+            JoinDate = DateTime.UtcNow.AddMonths(-1),
+            CreatedAt = DateTime.UtcNow.AddMonths(-1),
+            UpdatedAt = DateTime.UtcNow.AddMonths(-1)
+        };
+        
+        _context.Members.Add(member);
+        await _context.SaveChangesAsync();
+        
         var existingShares = new List<CooperativeShare>
         {
             new CooperativeShare
@@ -49,7 +79,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-30),
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                UpdatedAt = DateTime.UtcNow.AddDays(-30)
             },
             new CooperativeShare
             {
@@ -59,7 +92,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-20),
+                CreatedAt = DateTime.UtcNow.AddDays(-20),
+                UpdatedAt = DateTime.UtcNow.AddDays(-20)
             },
             new CooperativeShare
             {
@@ -69,12 +105,19 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-25),
+                CreatedAt = DateTime.UtcNow.AddDays(-25),
+                UpdatedAt = DateTime.UtcNow.AddDays(-25)
             }
         };
 
         _context.CooperativeShares.AddRange(existingShares);
         await _context.SaveChangesAsync();
+
+        // Debug: Verify shares were actually saved
+        var savedShares = await _context.CooperativeShares.ToListAsync();
+        Assert.Equal(3, savedShares.Count); // Should have 3 shares
 
         // Act
         var result = await _shareService.GenerateNextCertificateNumberAsync();
@@ -86,7 +129,23 @@ public class ShareServiceCertificateTests : IDisposable
     [Fact]
     public async Task GenerateNextCertificateNumberAsync_WithMixedFormats_ShouldHandleCorrectly()
     {
-        // Arrange
+        // Arrange - First create a member to reference
+        var member = new Member
+        {
+            Id = 1,
+            MemberNumber = "M001",
+            FirstName = "Test",
+            LastName = "Member",
+            Email = "test@example.com",
+            Status = MemberStatus.Active,
+            JoinDate = DateTime.UtcNow.AddMonths(-1),
+            CreatedAt = DateTime.UtcNow.AddMonths(-1),
+            UpdatedAt = DateTime.UtcNow.AddMonths(-1)
+        };
+        
+        _context.Members.Add(member);
+        await _context.SaveChangesAsync();
+        
         var existingShares = new List<CooperativeShare>
         {
             new CooperativeShare
@@ -97,7 +156,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-30),
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                UpdatedAt = DateTime.UtcNow.AddDays(-30)
             },
             new CooperativeShare
             {
@@ -107,7 +169,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-20),
+                CreatedAt = DateTime.UtcNow.AddDays(-20),
+                UpdatedAt = DateTime.UtcNow.AddDays(-20)
             },
             new CooperativeShare
             {
@@ -117,7 +182,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow.AddDays(-25),
+                CreatedAt = DateTime.UtcNow.AddDays(-25),
+                UpdatedAt = DateTime.UtcNow.AddDays(-25)
             }
         };
 
@@ -134,7 +202,23 @@ public class ShareServiceCertificateTests : IDisposable
     [Fact]
     public async Task GenerateNextCertificateNumberAsync_MultipleSequentialCalls_ShouldGenerateUniqueNumbers()
     {
-        // Arrange
+        // Arrange - First create a member to reference
+        var member = new Member
+        {
+            Id = 1,
+            MemberNumber = "M001",
+            FirstName = "Test",
+            LastName = "Member",
+            Email = "test@example.com",
+            Status = MemberStatus.Active,
+            JoinDate = DateTime.UtcNow.AddMonths(-1),
+            CreatedAt = DateTime.UtcNow.AddMonths(-1),
+            UpdatedAt = DateTime.UtcNow.AddMonths(-1)
+        };
+        
+        _context.Members.Add(member);
+        await _context.SaveChangesAsync();
+        
         var initialShare = new CooperativeShare
         {
             Id = 1,
@@ -143,7 +227,10 @@ public class ShareServiceCertificateTests : IDisposable
             Quantity = 1,
             NominalValue = 250.00m,
             Value = 250.00m,
-            Status = ShareStatus.Active
+            Status = ShareStatus.Active,
+            IssueDate = DateTime.UtcNow.AddDays(-30),
+            CreatedAt = DateTime.UtcNow.AddDays(-30),
+            UpdatedAt = DateTime.UtcNow.AddDays(-30)
         };
 
         _context.CooperativeShares.Add(initialShare);
@@ -165,7 +252,10 @@ public class ShareServiceCertificateTests : IDisposable
                 Quantity = 1,
                 NominalValue = 250.00m,
                 Value = 250.00m,
-                Status = ShareStatus.Active
+                Status = ShareStatus.Active,
+                IssueDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             });
             await _context.SaveChangesAsync();
         }

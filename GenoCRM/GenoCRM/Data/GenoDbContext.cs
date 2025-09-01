@@ -263,6 +263,16 @@ public class GenoDbContext : DbContext
 
         foreach (var entry in entries)
         {
+            // Convert all DateTime properties with Unspecified Kind to UTC
+            foreach (var property in entry.Properties.Where(p => p.Metadata.ClrType == typeof(DateTime) || p.Metadata.ClrType == typeof(DateTime?)))
+            {
+                if (property.CurrentValue is DateTime dateTime && dateTime.Kind == DateTimeKind.Unspecified)
+                {
+                    property.CurrentValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                }
+            }
+            
+            // Handle timestamp properties
             if (entry.State == EntityState.Added)
             {
                 if (entry.Property("CreatedAt").CurrentValue == null)

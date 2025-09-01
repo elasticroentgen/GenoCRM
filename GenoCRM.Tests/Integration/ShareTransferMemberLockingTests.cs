@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using GenoCRM.Data;
@@ -12,6 +13,7 @@ public class ShareTransferMemberLockingTests : IDisposable
 {
     private readonly GenoDbContext _context;
     private readonly Mock<ILogger<ShareTransferService>> _mockLogger;
+    private readonly IConfiguration _configuration;
     private readonly Mock<IShareService> _mockShareService;
     private readonly ShareTransferService _shareTransferService;
 
@@ -23,13 +25,25 @@ public class ShareTransferMemberLockingTests : IDisposable
 
         _context = new GenoDbContext(options);
         _mockLogger = new Mock<ILogger<ShareTransferService>>();
+        
+        // Create a real configuration with in-memory values
+        var inMemorySettings = new Dictionary<string, string>
+        {
+            {"CooperativeSettings:MaxSharesPerMember", "100"},
+            {"CooperativeSettings:ShareDenomination", "250.00"}
+        };
+        
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
+            
         _mockShareService = new Mock<IShareService>();
         
         // Setup mock to return a certificate number
         _mockShareService.Setup(s => s.GenerateNextCertificateNumberAsync())
             .ReturnsAsync("CERT001");
 
-        _shareTransferService = new ShareTransferService(_context, _mockLogger.Object, _mockShareService.Object);
+        _shareTransferService = new ShareTransferService(_context, _mockLogger.Object, _mockShareService.Object, _configuration);
     }
 
     [Fact]
@@ -119,6 +133,7 @@ public class ShareTransferMemberLockingTests : IDisposable
 
         // At this point, member should still be Active because they have 3 shares remaining
         var memberAfterFirstTransfer = await _context.Members.FindAsync(1);
+        Assert.NotNull(memberAfterFirstTransfer);
         Assert.Equal(MemberStatus.Active, memberAfterFirstTransfer.Status);
 
         // Transfer 2: Transfer all 3 shares from second certificate
@@ -241,6 +256,7 @@ public class ShareTransferMemberLockingTests : IDisposable
         
         // Member should remain Inactive (not changed to Locked)
         var updatedMember = await _context.Members.FindAsync(1);
+        Assert.NotNull(updatedMember);
         Assert.Equal(MemberStatus.Inactive, updatedMember.Status);
     }
 

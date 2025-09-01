@@ -217,6 +217,15 @@ public class ShareService : IShareService
 
     public async Task<string> GenerateNextCertificateNumberAsync()
     {
+        // For in-memory databases, use simplified approach without transaction complexity
+        var isInMemory = _context.Database.ProviderName?.Contains("InMemory") ?? false;
+        
+        if (isInMemory)
+        {
+            return await GenerateNextCertificateNumberInternalAsync();
+        }
+        
+        // For real databases, use the robust retry mechanism
         const int maxRetries = 10;
         const int baseDelayMs = 10;
         
@@ -224,13 +233,10 @@ public class ShareService : IShareService
         {
             try
             {
-                // Check if we're already in a transaction or if transactions are supported
-                var supportsTransactions = !(_context.Database.ProviderName?.Contains("InMemory") ?? false);
                 var currentTransaction = _context.Database.CurrentTransaction;
                 
-                if (supportsTransactions && currentTransaction == null)
+                if (currentTransaction == null)
                 {
-                    // Only create a new transaction if we're not already in one
                     using var transaction = await _context.Database.BeginTransactionAsync();
                     
                     try
@@ -258,8 +264,7 @@ public class ShareService : IShareService
                 }
                 else
                 {
-                    // Either we're already in a transaction or using in-memory database
-                    // Just generate without creating a new transaction
+                    // We're already in a transaction, just generate
                     var result = await GenerateNextCertificateNumberInternalAsync();
                     
                     // Check if this certificate number already exists (double-check)
