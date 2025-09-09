@@ -212,7 +212,7 @@ builder.Services.AddScoped<IPdfGenerationService, PdfGenerationService>();
 
 // Authentication services
 builder.Services.AddHttpClient<INextcloudAuthService, NextcloudAuthService>();
-builder.Services.AddScoped<INextcloudAuthService, NextcloudAuthService>();
+builder.Services.AddTransient<INextcloudAuthService, NextcloudAuthService>();
 
 // Configuration services
 builder.Services.AddSingleton<IGroupPermissionService, GroupPermissionService>();

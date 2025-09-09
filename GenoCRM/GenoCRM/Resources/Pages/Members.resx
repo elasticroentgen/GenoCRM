@@ -323,4 +323,7 @@
   <data name="MemberNumberHelp" xml:space="preserve">
     <value>Unique member number automatically assigned upon registration. Cannot be changed after creation.</value>
   </data>
+  <data name="MemberType" xml:space="preserve">
+    <value>Member-Type</value>
+  </data>
 </root>

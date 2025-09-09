@@ -14,3 +14,4 @@ logs/
 
 # IDE workspace files
 .idea/workspace.xml
+launchSettings.json

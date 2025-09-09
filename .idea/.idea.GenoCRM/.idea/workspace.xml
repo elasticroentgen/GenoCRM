@@ -11,7 +11,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Messages.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Messages.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +62,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     ".NET Launch Settings Profile.GenoCRM: http.executor": "Run",
-    ".NET Launch Settings Profile.GenoCRM: https.executor": "Run",
+    ".NET Launch Settings Profile.GenoCRM: https.executor": "Debug",
     ".NET Project.GenoCRM.Client.executor": "Run",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
@@ -204,6 +213,7 @@
       <workItem from="1752484363619" duration="21905000" />
       <workItem from="1755014859640" duration="1697000" />
       <workItem from="1756218214406" duration="412000" />
+      <workItem from="1757421976254" duration="4531000" />
     </task>
     <servers />
   </component>
@@ -245,6 +255,32 @@
             <option name="multiMethodBreakpoint" value="true" />
           </properties>
           <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs</url>
+          <line>274</line>
+          <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" containingFunctionPresentation="">
+            <startOffsets>
+              <option value="14685" />
+            </startOffsets>
+            <endOffsets>
+              <option value="14745" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Authentication/NextcloudAuthService.cs</url>
+          <line>61</line>
+          <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Authentication/NextcloudAuthService.cs" containingFunctionPresentation="Method 'GetUserInfoAsync'">
+            <startOffsets>
+              <option value="2351" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2424" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
