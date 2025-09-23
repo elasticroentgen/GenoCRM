@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
+@using GenoCRM.Components.Shares.Dialogs
 @attribute [Authorize(Policy = "ViewShares")]
 @inject IShareService ShareService
 @inject IPaymentService PaymentService
@@ -165,8 +166,14 @@ else if (!string.IsNullOrEmpty(_selectedStatus))
                                     }
                                     @if (share.Status == ShareStatus.Active && !share.IsFullyPaid)
                                     {
-                                        <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(share.Id)" title="@SharedLocalizer["MarkAsPaid"]">
+                                        <button class="btn btn-sm btn-outline-success" @onclick="() => ShowPaymentDialog(share.Id)" title="@SharedLocalizer["RecordPayment"]">
                                             <i class="fas fa-credit-card"></i>
+                                        </button>
+                                    }
+                                    @if (share.Status == ShareStatus.Active)
+                                    {
+                                        <button class="btn btn-sm btn-outline-warning" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
+                                            <i class="fas fa-edit"></i>
                                         </button>
                                     }
                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
@@ -251,10 +258,13 @@ else
                                                     }
                                                     @if (!share.IsFullyPaid)
                                                     {
-                                                        <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(share.Id)" title="@SharedLocalizer["MarkAsPaid"]">
+                                                        <button class="btn btn-sm btn-outline-success" @onclick="() => ShowPaymentDialog(share.Id)" title="@SharedLocalizer["RecordPayment"]">
                                                             <i class="fas fa-credit-card"></i>
                                                         </button>
                                                     }
+                                                    <button class="btn btn-sm btn-outline-warning" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
                                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
                                                         <i class="fas fa-ban"></i>
                                                     </button>
@@ -355,6 +365,20 @@ else
             </div>
         </div>
     </div>
+}
+
+@if (_showPaymentDialog)
+{
+    <SharePaymentDialog ShareId="_selectedShareId"
+                       OnCancel="ClosePaymentDialog"
+                       OnComplete="OnPaymentComplete" />
+}
+
+@if (_showAdjustmentDialog)
+{
+    <ShareAdjustmentDialog ShareId="_selectedShareId"
+                          OnCancel="CloseAdjustmentDialog"
+                          OnComplete="OnAdjustmentComplete" />
 }
 
 @code {
@@ -511,50 +535,6 @@ else
         }
     }
 
-    private async Task MarkAsPaid(int shareId)
-    {
-        try
-        {
-            var share = await ShareService.GetShareByIdAsync(shareId);
-            if (share == null)
-            {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["ShareNotFound"]);
-                return;
-            }
-
-            if (share.IsFullyPaid)
-            {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Info"], SharedLocalizer["ShareAlreadyFullyPaid"]);
-                return;
-            }
-
-            var confirmed = await ModalService.ShowConfirmationAsync(
-                SharedLocalizer["Confirmation"], 
-                string.Format(SharedLocalizer["ConfirmMarkAsPaid"], 
-                    share.CertificateNumber, 
-                    FormattingService.FormatCurrency(share.OutstandingAmount)));
-
-            if (confirmed)
-            {
-                // Record full payment for the outstanding amount
-                await PaymentService.RecordSharePaymentAsync(
-                    shareId,
-                    share.OutstandingAmount,
-                    PaymentMethod.BankTransfer, // Default to bank transfer
-                    $"Full payment for share {share.CertificateNumber}");
-
-                await LoadShares();
-                await LoadTotalCapital();
-                await LoadOffboardingValue();
-                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["ShareMarkedAsPaid"]);
-            }
-        }
-        catch (Exception ex)
-        {
-            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], string.Format(SharedLocalizer["ErrorMarkingAsPaid"], ex.Message));
-        }
-    }
-
     private static string GetStatusColor(ShareStatus status)
     {
         return status switch
@@ -577,5 +557,68 @@ else
             ShareStatus.Suspended => SharedLocalizer["Suspended"],
             _ => status.ToString()
         };
+    }
+
+    // Dialog states
+    private bool _showPaymentDialog = false;
+    private bool _showAdjustmentDialog = false;
+    private int _selectedShareId = 0;
+
+    private void ShowPaymentDialog(int shareId)
+    {
+        _selectedShareId = shareId;
+        _showPaymentDialog = true;
+    }
+
+    private void ShowAdjustmentDialog(int shareId)
+    {
+        _selectedShareId = shareId;
+        _showAdjustmentDialog = true;
+    }
+
+    private async Task OnPaymentComplete(bool success)
+    {
+        _showPaymentDialog = false;
+
+        if (success)
+        {
+            await LoadShares();
+            await LoadActiveCapital();
+            await LoadUnpaidCapital();
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["PaymentRecordedSuccessfully"]);
+        }
+        else
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["ErrorRecordingPayment"]);
+        }
+    }
+
+    private async Task OnAdjustmentComplete(bool success)
+    {
+        _showAdjustmentDialog = false;
+
+        if (success)
+        {
+            await LoadShares();
+            await LoadActiveCapital();
+            await LoadUnpaidCapital();
+            await LoadTotalCapital();
+            await LoadOffboardingValue();
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["SharesAdjustedSuccessfully"]);
+        }
+        else
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["ErrorAdjustingShares"]);
+        }
+    }
+
+    private void ClosePaymentDialog()
+    {
+        _showPaymentDialog = false;
+    }
+
+    private void CloseAdjustmentDialog()
+    {
+        _showAdjustmentDialog = false;
     }
 }

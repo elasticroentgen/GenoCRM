@@ -1,0 +1,166 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using System.ComponentModel.DataAnnotations
+@inject IPaymentService PaymentService
+@inject IShareService ShareService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IFormattingService FormattingService
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5)">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@SharedLocalizer["RecordPayment"] - @_share?.CertificateNumber</h5>
+                <button type="button" class="btn-close" @onclick="OnCancel"></button>
+            </div>
+            <div class="modal-body">
+                @if (_share != null)
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">@SharedLocalizer["ShareDetails"]</h6>
+                                    <p><strong>@SharedLocalizer["Member"]:</strong> @_share.Member?.FullName</p>
+                                    <p><strong>@SharedLocalizer["Quantity"]:</strong> @_share.Quantity</p>
+                                    <p><strong>@SharedLocalizer["ValuePerShare"]:</strong> @FormattingService.FormatCurrency(_share.Value)</p>
+                                    <p><strong>@SharedLocalizer["TotalValue"]:</strong> @FormattingService.FormatCurrency(_share.TotalValue)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">@SharedLocalizer["PaymentStatus"]</h6>
+                                    <p><strong>@SharedLocalizer["PaidAmount"]:</strong> @FormattingService.FormatCurrency(_share.PaidAmount)</p>
+                                    <p><strong>@SharedLocalizer["OutstandingAmount"]:</strong> @FormattingService.FormatCurrency(_share.OutstandingAmount)</p>
+                                    <p><strong>@SharedLocalizer["Status"]:</strong>
+                                        @if (_share.IsFullyPaid)
+                                        {
+                                            <span class="badge bg-success">@SharedLocalizer["FullyPaid"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">@SharedLocalizer["PartiallyPaid"]</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <EditForm Model="_paymentModel" OnValidSubmit="HandlePayment">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger" />
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">@SharedLocalizer["SharesPaid"]</label>
+                            <InputNumber class="form-control" @bind-Value="_paymentModel.SharesPaid" min="1" max="@_unpaidShares" />
+                            <small class="form-text text-muted">
+                                @SharedLocalizer["UnpaidShares"]: @_unpaidShares | @SharedLocalizer["PaymentAmount"]: @FormattingService.FormatCurrency(_paymentModel.SharesPaid * _share.Value)
+                            </small>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" @onclick="OnCancel">
+                                @SharedLocalizer["Cancel"]
+                            </button>
+                            <button type="submit" class="btn btn-success" disabled="@_isProcessing">
+                                @if (_isProcessing)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                @SharedLocalizer["RecordPayment"]
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+                else
+                {
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">@SharedLocalizer["Loading"]</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int ShareId { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<bool> OnComplete { get; set; }
+
+    private CooperativeShare? _share;
+    private PaymentModel _paymentModel = new();
+    private int _unpaidShares;
+    private bool _isProcessing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadShare();
+    }
+
+    private async Task LoadShare()
+    {
+        try
+        {
+            _share = await ShareService.GetShareByIdAsync(ShareId);
+            if (_share != null)
+            {
+                _unpaidShares = (int)(_share.OutstandingAmount / _share.Value);
+                _paymentModel = new PaymentModel
+                {
+                    SharesPaid = _unpaidShares
+                };
+            }
+        }
+        catch (Exception)
+        {
+            // Error handling will be done by parent component
+        }
+    }
+
+    private async Task HandlePayment()
+    {
+        if (_share == null) return;
+
+        try
+        {
+            _isProcessing = true;
+
+            var paymentAmount = _paymentModel.SharesPaid * _share.Value;
+            await PaymentService.RecordSharePaymentAsync(
+                ShareId,
+                paymentAmount,
+                PaymentMethod.BankTransfer,
+                null,
+                DateTime.Today);
+
+            await OnComplete.InvokeAsync(true);
+        }
+        catch (Exception)
+        {
+            await OnComplete.InvokeAsync(false);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private class PaymentModel
+    {
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Number of shares must be greater than 0")]
+        public int SharesPaid { get; set; } = 1;
+    }
+}
