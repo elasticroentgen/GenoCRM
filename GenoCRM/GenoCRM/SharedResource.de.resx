@@ -1455,4 +1455,65 @@
   <data name="Other" xml:space="preserve">
     <value>Andere</value>
   </data>
+
+  <!-- Share Payment Dialog -->
+  <data name="SharesPaid" xml:space="preserve">
+    <value>Bezahlte Anteile</value>
+  </data>
+  <data name="PaymentAmount" xml:space="preserve">
+    <value>Zahlungsbetrag</value>
+  </data>
+  <data name="ValuePerShare" xml:space="preserve">
+    <value>Wert pro Anteil</value>
+  </data>
+
+  <!-- Share Adjustment Dialog -->
+  <data name="AdjustShares" xml:space="preserve">
+    <value>Anteile anpassen</value>
+  </data>
+  <data name="CurrentShareDetails" xml:space="preserve">
+    <value>Aktuelle Anteilsdetails</value>
+  </data>
+  <data name="NewShareDetails" xml:space="preserve">
+    <value>Neue Anteilsdetails</value>
+  </data>
+  <data name="NewQuantity" xml:space="preserve">
+    <value>Neue Anzahl</value>
+  </data>
+  <data name="AdjustmentDate" xml:space="preserve">
+    <value>Anpassungsdatum</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Grund</value>
+  </data>
+  <data name="AdjustmentReason" xml:space="preserve">
+    <value>Bitte geben Sie einen Grund für diese Anpassung an</value>
+  </data>
+  <data name="ShareAdjustmentNote" xml:space="preserve">
+    <value>Diese Anpassung wird die Anteilsanzahl ändern. Der gesamte Zahlungs- und Dividendenverlauf bleibt erhalten.</value>
+  </data>
+  <data name="ShareIncreaseNote" xml:space="preserve">
+    <value>Sie erhöhen die Anteile um {0} (zusätzlicher Wert: {1})</value>
+  </data>
+  <data name="ShareDecreaseNote" xml:space="preserve">
+    <value>Sie verringern die Anteile um {0} (Wertminderung: {1})</value>
+  </data>
+  <data name="OverpaidRefundNote" xml:space="preserve">
+    <value>Dieses Mitglied hat zu viel bezahlt und hat möglicherweise Anspruch auf eine Rückerstattung</value>
+  </data>
+  <data name="RefundRequired" xml:space="preserve">
+    <value>Rückerstattung erforderlich</value>
+  </data>
+  <data name="RefundRequiredNote" xml:space="preserve">
+    <value>Diese Anpassung würde zu einer Überzahlung von {0} führen. Eine Rückerstattung könnte erforderlich sein.</value>
+  </data>
+  <data name="ProcessRefundAutomatically" xml:space="preserve">
+    <value>Rückerstattung automatisch verarbeiten</value>
+  </data>
+  <data name="ConfirmShareAdjustment" xml:space="preserve">
+    <value>Ich bestätige, dass ich diese Anteile anpassen möchte</value>
+  </data>
+  <data name="MaximumAllowed" xml:space="preserve">
+    <value>Maximal erlaubt</value>
+  </data>
 </root>

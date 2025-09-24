@@ -172,8 +172,8 @@ else if (!string.IsNullOrEmpty(_selectedStatus))
                                     }
                                     @if (share.Status == ShareStatus.Active)
                                     {
-                                        <button class="btn btn-sm btn-outline-warning" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
-                                            <i class="fas fa-edit"></i>
+                                        <button class="btn btn-sm btn-outline-dark" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
+                                            <i class="fas fa-sliders-h"></i>
                                         </button>
                                     }
                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
@@ -262,8 +262,8 @@ else
                                                             <i class="fas fa-credit-card"></i>
                                                         </button>
                                                     }
-                                                    <button class="btn btn-sm btn-outline-warning" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
-                                                        <i class="fas fa-edit"></i>
+                                                    <button class="btn btn-sm btn-outline-dark" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
+                                                        <i class="fas fa-sliders-h"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
                                                         <i class="fas fa-ban"></i>

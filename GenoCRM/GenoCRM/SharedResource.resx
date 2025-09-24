@@ -1455,4 +1455,65 @@
   <data name="Other" xml:space="preserve">
     <value>Other</value>
   </data>
+
+  <!-- Share Payment Dialog -->
+  <data name="SharesPaid" xml:space="preserve">
+    <value>Shares Paid</value>
+  </data>
+  <data name="PaymentAmount" xml:space="preserve">
+    <value>Payment Amount</value>
+  </data>
+  <data name="ValuePerShare" xml:space="preserve">
+    <value>Value Per Share</value>
+  </data>
+
+  <!-- Share Adjustment Dialog -->
+  <data name="AdjustShares" xml:space="preserve">
+    <value>Adjust Shares</value>
+  </data>
+  <data name="CurrentShareDetails" xml:space="preserve">
+    <value>Current Share Details</value>
+  </data>
+  <data name="NewShareDetails" xml:space="preserve">
+    <value>New Share Details</value>
+  </data>
+  <data name="NewQuantity" xml:space="preserve">
+    <value>New Quantity</value>
+  </data>
+  <data name="AdjustmentDate" xml:space="preserve">
+    <value>Adjustment Date</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Reason</value>
+  </data>
+  <data name="AdjustmentReason" xml:space="preserve">
+    <value>Please provide a reason for this adjustment</value>
+  </data>
+  <data name="ShareAdjustmentNote" xml:space="preserve">
+    <value>This adjustment will modify the share quantity. All payment and dividend history will be preserved.</value>
+  </data>
+  <data name="ShareIncreaseNote" xml:space="preserve">
+    <value>You are increasing the shares by {0} (additional value: {1})</value>
+  </data>
+  <data name="ShareDecreaseNote" xml:space="preserve">
+    <value>You are decreasing the shares by {0} (value reduction: {1})</value>
+  </data>
+  <data name="OverpaidRefundNote" xml:space="preserve">
+    <value>This member has overpaid and may be entitled to a refund</value>
+  </data>
+  <data name="RefundRequired" xml:space="preserve">
+    <value>Refund Required</value>
+  </data>
+  <data name="RefundRequiredNote" xml:space="preserve">
+    <value>This adjustment would result in an overpayment of {0}. A refund may be required.</value>
+  </data>
+  <data name="ProcessRefundAutomatically" xml:space="preserve">
+    <value>Process refund automatically</value>
+  </data>
+  <data name="ConfirmShareAdjustment" xml:space="preserve">
+    <value>I confirm that I want to adjust these shares</value>
+  </data>
+  <data name="MaximumAllowed" xml:space="preserve">
+    <value>Maximum Allowed</value>
+  </data>
 </root>

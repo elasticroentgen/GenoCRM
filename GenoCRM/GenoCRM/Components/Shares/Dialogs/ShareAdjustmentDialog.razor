@@ -180,7 +180,7 @@
                 {
                     NewQuantity = _share.Quantity,
                     AdjustmentDate = DateTime.Today,
-                    Reason = $"Share quantity adjustment for certificate {_share.CertificateNumber}"
+                    Reason = $""
                 };
                 // TODO: Get max shares from configuration or member service
                 _maxAllowedShares = 100 - _share.Quantity + _share.Quantity; // Placeholder logic

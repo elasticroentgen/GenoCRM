@@ -1,33 +1,47 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
     "profiles": {
-      "http": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": true,
-        "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-        "applicationUrl": "http://localhost:5015",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      },
       "https": {
         "commandName": "Project",
         "dotnetRunMessages": true,
-        "launchBrowser": true,
-        "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
         "applicationUrl": "https://localhost:7273;http://localhost:5015",
         "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      },
-      "https-no-inspect": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": true,
-        "applicationUrl": "https://localhost:7273;http://localhost:5015",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "GITHUB_USERNAME": "elasticroentgen",
+          "DB_PASSWORD": "postgres",
+          "DATABASE_PROVIDER": "postgresql",
+          "NEXTCLOUD_BASE_URL": "https://cloud.buergerenergie-westsachsen.de",
+          "NEXTCLOUD_WEBDAV_URL": "https://cloud.buergerenergie-westsachsen.de/remote.php/dav/files/GenoCRM/",
+          "NEXTCLOUD_USERNAME": "GenoCRM",
+          "NEXTCLOUD_PASSWORD": "gtj8why7fhf.vua*KGU",
+          "NEXTCLOUD_DOCUMENTS_PATH": "/GenoCRM-testing",
+          "NEXTCLOUD_MEMBER_DOCUMENTS_PATH": "/GenoCRM-testing/Mitglieder",
+          "NEXTCLOUD_SHARE_DOCUMENTS_PATH": "/GenoCRM-testing/Anteile",
+          "NEXTCLOUD_GENERATED_DOCUMENTS_PATH": "/GenoCRM-testing/Erzeugt",
+          "NEXTCLOUD_MAX_FILE_SIZE": "10485760",
+          "NEXTCLOUD_AUTH_BASE_URL": "https://cloud.buergerenergie-westsachsen.de",
+          "NEXTCLOUD_AUTH_AUTHORIZE_ENDPOINT": "https://cloud.buergerenergie-westsachsen.de/apps/oauth2/authorize",
+          "NEXTCLOUD_AUTH_TOKEN_ENDPOINT": "https://cloud.buergerenergie-westsachsen.de/apps/oauth2/api/v1/token",
+          "NEXTCLOUD_AUTH_USER_INFO_ENDPOINT": "https://cloud.buergerenergie-westsachsen.de/ocs/v1.php/cloud/user",
+          "NEXTCLOUD_AUTH_CLIENT_ID": "mqP5KCgIkaW44lZ9IfqjK18QdpunYKd2ZLYrHMq5lYPZhGJFi4m6Xug3cabQ38MV",
+          "NEXTCLOUD_AUTH_CLIENT_SECRET": "yp7ytPQiyhmPYWNNEHXDVKoA4D1tGODEsjLt36M8UEHYLgwRBr7kgZ4YwvMAWQN0",
+          "SMTP_HOST": "mail.buergerenergie-westsachsen.de",
+          "SMTP_PORT": "587",
+          "SMTP_USERNAME": "genocrm@buergerenergie-westsachsen.de",
+          "SMTP_PASSWORD": "gtj8why7fhf.vua*KGU",
+          "SMTP_ENABLE_SSL": "true",
+          "SMTP_FROM_EMAIL": "genocrm@buergerenergie-westsachsen.de",
+          "SMTP_FROM_NAME": "GenoCRM BEW TESTING",
+          "WHATSAPP_ACCESS_TOKEN": "your_whatsapp_access_token_here",
+          "WHATSAPP_API_URL": "https://graph.facebook.com/v18.0/YOUR_PHONE_NUMBER_ID/messages",
+          "WHATSAPP_PHONE_NUMBER_ID": "your_phone_number_id_here",
+          "WHATSAPP_WEBHOOK_VERIFY_TOKEN": "your_webhook_verify_token_here",
+          "SMS_API_KEY": "your_sms_provider_api_key_here",
+          "SMS_API_URL": "https://api.your-sms-provider.com/v1/messages",
+          "SMS_STATUS_URL": "https://api.your-sms-provider.com/v1/messages",
+          "SMS_FROM_NUMBER": "+49123456789",
+          "SMS_DEFAULT_RATE": "0.05",
+          "SMS_PROVIDER": "generic"
         }
       }
     }
