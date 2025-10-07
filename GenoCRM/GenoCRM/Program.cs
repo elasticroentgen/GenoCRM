@@ -105,6 +105,18 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMS_PROVIDER")))
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")))
     Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"));
 
+// Listmonk Integration
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_ENABLED")))
+    Environment.SetEnvironmentVariable("Listmonk__Enabled", Environment.GetEnvironmentVariable("LISTMONK_ENABLED"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_BASE_URL")))
+    Environment.SetEnvironmentVariable("Listmonk__BaseUrl", Environment.GetEnvironmentVariable("LISTMONK_BASE_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_USERNAME")))
+    Environment.SetEnvironmentVariable("Listmonk__Username", Environment.GetEnvironmentVariable("LISTMONK_USERNAME"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_PASSWORD")))
+    Environment.SetEnvironmentVariable("Listmonk__Password", Environment.GetEnvironmentVariable("LISTMONK_PASSWORD"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_NEWSLETTER_LIST_NAME")))
+    Environment.SetEnvironmentVariable("Listmonk__NewsletterListName", Environment.GetEnvironmentVariable("LISTMONK_NEWSLETTER_LIST_NAME"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
@@ -206,6 +218,11 @@ builder.Services.AddHttpClient<ISmsProvider, SmsProvider>();
 // Integration services
 builder.Services.AddHttpClient<INextcloudDocumentService, NextcloudDocumentService>();
 builder.Services.AddScoped<INextcloudDocumentService, NextcloudDocumentService>();
+
+// Listmonk integration
+builder.Services.AddHttpClient<IListmonkService, ListmonkService>();
+builder.Services.AddScoped<IListmonkService, ListmonkService>();
+builder.Services.AddHostedService<ListmonkSyncBackgroundService>();
 
 // PDF generation services
 builder.Services.AddScoped<IPdfGenerationService, PdfGenerationService>();

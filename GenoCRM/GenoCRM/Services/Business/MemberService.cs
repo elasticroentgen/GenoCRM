@@ -3,6 +3,7 @@ using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
+using GenoCRM.Services.Integration;
 
 namespace GenoCRM.Services.Business;
 
@@ -42,8 +43,9 @@ public class MemberService : IMemberService
     private readonly IFiscalYearService _fiscalYearService;
     private readonly IAuditService _auditService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IListmonkService _listmonkService;
 
-    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService, IFiscalYearService fiscalYearService, IAuditService auditService, IHttpContextAccessor httpContextAccessor)
+    public MemberService(GenoDbContext context, ILogger<MemberService> logger, IConfiguration configuration, IShareService shareService, IFiscalYearService fiscalYearService, IAuditService auditService, IHttpContextAccessor httpContextAccessor, IListmonkService listmonkService)
     {
         _context = context;
         _logger = logger;
@@ -52,6 +54,7 @@ public class MemberService : IMemberService
         _fiscalYearService = fiscalYearService;
         _auditService = auditService;
         _httpContextAccessor = httpContextAccessor;
+        _listmonkService = listmonkService;
     }
 
     public async Task<IEnumerable<Member>> GetAllMembersAsync()
@@ -158,8 +161,11 @@ public class MemberService : IMemberService
                 Permissions.CreateMembers,
                 new { member.MemberNumber, member.FullName, initialShareQuantity });
 
-            _logger.LogInformation("Member created with ID {MemberId}, number {MemberNumber}, and {ShareQuantity} initial shares", 
+            _logger.LogInformation("Member created with ID {MemberId}, number {MemberNumber}, and {ShareQuantity} initial shares",
                 member.Id, member.MemberNumber, initialShareQuantity);
+
+            // Sync to Listmonk if member is active
+            await _listmonkService.SyncMemberAsync(member);
 
             return member;
         }
@@ -222,6 +228,12 @@ public class MemberService : IMemberService
 
             _logger.LogInformation("Member updated with ID {MemberId}", member.Id);
 
+            // Sync to Listmonk if status changed
+            if (existingMember.Status != member.Status)
+            {
+                await _listmonkService.SyncMemberAsync(existingMember);
+            }
+
             return existingMember;
         }
         catch (Exception ex)
@@ -249,6 +261,9 @@ public class MemberService : IMemberService
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Member soft deleted with ID {MemberId}", id);
+
+            // Sync to Listmonk to unsubscribe
+            await _listmonkService.SyncMemberAsync(member);
 
             return true;
         }
@@ -563,6 +578,9 @@ public class MemberService : IMemberService
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Member marked for offboarding with ID {MemberId}", id);
+
+            // Sync to Listmonk to unsubscribe
+            await _listmonkService.SyncMemberAsync(member);
 
             return true;
         }

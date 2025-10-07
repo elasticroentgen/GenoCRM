@@ -67,6 +67,7 @@
     <div class="col-md-6">
         <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
             <option value="">@SharedLocalizer["AllStatus"]</option>
+            <option value="Applied">@SharedLocalizer["Applied"]</option>
             <option value="Active">@SharedLocalizer["Active"]</option>
             <option value="Inactive">@SharedLocalizer["Inactive"]</option>
             <option value="Suspended">@SharedLocalizer["Suspended"]</option>
@@ -122,6 +123,12 @@ else if (_members?.Any() == true)
                                 <CascadingAuthenticationState>
                                     <AuthorizeView Policy="EditMembers">
                                         <Authorized>
+                                            @if (member.Status == MemberStatus.Applied)
+                                            {
+                                                <button class="btn btn-sm btn-outline-success" @onclick="() => ActivateMember(member.Id)" title="@SharedLocalizer["ActivateMember"]">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            }
                                             <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditMember(member.Id)" title="Edit Member">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -304,10 +311,34 @@ else
         }
     }
 
+    private async Task ActivateMember(int memberId)
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Confirm"], SharedLocalizer["ActivateConfirmation"]);
+        if (confirmed)
+        {
+            try
+            {
+                var member = await MemberService.GetMemberByIdAsync(memberId);
+                if (member != null)
+                {
+                    member.Status = MemberStatus.Active;
+                    await MemberService.UpdateMemberAsync(member);
+                    await LoadMembers();
+                    await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Member activated successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error activating member: {ex.Message}");
+            }
+        }
+    }
+
     private static string GetStatusColor(MemberStatus status)
     {
         return status switch
         {
+            MemberStatus.Applied => "secondary",
             MemberStatus.Active => "success",
             MemberStatus.Inactive => "warning",
             MemberStatus.Suspended => "danger",
@@ -321,6 +352,7 @@ else
     {
         return status switch
         {
+            MemberStatus.Applied => SharedLocalizer["Applied"],
             MemberStatus.Active => SharedLocalizer["Active"],
             MemberStatus.Inactive => SharedLocalizer["Inactive"],
             MemberStatus.Suspended => SharedLocalizer["Suspended"],

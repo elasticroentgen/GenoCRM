@@ -182,6 +182,9 @@
   </data>
   
   <!-- Status values -->
+  <data name="Applied" xml:space="preserve">
+    <value>Applied</value>
+  </data>
   <data name="Active" xml:space="preserve">
     <value>Active</value>
   </data>
@@ -785,6 +788,15 @@
   </data>
   <data name="Reactivate" xml:space="preserve">
     <value>Reactivate</value>
+  </data>
+  <data name="Activate" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="ActivateMember" xml:space="preserve">
+    <value>Activate Member</value>
+  </data>
+  <data name="ActivateConfirmation" xml:space="preserve">
+    <value>Are you sure you want to activate this member? This will change their status from Applied to Active.</value>
   </data>
   <data name="ConsolidateShares" xml:space="preserve">
     <value>Consolidate Shares</value>
