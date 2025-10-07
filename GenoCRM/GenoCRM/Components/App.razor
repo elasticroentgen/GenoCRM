@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject IWebHostEnvironment Environment
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +17,12 @@
 </head>
 
 <body>
+@if (!Environment.IsProduction())
+{
+    <div class="alert alert-warning mb-0 text-center" role="alert">
+        <strong>Entwicklerversion</strong> - @Environment.EnvironmentName
+    </div>
+}
 <Routes/>
 <script src="_framework/blazor.web.js"></script>
 </body>
