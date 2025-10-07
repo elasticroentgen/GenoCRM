@@ -11,16 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Dividends/DividendList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Messages.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Messages.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/App.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/MainLayout.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/MainLayout.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Properties/launchSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +57,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     ".NET Launch Settings Profile.GenoCRM: http.executor": "Run",
-    ".NET Launch Settings Profile.GenoCRM: https.executor": "Debug",
+    ".NET Launch Settings Profile.GenoCRM: https.executor": "Run",
     ".NET Project.GenoCRM.Client.executor": "Run",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
@@ -77,7 +72,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settings.ide.settings.web.browsers",
+    "settings.editor.selected.configurable": "HotReloadSettingsPage",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -214,6 +209,7 @@
       <workItem from="1755014859640" duration="1697000" />
       <workItem from="1756218214406" duration="412000" />
       <workItem from="1757421976254" duration="4531000" />
+      <workItem from="1759820767973" duration="1884000" />
     </task>
     <servers />
   </component>
@@ -258,13 +254,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs</url>
-          <line>274</line>
+          <line>275</line>
           <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" containingFunctionPresentation="">
             <startOffsets>
-              <option value="14685" />
+              <option value="14686" />
             </startOffsets>
             <endOffsets>
-              <option value="14745" />
+              <option value="14746" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="14" />
