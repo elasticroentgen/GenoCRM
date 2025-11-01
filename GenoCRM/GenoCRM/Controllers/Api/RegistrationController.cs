@@ -35,6 +35,18 @@ public class RegistrationController : ControllerBase
                 return BadRequest(new { message = "FirstName, LastName, and Email are required" });
             }
 
+            // Validate requested shares
+            if (application.RequestedShares < 1)
+            {
+                return BadRequest(new { message = "RequestedShares must be at least 1" });
+            }
+
+            var maxSharesPerMember = await _memberService.GetMaxSharesPerMemberAsync();
+            if (application.RequestedShares > maxSharesPerMember)
+            {
+                return BadRequest(new { message = $"RequestedShares cannot exceed {maxSharesPerMember}" });
+            }
+
             // Check if email already exists
             var existingMembers = await _memberService.SearchMembersAsync(application.Email);
             if (existingMembers.Any(m => m.Email.Equals(application.Email, StringComparison.OrdinalIgnoreCase)))
@@ -62,7 +74,7 @@ public class RegistrationController : ControllerBase
                 Notes = application.Notes
             };
 
-            var createdMember = await _memberService.CreateMemberAsync(member);
+            var createdMember = await _memberService.CreateMemberAsync(member, application.RequestedShares);
 
             _logger.LogInformation("New member application received: {MemberId} - {Email}",
                 createdMember.Id, createdMember.Email);
@@ -98,6 +110,7 @@ public class MemberApplicationDto
     public string? Country { get; set; }
     public DateTime? BirthDate { get; set; }
     public string? Notes { get; set; }
+    public int RequestedShares { get; set; } = 1;
 }
 
 public class MemberApplicationResponse
