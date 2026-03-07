@@ -8,6 +8,7 @@
 @using GenoCRM.Resources.Pages
 @using GenoCRM.Components.Shares
 @using GenoCRM.Components.Documents
+@using GenoCRM.Components.Loans
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject IShareService ShareService
@@ -282,6 +283,9 @@ else
             </div>
         </div>
         
+        <!-- Loan Subscriptions Section -->
+        <MemberLoanSubscriptions MemberId="@MemberId" />
+
         <!-- Documents Section -->
         <div class="card mt-4">
             <div class="card-header">

@@ -1,0 +1,133 @@
+@page "/loan-projects"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanProjectService ProjectService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["LoanProjects"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@L["LoanProjects"]</h1>
+    <button class="btn btn-primary" @onclick="CreateProject">
+        <i class="fas fa-plus"></i> @L["CreateProject"]
+    </button>
+</div>
+
+@if (_projects == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (!_projects.Any())
+{
+    <div class="alert alert-info">@L["NoProjectsYet"]</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>@L["ProjectNumber"]</th>
+                    <th>@L["Title"]</th>
+                    <th>@L["StartDate"]</th>
+                    <th>@L["FinancingAmount"]</th>
+                    <th>@L["TotalSubscribed"]</th>
+                    <th>@L["FinancingProgress"]</th>
+                    <th>@L["Status"]</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var project in _projects)
+                {
+                    <tr class="cursor-pointer" @onclick="() => ViewProject(project.Id)">
+                        <td>@project.ProjectNumber</td>
+                        <td>@project.Title</td>
+                        <td>@FormattingService.FormatDate(project.StartDate)</td>
+                        <td>@FormattingService.FormatCurrency(project.FinancingAmount)</td>
+                        <td>@FormattingService.FormatCurrency(project.TotalSubscribed)</td>
+                        <td>
+                            <div class="progress" style="min-width: 100px;">
+                                <div class="progress-bar @GetProgressBarColor(project.FinancingProgress)"
+                                     role="progressbar"
+                                     style="width: @(Math.Min(project.FinancingProgress, 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"
+                                     aria-valuenow="@project.FinancingProgress"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    @project.FinancingProgress.ToString("F1")%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-@GetProjectStatusColor(project.Status)">
+                                @GetLocalizedProjectStatus(project.Status)
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" @onclick:stopPropagation="true" @onclick="() => ViewProject(project.Id)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IEnumerable<LoanProject>? _projects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _projects = await ProjectService.GetAllProjectsAsync();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private void CreateProject() => Navigation.NavigateTo("/loan-projects/create");
+    private void ViewProject(int id) => Navigation.NavigateTo($"/loan-projects/{id}");
+
+    private static string GetProgressBarColor(decimal progress) => progress switch
+    {
+        >= 100 => "bg-success",
+        >= 75 => "bg-info",
+        >= 50 => "bg-warning",
+        _ => "bg-danger"
+    };
+
+    private static string GetProjectStatusColor(LoanProjectStatus status) => status switch
+    {
+        LoanProjectStatus.Draft => "secondary",
+        LoanProjectStatus.Active => "success",
+        LoanProjectStatus.Closed => "info",
+        LoanProjectStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedProjectStatus(LoanProjectStatus status) => status switch
+    {
+        LoanProjectStatus.Draft => L["Draft"],
+        LoanProjectStatus.Active => L["Active"],
+        LoanProjectStatus.Closed => L["Closed"],
+        LoanProjectStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+}

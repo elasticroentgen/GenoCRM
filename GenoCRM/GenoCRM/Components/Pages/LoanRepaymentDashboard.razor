@@ -1,0 +1,238 @@
+@page "/loan-repayments"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanPaymentPlanService PaymentPlanService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["RepaymentDashboard"]</PageTitle>
+
+<h1 class="mb-4">@L["RepaymentDashboard"]</h1>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <label class="form-label">@L["SelectMonth"]</label>
+        <select class="form-select" @bind="_selectedMonth" @bind:after="LoadEntries">
+            @for (int m = 1; m <= 12; m++)
+            {
+                var month = m;
+                <option value="@month">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">@L["SelectYear"]</label>
+        <select class="form-select" @bind="_selectedYear" @bind:after="LoadEntries">
+            @for (int y = _currentYear; y <= _currentYear + 10; y++)
+            {
+                <option value="@y">@y</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_entries != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">@L["TotalRepaymentAmount"]</h6>
+                    <h3 class="text-primary">@FormattingService.FormatCurrency(_entries.Sum(e => e.TotalAmount))</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">@L["NumberOfPayments"]</h6>
+                    <h3>@_entries.Count</h3>
+                </div>
+            </div>
+        </div>
+        @if (_entries.Count > 0)
+        {
+            <div class="col-md-3 d-flex align-items-center">
+                <button class="btn btn-success" @onclick="MarkAllAsPaid" disabled="@_processing">
+                    @if (_processing)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="fas fa-check-double"></i> @L["MarkAllAsPaid"]
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (_entries.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> @L["NoEntriesForMonth"]
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>@L["Member"]</th>
+                        <th>@L["SubscriptionNumber"]</th>
+                        <th>@L["IBAN"]</th>
+                        <th>@L["BIC"]</th>
+                        <th>@L["BankAccountHolder"]</th>
+                        <th>@L["TransactionDescription"]</th>
+                        <th class="text-end">@L["Amount"]</th>
+                        <th>@L["Status"]</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in _entries)
+                    {
+                        var sub = entry.LoanPaymentPlan.LoanSubscription;
+                        var member = sub.Member;
+                        var project = sub.LoanOffer.LoanProject;
+                        <tr>
+                            <td>
+                                <a href="/members/@member.Id">@member.FullName</a>
+                                <br /><small class="text-muted">@member.MemberNumber</small>
+                            </td>
+                            <td>
+                                <a href="/loan-subscriptions/@sub.Id">@sub.SubscriptionNumber</a>
+                            </td>
+                            <td>@sub.IBAN</td>
+                            <td>@sub.BIC</td>
+                            <td>@sub.BankAccountHolder</td>
+                            <td>Tilgung @sub.SubscriptionNumber - @project.Title - Periode @entry.PeriodNumber</td>
+                            <td class="text-end">@FormattingService.FormatCurrency(entry.TotalAmount)</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(entry.Status)">
+                                    @GetLocalizedStatus(entry.Status)
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(entry.Id)" disabled="@_processing"
+                                        title="@L["MarkAsPaid"]">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-dark fw-bold">
+                        <td colspan="6">@L["TotalAmount"]</td>
+                        <td class="text-end">@FormattingService.FormatCurrency(_entries.Sum(e => e.TotalAmount))</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    private int _selectedMonth = DateTime.Today.Month;
+    private int _selectedYear = DateTime.Today.Year;
+    private int _currentYear = DateTime.Today.Year;
+    private List<LoanPaymentPlanEntry>? _entries;
+    private bool _loading;
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEntries();
+    }
+
+    private async Task LoadEntries()
+    {
+        _loading = true;
+        StateHasChanged();
+        try
+        {
+            _entries = await PaymentPlanService.GetEntriesByMonthAsync(_selectedYear, _selectedMonth);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task MarkAsPaid(int entryId)
+    {
+        _processing = true;
+        try
+        {
+            await PaymentPlanService.MarkEntryAsPaidAsync(entryId);
+            await LoadEntries();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    private async Task MarkAllAsPaid()
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(
+            L["MarkAllAsPaid"],
+            L["MarkAllAsPaidConfirm"]);
+        if (!confirmed) return;
+
+        _processing = true;
+        try
+        {
+            foreach (var entry in _entries!.ToList())
+            {
+                await PaymentPlanService.MarkEntryAsPaidAsync(entry.Id);
+            }
+            await LoadEntries();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    private static string GetStatusColor(PaymentPlanEntryStatus status) => status switch
+    {
+        PaymentPlanEntryStatus.Pending => "warning",
+        PaymentPlanEntryStatus.Due => "info",
+        PaymentPlanEntryStatus.Paid => "success",
+        PaymentPlanEntryStatus.Overdue => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedStatus(PaymentPlanEntryStatus status) => status switch
+    {
+        PaymentPlanEntryStatus.Pending => L["Pending"],
+        PaymentPlanEntryStatus.Due => L["Due"],
+        PaymentPlanEntryStatus.Paid => L["Paid"],
+        PaymentPlanEntryStatus.Overdue => L["Overdue"],
+        _ => status.ToString()
+    };
+}

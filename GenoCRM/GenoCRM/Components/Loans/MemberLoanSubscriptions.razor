@@ -1,0 +1,91 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using GenoCRM.Services.Localization
+@inject ILoanSubscriptionService SubscriptionService
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject NavigationManager Navigation
+
+@if (_subscriptions != null && _subscriptions.Any())
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5><i class="fas fa-file-invoice-dollar"></i> @L["LoanSubscriptions"]</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>@L["SubscriptionNumber"]</th>
+                            <th>@L["LoanProject"]</th>
+                            <th>@L["LoanOffer"]</th>
+                            <th>@L["SubscriptionAmount"]</th>
+                            <th>@L["InterestRate"]</th>
+                            <th>@L["Status"]</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sub in _subscriptions)
+                        {
+                            <tr>
+                                <td>@sub.SubscriptionNumber</td>
+                                <td>@sub.LoanOffer.LoanProject.Title</td>
+                                <td>@sub.LoanOffer.Title</td>
+                                <td>@FormattingService.FormatCurrency(sub.Amount)</td>
+                                <td>@((sub.LoanOffer.InterestRate * 100).ToString("F2"))%</td>
+                                <td>
+                                    <span class="badge bg-@GetStatusColor(sub.Status)">
+                                        @GetLocalizedStatus(sub.Status)
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubscription(sub.Id)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int MemberId { get; set; }
+
+    private IEnumerable<LoanSubscription>? _subscriptions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _subscriptions = await SubscriptionService.GetSubscriptionsByMemberIdAsync(MemberId);
+        }
+        catch
+        {
+            _subscriptions = Enumerable.Empty<LoanSubscription>();
+        }
+    }
+
+    private void ViewSubscription(int id) => Navigation.NavigateTo($"/loan-subscriptions/{id}");
+
+    private static string GetStatusColor(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => "success",
+        LoanSubscriptionStatus.Completed => "info",
+        LoanSubscriptionStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedStatus(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => L["Active"],
+        LoanSubscriptionStatus.Completed => L["Completed"],
+        LoanSubscriptionStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+}

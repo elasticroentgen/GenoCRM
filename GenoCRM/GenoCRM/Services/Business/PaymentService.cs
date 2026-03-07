@@ -55,7 +55,7 @@ public class PaymentService : IPaymentService
             return await _context.Payments
                 .Include(p => p.Member)
                 .Include(p => p.Share)
-                .Include(p => p.SubordinatedLoan)
+                .Include(p => p.LoanSubscription)
                 .Where(p => p.MemberId == memberId)
                 .OrderByDescending(p => p.PaymentDate)
                 .ToListAsync();
@@ -74,7 +74,7 @@ public class PaymentService : IPaymentService
             return await _context.Payments
                 .Include(p => p.Member)
                 .Include(p => p.Share)
-                .Include(p => p.SubordinatedLoan)
+                .Include(p => p.LoanSubscription)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
         catch (Exception ex)

@@ -1516,4 +1516,229 @@
   <data name="MaximumAllowed" xml:space="preserve">
     <value>Maximum Allowed</value>
   </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="LoanProjects" xml:space="preserve">
+    <value>Loan Projects</value>
+  </data>
+  <data name="LoanProject" xml:space="preserve">
+    <value>Loan Project</value>
+  </data>
+  <data name="LoanOffer" xml:space="preserve">
+    <value>Loan Offer</value>
+  </data>
+  <data name="LoanOffers" xml:space="preserve">
+    <value>Loan Offers</value>
+  </data>
+  <data name="LoanSubscription" xml:space="preserve">
+    <value>Subscription</value>
+  </data>
+  <data name="LoanSubscriptions" xml:space="preserve">
+    <value>Subscriptions</value>
+  </data>
+  <data name="RepaymentPlan" xml:space="preserve">
+    <value>Repayment Plan</value>
+  </data>
+  <data name="InterestRate" xml:space="preserve">
+    <value>Interest Rate</value>
+  </data>
+  <data name="Term" xml:space="preserve">
+    <value>Term</value>
+  </data>
+  <data name="TermMonths" xml:space="preserve">
+    <value>Term (Months)</value>
+  </data>
+  <data name="FinancingAmount" xml:space="preserve">
+    <value>Financing Amount</value>
+  </data>
+  <data name="PrincipalAmount" xml:space="preserve">
+    <value>Principal</value>
+  </data>
+  <data name="InterestAmount" xml:space="preserve">
+    <value>Interest</value>
+  </data>
+  <data name="RemainingBalance" xml:space="preserve">
+    <value>Remaining Balance</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>Due Date</value>
+  </data>
+  <data name="PaymentInterval" xml:space="preserve">
+    <value>Payment Interval</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="Quarterly" xml:space="preserve">
+    <value>Quarterly</value>
+  </data>
+  <data name="SemiAnnual" xml:space="preserve">
+    <value>Semi-Annual</value>
+  </data>
+  <data name="Annual" xml:space="preserve">
+    <value>Annual</value>
+  </data>
+  <data name="Annuity" xml:space="preserve">
+    <value>Annuity</value>
+  </data>
+  <data name="ProjectNumber" xml:space="preserve">
+    <value>Project Number</value>
+  </data>
+  <data name="SubscriptionNumber" xml:space="preserve">
+    <value>Subscription Number</value>
+  </data>
+  <data name="SubscriptionDate" xml:space="preserve">
+    <value>Subscription Date</value>
+  </data>
+  <data name="SubscriptionAmount" xml:space="preserve">
+    <value>Subscription Amount</value>
+  </data>
+  <data name="FinancingProgress" xml:space="preserve">
+    <value>Financing Progress</value>
+  </data>
+  <data name="TotalSubscribed" xml:space="preserve">
+    <value>Total Subscribed</value>
+  </data>
+  <data name="MinSubscriptionAmount" xml:space="preserve">
+    <value>Min. Subscription Amount</value>
+  </data>
+  <data name="MaxSubscriptionAmount" xml:space="preserve">
+    <value>Max. Subscription Amount</value>
+  </data>
+  <data name="RepaymentType" xml:space="preserve">
+    <value>Repayment Type</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="TotalAmount" xml:space="preserve">
+    <value>Total Amount</value>
+  </data>
+  <data name="PaidDate" xml:space="preserve">
+    <value>Paid Date</value>
+  </data>
+  <data name="CreateProject" xml:space="preserve">
+    <value>Create Project</value>
+  </data>
+  <data name="CreateOffer" xml:space="preserve">
+    <value>Create Offer</value>
+  </data>
+  <data name="CreateSubscription" xml:space="preserve">
+    <value>Create Subscription</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Subscribe</value>
+  </data>
+  <data name="ProjectDetails" xml:space="preserve">
+    <value>Project Details</value>
+  </data>
+  <data name="OfferDetails" xml:space="preserve">
+    <value>Offer Details</value>
+  </data>
+  <data name="SubscriptionDetails" xml:space="preserve">
+    <value>Subscription Details</value>
+  </data>
+  <data name="Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="Overdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="Months" xml:space="preserve">
+    <value>Months</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="NoOffersYet" xml:space="preserve">
+    <value>No offers yet</value>
+  </data>
+  <data name="NoSubscriptionsYet" xml:space="preserve">
+    <value>No subscriptions yet</value>
+  </data>
+  <data name="NoProjectsYet" xml:space="preserve">
+    <value>No projects yet</value>
+  </data>
+  <data name="BackToProject" xml:space="preserve">
+    <value>Back to Project</value>
+  </data>
+  <data name="BackToOffer" xml:space="preserve">
+    <value>Back to Offer</value>
+  </data>
+  <data name="BackToProjects" xml:space="preserve">
+    <value>Back to Projects</value>
+  </data>
+  <data name="GracePeriod" xml:space="preserve">
+    <value>Grace Period</value>
+  </data>
+  <data name="PaidIn" xml:space="preserve">
+    <value>Paid In</value>
+  </data>
+  <data name="MarkAsPaidIn" xml:space="preserve">
+    <value>Mark as Paid In</value>
+  </data>
+  <data name="CancelSubscription" xml:space="preserve">
+    <value>Cancel Subscription</value>
+  </data>
+  <data name="CancelSubscriptionConfirm" xml:space="preserve">
+    <value>Are you sure you want to cancel this subscription? This will also remove the payment plan.</value>
+  </data>
+  <data name="RepaymentDashboard" xml:space="preserve">
+    <value>Repayment Dashboard</value>
+  </data>
+  <data name="IBAN" xml:space="preserve">
+    <value>IBAN</value>
+  </data>
+  <data name="BIC" xml:space="preserve">
+    <value>BIC</value>
+  </data>
+  <data name="BankAccountHolder" xml:space="preserve">
+    <value>Account Holder</value>
+  </data>
+  <data name="TransactionDescription" xml:space="preserve">
+    <value>Transaction Description</value>
+  </data>
+  <data name="SelectMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="SelectYear" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="TotalRepaymentAmount" xml:space="preserve">
+    <value>Total Repayment</value>
+  </data>
+  <data name="NumberOfPayments" xml:space="preserve">
+    <value>Number of Payments</value>
+  </data>
+  <data name="BankDetails" xml:space="preserve">
+    <value>Bank Details</value>
+  </data>
+  <data name="NoEntriesForMonth" xml:space="preserve">
+    <value>No repayment entries for this month.</value>
+  </data>
+  <data name="MarkAsPaid" xml:space="preserve">
+    <value>Mark as Paid</value>
+  </data>
+  <data name="MarkAllAsPaid" xml:space="preserve">
+    <value>Mark All as Paid</value>
+  </data>
+  <data name="MarkAllAsPaidConfirm" xml:space="preserve">
+    <value>Are you sure you want to mark all entries for this month as paid?</value>
+  </data>
 </root>

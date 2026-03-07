@@ -12,7 +12,7 @@ public class Payment
     
     public int? ShareId { get; set; }
     
-    public int? SubordinatedLoanId { get; set; }
+    public int? LoanSubscriptionId { get; set; }
     
     [Required]
     [StringLength(50)]
@@ -46,13 +46,13 @@ public class Payment
     // Navigation properties
     public virtual Member Member { get; set; } = null!;
     public virtual CooperativeShare? Share { get; set; }
-    public virtual SubordinatedLoan? SubordinatedLoan { get; set; }
+    public virtual LoanSubscription? LoanSubscription { get; set; }
 }
 
 public enum PaymentType
 {
     ShareCapital,
-    SubordinatedLoan,
+    LoanRepayment,
     Refund,
     Fee,
     Other

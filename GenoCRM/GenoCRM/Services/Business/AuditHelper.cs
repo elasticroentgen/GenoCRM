@@ -87,8 +87,13 @@ public static class AuditHelper
         return $"{document.Type}: {document.Title}";
     }
 
-    public static string GetLoanDescription(SubordinatedLoan loan)
+    public static string GetLoanSubscriptionDescription(LoanSubscription subscription)
     {
-        return $"Loan {loan.LoanNumber} (€{loan.Amount:F2})";
+        return $"Subscription {subscription.SubscriptionNumber} (€{subscription.Amount:F2})";
+    }
+
+    public static string GetLoanProjectDescription(LoanProject project)
+    {
+        return $"Project {project.ProjectNumber}: {project.Title}";
     }
 }

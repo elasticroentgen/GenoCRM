@@ -1,0 +1,171 @@
+@page "/loan-projects/{ProjectId:int}/offers/create"
+@page "/loan-offers/{OfferId:int}/edit"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanOfferService OfferService
+@inject ILoanProjectService ProjectService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@(_isEdit ? L["Edit"] : L["CreateOffer"])</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@(_isEdit ? L["Edit"] + " " + L["LoanOffer"] : L["CreateOffer"])</h1>
+    <button class="btn btn-outline-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @L["Back"]
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="_offer" OnValidSubmit="SaveOffer" FormName="loanOfferForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["Title"] *</label>
+                    <InputText class="form-control" @bind-Value="_offer.Title" />
+                    <ValidationMessage For="() => _offer.Title" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["Status"]</label>
+                    <InputSelect class="form-select" @bind-Value="_offer.Status">
+                        <option value="@LoanOfferStatus.Open">@L["Open"]</option>
+                        <option value="@LoanOfferStatus.Closed">@L["Closed"]</option>
+                        <option value="@LoanOfferStatus.Cancelled">@L["Cancelled"]</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@L["InterestRate"] (%) *</label>
+                    <InputNumber class="form-control" @bind-Value="_interestRatePercent" step="0.01" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@L["TermMonths"] *</label>
+                    <InputNumber class="form-control" @bind-Value="_offer.TermMonths" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@L["PaymentInterval"]</label>
+                    <InputSelect class="form-select" @bind-Value="_offer.PaymentInterval">
+                        <option value="@PaymentInterval.Monthly">@L["Monthly"]</option>
+                        <option value="@PaymentInterval.Quarterly">@L["Quarterly"]</option>
+                        <option value="@PaymentInterval.SemiAnnual">@L["SemiAnnual"]</option>
+                        <option value="@PaymentInterval.Annual">@L["Annual"]</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">@L["RepaymentType"]</label>
+                    <InputSelect class="form-select" @bind-Value="_offer.RepaymentType">
+                        <option value="@RepaymentType.Annuity">@L["Annuity"]</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">@L["GracePeriod"]</label>
+                    <div class="input-group">
+                        <InputNumber class="form-control" @bind-Value="_offer.GracePeriodMonths" />
+                        <span class="input-group-text">@L["Months"]</span>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">@L["MinSubscriptionAmount"]</label>
+                    <InputNumber class="form-control" @bind-Value="_offer.MinSubscriptionAmount" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">@L["MaxSubscriptionAmount"]</label>
+                    <InputNumber class="form-control" @bind-Value="_offer.MaxSubscriptionAmount" />
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" disabled="@_saving">
+                    @if (_saving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="fas fa-save"></i> @L["Save"]
+                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="GoBack">@L["Cancel"]</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? ProjectId { get; set; }
+    [Parameter] public int? OfferId { get; set; }
+
+    private LoanOffer _offer = new() { TermMonths = 12 };
+    private decimal _interestRatePercent;
+    private bool _isEdit;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (OfferId.HasValue)
+        {
+            _isEdit = true;
+            var existing = await OfferService.GetOfferByIdAsync(OfferId.Value);
+            if (existing == null)
+            {
+                Navigation.NavigateTo("/loan-projects");
+                return;
+            }
+            _offer = existing;
+            ProjectId = existing.LoanProjectId;
+            _interestRatePercent = existing.InterestRate * 100;
+        }
+        else if (ProjectId.HasValue)
+        {
+            _offer.LoanProjectId = ProjectId.Value;
+        }
+    }
+
+    private async Task SaveOffer()
+    {
+        _saving = true;
+        try
+        {
+            _offer.InterestRate = _interestRatePercent / 100;
+
+            if (_isEdit)
+            {
+                await OfferService.UpdateOfferAsync(_offer);
+                Navigation.NavigateTo($"/loan-offers/{_offer.Id}");
+            }
+            else
+            {
+                var created = await OfferService.CreateOfferAsync(_offer);
+                Navigation.NavigateTo($"/loan-offers/{created.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        if (_isEdit)
+            Navigation.NavigateTo($"/loan-offers/{OfferId}");
+        else if (ProjectId.HasValue)
+            Navigation.NavigateTo($"/loan-projects/{ProjectId}");
+        else
+            Navigation.NavigateTo("/loan-projects");
+    }
+}

@@ -1,0 +1,268 @@
+@page "/loan-offers/{OfferId:int}"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanOfferService OfferService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["OfferDetails"]</PageTitle>
+
+@if (_offer == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@_offer.Title</h1>
+        <div>
+            <button class="btn btn-outline-secondary me-2" @onclick="GoBack">
+                <i class="fas fa-arrow-left"></i> @L["BackToProject"]
+            </button>
+            <button class="btn btn-primary me-2" @onclick="EditOffer">
+                <i class="fas fa-edit"></i> @L["Edit"]
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> @L["OfferDetails"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>@L["LoanProject"]:</strong>
+                            <p>
+                                <a href="/loan-projects/@_offer.LoanProjectId">@_offer.LoanProject.Title</a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["Status"]:</strong>
+                            <p>
+                                <span class="badge bg-@GetOfferStatusColor(_offer.Status)">
+                                    @GetLocalizedOfferStatus(_offer.Status)
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["InterestRate"]:</strong>
+                            <p>@((_offer.InterestRate * 100).ToString("F2"))%</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["Term"]:</strong>
+                            <p>@_offer.TermMonths @L["Months"]</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["PaymentInterval"]:</strong>
+                            <p>@GetLocalizedInterval(_offer.PaymentInterval)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["RepaymentType"]:</strong>
+                            <p>@L["Annuity"]</p>
+                        </div>
+                        @if (_offer.GracePeriodMonths > 0)
+                        {
+                            <div class="col-md-6">
+                                <strong>@L["GracePeriod"]:</strong>
+                                <p>@_offer.GracePeriodMonths @L["Months"]</p>
+                            </div>
+                        }
+                        @if (_offer.MinSubscriptionAmount.HasValue)
+                        {
+                            <div class="col-md-6">
+                                <strong>@L["MinSubscriptionAmount"]:</strong>
+                                <p>@FormattingService.FormatCurrency(_offer.MinSubscriptionAmount.Value)</p>
+                            </div>
+                        }
+                        @if (_offer.MaxSubscriptionAmount.HasValue)
+                        {
+                            <div class="col-md-6">
+                                <strong>@L["MaxSubscriptionAmount"]:</strong>
+                                <p>@FormattingService.FormatCurrency(_offer.MaxSubscriptionAmount.Value)</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> @L["Summary"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>@L["LoanSubscriptions"]:</strong>
+                        <p class="h4 text-primary">@_offer.Subscriptions.Count(s => s.Status != LoanSubscriptionStatus.Cancelled)</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong>@L["TotalSubscribed"]:</strong>
+                        <p class="h4 text-success">
+                            @FormattingService.FormatCurrency(_offer.Subscriptions
+                                .Where(s => s.Status != LoanSubscriptionStatus.Cancelled)
+                                .Sum(s => s.Amount))
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            @if (_offer.Status == LoanOfferStatus.Open)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-success w-100" @onclick="CreateSubscription">
+                            <i class="fas fa-plus"></i> @L["CreateSubscription"]
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Subscriptions Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5><i class="fas fa-users"></i> @L["LoanSubscriptions"]</h5>
+        </div>
+        <div class="card-body">
+            @if (!_offer.Subscriptions.Any())
+            {
+                <div class="alert alert-info mb-0">@L["NoSubscriptionsYet"]</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@L["SubscriptionNumber"]</th>
+                                <th>@L["Member"]</th>
+                                <th>@L["SubscriptionDate"]</th>
+                                <th>@L["SubscriptionAmount"]</th>
+                                <th>@L["PaidIn"]</th>
+                                <th>@L["Status"]</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sub in _offer.Subscriptions)
+                            {
+                                <tr class="cursor-pointer" @onclick="() => ViewSubscription(sub.Id)">
+                                    <td>@sub.SubscriptionNumber</td>
+                                    <td>@sub.Member.FullName</td>
+                                    <td>@FormattingService.FormatDate(sub.SubscriptionDate)</td>
+                                    <td>@FormattingService.FormatCurrency(sub.Amount)</td>
+                                    <td>
+                                        @if (sub.PaidInDate.HasValue)
+                                        {
+                                            <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">@L["Pending"]</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@GetSubscriptionStatusColor(sub.Status)">
+                                            @GetLocalizedSubscriptionStatus(sub.Status)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick:stopPropagation="true" @onclick="() => ViewSubscription(sub.Id)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int OfferId { get; set; }
+
+    private LoanOffer? _offer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _offer = await OfferService.GetOfferByIdAsync(OfferId);
+            if (_offer == null)
+            {
+                await ModalService.ShowErrorAsync(L["Error"], "Offer not found");
+                Navigation.NavigateTo("/loan-projects");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+            Navigation.NavigateTo("/loan-projects");
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo($"/loan-projects/{_offer?.LoanProjectId}");
+    private void EditOffer() => Navigation.NavigateTo($"/loan-offers/{OfferId}/edit");
+    private void CreateSubscription() => Navigation.NavigateTo($"/loan-offers/{OfferId}/subscribe");
+    private void ViewSubscription(int id) => Navigation.NavigateTo($"/loan-subscriptions/{id}");
+
+    private static string GetOfferStatusColor(LoanOfferStatus status) => status switch
+    {
+        LoanOfferStatus.Open => "success",
+        LoanOfferStatus.Closed => "info",
+        LoanOfferStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedOfferStatus(LoanOfferStatus status) => status switch
+    {
+        LoanOfferStatus.Open => L["Open"],
+        LoanOfferStatus.Closed => L["Closed"],
+        LoanOfferStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+
+    private string GetLocalizedInterval(PaymentInterval interval) => interval switch
+    {
+        PaymentInterval.Monthly => L["Monthly"],
+        PaymentInterval.Quarterly => L["Quarterly"],
+        PaymentInterval.SemiAnnual => L["SemiAnnual"],
+        PaymentInterval.Annual => L["Annual"],
+        _ => interval.ToString()
+    };
+
+    private static string GetSubscriptionStatusColor(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => "success",
+        LoanSubscriptionStatus.Completed => "info",
+        LoanSubscriptionStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedSubscriptionStatus(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => L["Active"],
+        LoanSubscriptionStatus.Completed => L["Completed"],
+        LoanSubscriptionStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+}

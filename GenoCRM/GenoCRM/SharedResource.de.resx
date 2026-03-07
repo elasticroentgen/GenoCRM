@@ -1516,4 +1516,229 @@
   <data name="MaximumAllowed" xml:space="preserve">
     <value>Maximal erlaubt</value>
   </data>
+  <data name="Title" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Zusammenfassung</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Fortschritt</value>
+  </data>
+  <data name="LoanProjects" xml:space="preserve">
+    <value>Darlehensprojekte</value>
+  </data>
+  <data name="LoanProject" xml:space="preserve">
+    <value>Darlehensprojekt</value>
+  </data>
+  <data name="LoanOffer" xml:space="preserve">
+    <value>Darlehensangebot</value>
+  </data>
+  <data name="LoanOffers" xml:space="preserve">
+    <value>Darlehensangebote</value>
+  </data>
+  <data name="LoanSubscription" xml:space="preserve">
+    <value>Zeichnung</value>
+  </data>
+  <data name="LoanSubscriptions" xml:space="preserve">
+    <value>Zeichnungen</value>
+  </data>
+  <data name="RepaymentPlan" xml:space="preserve">
+    <value>Tilgungsplan</value>
+  </data>
+  <data name="InterestRate" xml:space="preserve">
+    <value>Sollzins</value>
+  </data>
+  <data name="Term" xml:space="preserve">
+    <value>Laufzeit</value>
+  </data>
+  <data name="TermMonths" xml:space="preserve">
+    <value>Laufzeit (Monate)</value>
+  </data>
+  <data name="FinancingAmount" xml:space="preserve">
+    <value>Finanzierungsbetrag</value>
+  </data>
+  <data name="PrincipalAmount" xml:space="preserve">
+    <value>Tilgung</value>
+  </data>
+  <data name="InterestAmount" xml:space="preserve">
+    <value>Zinsen</value>
+  </data>
+  <data name="RemainingBalance" xml:space="preserve">
+    <value>Restschuld</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>Fälligkeitsdatum</value>
+  </data>
+  <data name="PaymentInterval" xml:space="preserve">
+    <value>Zahlungsintervall</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Monatlich</value>
+  </data>
+  <data name="Quarterly" xml:space="preserve">
+    <value>Vierteljährlich</value>
+  </data>
+  <data name="SemiAnnual" xml:space="preserve">
+    <value>Halbjährlich</value>
+  </data>
+  <data name="Annual" xml:space="preserve">
+    <value>Jährlich</value>
+  </data>
+  <data name="Annuity" xml:space="preserve">
+    <value>Annuität</value>
+  </data>
+  <data name="ProjectNumber" xml:space="preserve">
+    <value>Projektnummer</value>
+  </data>
+  <data name="SubscriptionNumber" xml:space="preserve">
+    <value>Zeichnungsnummer</value>
+  </data>
+  <data name="SubscriptionDate" xml:space="preserve">
+    <value>Zeichnungsdatum</value>
+  </data>
+  <data name="SubscriptionAmount" xml:space="preserve">
+    <value>Zeichnungsbetrag</value>
+  </data>
+  <data name="FinancingProgress" xml:space="preserve">
+    <value>Finanzierungsfortschritt</value>
+  </data>
+  <data name="TotalSubscribed" xml:space="preserve">
+    <value>Gesamt gezeichnet</value>
+  </data>
+  <data name="MinSubscriptionAmount" xml:space="preserve">
+    <value>Min. Zeichnungsbetrag</value>
+  </data>
+  <data name="MaxSubscriptionAmount" xml:space="preserve">
+    <value>Max. Zeichnungsbetrag</value>
+  </data>
+  <data name="RepaymentType" xml:space="preserve">
+    <value>Tilgungsart</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Periode</value>
+  </data>
+  <data name="TotalAmount" xml:space="preserve">
+    <value>Gesamtbetrag</value>
+  </data>
+  <data name="PaidDate" xml:space="preserve">
+    <value>Bezahlt am</value>
+  </data>
+  <data name="CreateProject" xml:space="preserve">
+    <value>Projekt anlegen</value>
+  </data>
+  <data name="CreateOffer" xml:space="preserve">
+    <value>Angebot anlegen</value>
+  </data>
+  <data name="CreateSubscription" xml:space="preserve">
+    <value>Zeichnung anlegen</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Zeichnen</value>
+  </data>
+  <data name="ProjectDetails" xml:space="preserve">
+    <value>Projektdetails</value>
+  </data>
+  <data name="OfferDetails" xml:space="preserve">
+    <value>Angebotsdetails</value>
+  </data>
+  <data name="SubscriptionDetails" xml:space="preserve">
+    <value>Zeichnungsdetails</value>
+  </data>
+  <data name="Draft" xml:space="preserve">
+    <value>Entwurf</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Offen</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Geschlossen</value>
+  </data>
+  <data name="Overdue" xml:space="preserve">
+    <value>Überfällig</value>
+  </data>
+  <data name="Months" xml:space="preserve">
+    <value>Monate</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Startdatum</value>
+  </data>
+  <data name="NoOffersYet" xml:space="preserve">
+    <value>Noch keine Angebote</value>
+  </data>
+  <data name="NoSubscriptionsYet" xml:space="preserve">
+    <value>Noch keine Zeichnungen</value>
+  </data>
+  <data name="NoProjectsYet" xml:space="preserve">
+    <value>Noch keine Projekte</value>
+  </data>
+  <data name="BackToProject" xml:space="preserve">
+    <value>Zurück zum Projekt</value>
+  </data>
+  <data name="BackToOffer" xml:space="preserve">
+    <value>Zurück zum Angebot</value>
+  </data>
+  <data name="BackToProjects" xml:space="preserve">
+    <value>Zurück zu Projekten</value>
+  </data>
+  <data name="GracePeriod" xml:space="preserve">
+    <value>Tilgungsfreie Zeit</value>
+  </data>
+  <data name="PaidIn" xml:space="preserve">
+    <value>Eingezahlt</value>
+  </data>
+  <data name="MarkAsPaidIn" xml:space="preserve">
+    <value>Als eingezahlt markieren</value>
+  </data>
+  <data name="CancelSubscription" xml:space="preserve">
+    <value>Zeichnung stornieren</value>
+  </data>
+  <data name="CancelSubscriptionConfirm" xml:space="preserve">
+    <value>Möchten Sie diese Zeichnung wirklich stornieren? Der Tilgungsplan wird ebenfalls entfernt.</value>
+  </data>
+  <data name="RepaymentDashboard" xml:space="preserve">
+    <value>Rückzahlungsübersicht</value>
+  </data>
+  <data name="IBAN" xml:space="preserve">
+    <value>IBAN</value>
+  </data>
+  <data name="BIC" xml:space="preserve">
+    <value>BIC</value>
+  </data>
+  <data name="BankAccountHolder" xml:space="preserve">
+    <value>Kontoinhaber</value>
+  </data>
+  <data name="TransactionDescription" xml:space="preserve">
+    <value>Verwendungszweck</value>
+  </data>
+  <data name="SelectMonth" xml:space="preserve">
+    <value>Monat</value>
+  </data>
+  <data name="SelectYear" xml:space="preserve">
+    <value>Jahr</value>
+  </data>
+  <data name="TotalRepaymentAmount" xml:space="preserve">
+    <value>Gesamtrückzahlung</value>
+  </data>
+  <data name="NumberOfPayments" xml:space="preserve">
+    <value>Anzahl Zahlungen</value>
+  </data>
+  <data name="BankDetails" xml:space="preserve">
+    <value>Bankverbindung</value>
+  </data>
+  <data name="NoEntriesForMonth" xml:space="preserve">
+    <value>Keine Rückzahlungseinträge für diesen Monat.</value>
+  </data>
+  <data name="MarkAsPaid" xml:space="preserve">
+    <value>Als bezahlt markieren</value>
+  </data>
+  <data name="MarkAllAsPaid" xml:space="preserve">
+    <value>Alle als bezahlt markieren</value>
+  </data>
+  <data name="MarkAllAsPaidConfirm" xml:space="preserve">
+    <value>Möchten Sie wirklich alle Einträge für diesen Monat als bezahlt markieren?</value>
+  </data>
 </root>

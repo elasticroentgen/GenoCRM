@@ -228,32 +228,6 @@ public static class SeedData
         context.Dividends.AddRange(dividends);
         await context.SaveChangesAsync();
 
-        // Add some subordinated loans
-        var loans = new List<SubordinatedLoan>
-        {
-            new SubordinatedLoan
-            {
-                MemberId = members[0].Id,
-                LoanNumber = "LOAN001",
-                Amount = 5000.00m,
-                InterestRate = 0.025m,
-                IssueDate = new DateTime(2021, 1, 15),
-                Status = LoanStatus.Active,
-                NoticePeriodDays = 90
-            },
-            new SubordinatedLoan
-            {
-                MemberId = members[2].Id,
-                LoanNumber = "LOAN002",
-                Amount = 10000.00m,
-                InterestRate = 0.030m,
-                IssueDate = new DateTime(2020, 6, 1),
-                Status = LoanStatus.Active,
-                NoticePeriodDays = 180
-            }
-        };
-
-        context.SubordinatedLoans.AddRange(loans);
-        await context.SaveChangesAsync();
+        // Loan projects seed data can be added via the UI
     }
 }

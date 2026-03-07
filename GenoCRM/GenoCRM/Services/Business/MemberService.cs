@@ -79,7 +79,7 @@ public class MemberService : IMemberService
                 .Include(m => m.Shares)
                 .Include(m => m.Payments)
                 .Include(m => m.Dividends)
-                .Include(m => m.SubordinatedLoans)
+                .Include(m => m.LoanSubscriptions)
                 .Include(m => m.Documents)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }

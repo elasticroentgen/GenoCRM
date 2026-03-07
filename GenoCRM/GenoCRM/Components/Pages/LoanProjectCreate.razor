@@ -1,0 +1,130 @@
+@page "/loan-projects/create"
+@page "/loan-projects/{ProjectId:int}/edit"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanProjectService ProjectService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@(_isEdit ? L["Edit"] : L["CreateProject"])</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@(_isEdit ? L["Edit"] + " " + L["LoanProject"] : L["CreateProject"])</h1>
+    <button class="btn btn-outline-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @L["BackToProjects"]
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="_project" OnValidSubmit="SaveProject" FormName="loanProjectForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["Title"] *</label>
+                    <InputText class="form-control" @bind-Value="_project.Title" />
+                    <ValidationMessage For="() => _project.Title" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["Status"]</label>
+                    <InputSelect class="form-select" @bind-Value="_project.Status">
+                        <option value="@LoanProjectStatus.Draft">@L["Draft"]</option>
+                        <option value="@LoanProjectStatus.Active">@L["Active"]</option>
+                        <option value="@LoanProjectStatus.Closed">@L["Closed"]</option>
+                        <option value="@LoanProjectStatus.Cancelled">@L["Cancelled"]</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["StartDate"] *</label>
+                    <InputDate class="form-control" @bind-Value="_project.StartDate" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@L["FinancingAmount"] *</label>
+                    <InputNumber class="form-control" @bind-Value="_project.FinancingAmount" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@L["Description"]</label>
+                <InputTextArea class="form-control" rows="3" @bind-Value="_project.Description" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@L["Notes"]</label>
+                <InputTextArea class="form-control" rows="2" @bind-Value="_project.Notes" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" disabled="@_saving">
+                    @if (_saving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="fas fa-save"></i> @L["Save"]
+                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="GoBack">@L["Cancel"]</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? ProjectId { get; set; }
+
+    private LoanProject _project = new() { StartDate = DateTime.Today };
+    private bool _isEdit;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ProjectId.HasValue)
+        {
+            _isEdit = true;
+            var existing = await ProjectService.GetProjectByIdAsync(ProjectId.Value);
+            if (existing == null)
+            {
+                Navigation.NavigateTo("/loan-projects");
+                return;
+            }
+            _project = existing;
+        }
+    }
+
+    private async Task SaveProject()
+    {
+        _saving = true;
+        try
+        {
+            if (_isEdit)
+            {
+                await ProjectService.UpdateProjectAsync(_project);
+                Navigation.NavigateTo($"/loan-projects/{_project.Id}");
+            }
+            else
+            {
+                var created = await ProjectService.CreateProjectAsync(_project);
+                Navigation.NavigateTo($"/loan-projects/{created.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo(_isEdit ? $"/loan-projects/{ProjectId}" : "/loan-projects");
+}

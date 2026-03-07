@@ -188,6 +188,10 @@ builder.Services.AddScoped<IShareConsolidationService, ShareConsolidationService
 builder.Services.AddScoped<IMessagingService, MessagingService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ILoanProjectService, LoanProjectService>();
+builder.Services.AddScoped<ILoanOfferService, LoanOfferService>();
+builder.Services.AddScoped<ILoanSubscriptionService, LoanSubscriptionService>();
+builder.Services.AddScoped<ILoanPaymentPlanService, LoanPaymentPlanService>();
 
 // Messaging providers
 builder.Services.AddScoped<IEmailProvider, SmtpEmailProvider>();

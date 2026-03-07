@@ -71,9 +71,9 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
             .HasForeignKey(d => d.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        builder.HasMany(m => m.SubordinatedLoans)
-            .WithOne(l => l.Member)
-            .HasForeignKey(l => l.MemberId)
+        builder.HasMany(m => m.LoanSubscriptions)
+            .WithOne(s => s.Member)
+            .HasForeignKey(s => s.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasMany(m => m.Documents)

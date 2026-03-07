@@ -55,9 +55,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasForeignKey(p => p.ShareId)
             .OnDelete(DeleteBehavior.SetNull);
         
-        builder.HasOne(p => p.SubordinatedLoan)
-            .WithMany(l => l.Payments)
-            .HasForeignKey(p => p.SubordinatedLoanId)
+        builder.HasOne(p => p.LoanSubscription)
+            .WithMany(s => s.Payments)
+            .HasForeignKey(p => p.LoanSubscriptionId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

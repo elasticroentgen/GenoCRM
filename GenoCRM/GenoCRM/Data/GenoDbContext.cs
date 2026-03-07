@@ -13,8 +13,11 @@ public class GenoDbContext : DbContext
     public DbSet<CooperativeShare> CooperativeShares { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Dividend> Dividends { get; set; }
-    public DbSet<SubordinatedLoan> SubordinatedLoans { get; set; }
-    public DbSet<LoanInterest> LoanInterests { get; set; }
+    public DbSet<LoanProject> LoanProjects { get; set; }
+    public DbSet<LoanOffer> LoanOffers { get; set; }
+    public DbSet<LoanSubscription> LoanSubscriptions { get; set; }
+    public DbSet<LoanPaymentPlan> LoanPaymentPlans { get; set; }
+    public DbSet<LoanPaymentPlanEntry> LoanPaymentPlanEntries { get; set; }
     public DbSet<Document> Documents { get; set; }
     public DbSet<DocumentVersion> DocumentVersions { get; set; }
     public DbSet<ShareTransfer> ShareTransfers { get; set; }
@@ -53,10 +56,9 @@ public class GenoDbContext : DbContext
         modelBuilder.Entity<Payment>().HasQueryFilter(p => p.Member.Status != MemberStatus.Terminated);
         modelBuilder.Entity<ShareApproval>().HasQueryFilter(sa => sa.Member.Status != MemberStatus.Terminated);
         modelBuilder.Entity<ShareTransfer>().HasQueryFilter(st => st.FromMember.Status != MemberStatus.Terminated && st.ToMember.Status != MemberStatus.Terminated);
-        modelBuilder.Entity<SubordinatedLoan>().HasQueryFilter(sl => sl.Member.Status != MemberStatus.Terminated);
-        
-        // Matching query filter for LoanInterest with SubordinatedLoan relationship
-        modelBuilder.Entity<LoanInterest>().HasQueryFilter(li => li.SubordinatedLoan.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<LoanSubscription>().HasQueryFilter(ls => ls.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<LoanPaymentPlan>().HasQueryFilter(lp => lp.LoanSubscription.Member.Status != MemberStatus.Terminated);
+        modelBuilder.Entity<LoanPaymentPlanEntry>().HasQueryFilter(le => le.LoanPaymentPlan.LoanSubscription.Member.Status != MemberStatus.Terminated);
         
         // Matching query filter for DocumentVersion with Document relationship
         modelBuilder.Entity<DocumentVersion>().HasQueryFilter(dv => dv.Document.Status != DocumentStatus.Deleted);
@@ -122,19 +124,49 @@ public class GenoDbContext : DbContext
         modelBuilder.Entity<Dividend>()
             .HasIndex(d => d.Status);
 
-        // SubordinatedLoan indexes
-        modelBuilder.Entity<SubordinatedLoan>()
-            .HasIndex(l => l.LoanNumber)
+        // LoanProject indexes
+        modelBuilder.Entity<LoanProject>()
+            .HasIndex(p => p.ProjectNumber)
             .IsUnique();
-        
-        modelBuilder.Entity<SubordinatedLoan>()
-            .HasIndex(l => l.MemberId);
-        
-        modelBuilder.Entity<SubordinatedLoan>()
-            .HasIndex(l => l.Status);
-        
-        modelBuilder.Entity<SubordinatedLoan>()
-            .HasIndex(l => l.MaturityDate);
+
+        modelBuilder.Entity<LoanProject>()
+            .HasIndex(p => p.Status);
+
+        // LoanOffer indexes
+        modelBuilder.Entity<LoanOffer>()
+            .HasIndex(o => o.LoanProjectId);
+
+        modelBuilder.Entity<LoanOffer>()
+            .HasIndex(o => o.Status);
+
+        // LoanSubscription indexes
+        modelBuilder.Entity<LoanSubscription>()
+            .HasIndex(s => s.SubscriptionNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<LoanSubscription>()
+            .HasIndex(s => s.MemberId);
+
+        modelBuilder.Entity<LoanSubscription>()
+            .HasIndex(s => s.LoanOfferId);
+
+        modelBuilder.Entity<LoanSubscription>()
+            .HasIndex(s => s.Status);
+
+        // LoanPaymentPlan indexes
+        modelBuilder.Entity<LoanPaymentPlan>()
+            .HasIndex(p => p.LoanSubscriptionId)
+            .IsUnique();
+
+        // LoanPaymentPlanEntry indexes
+        modelBuilder.Entity<LoanPaymentPlanEntry>()
+            .HasIndex(e => e.LoanPaymentPlanId);
+
+        modelBuilder.Entity<LoanPaymentPlanEntry>()
+            .HasIndex(e => e.DueDate);
+
+        modelBuilder.Entity<LoanPaymentPlanEntry>()
+            .HasIndex(e => e.Status);
 
         // Document indexes
         modelBuilder.Entity<Document>()
@@ -252,9 +284,11 @@ public class GenoDbContext : DbContext
     private void UpdateTimestamps()
     {
         var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is Member || e.Entity is CooperativeShare || 
-                       e.Entity is Payment || e.Entity is Dividend || 
-                       e.Entity is SubordinatedLoan || e.Entity is Document ||
+            .Where(e => e.Entity is Member || e.Entity is CooperativeShare ||
+                       e.Entity is Payment || e.Entity is Dividend ||
+                       e.Entity is LoanProject || e.Entity is LoanOffer ||
+                       e.Entity is LoanSubscription || e.Entity is LoanPaymentPlan ||
+                       e.Entity is LoanPaymentPlanEntry || e.Entity is Document ||
                        e.Entity is ShareTransfer || e.Entity is ShareApproval ||
                        e.Entity is Message || e.Entity is MessageTemplate ||
                        e.Entity is MessagePreference || e.Entity is MessageCampaign ||

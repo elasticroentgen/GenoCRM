@@ -1,0 +1,216 @@
+@page "/loan-offers/{OfferId:int}/subscribe"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanSubscriptionService SubscriptionService
+@inject ILoanOfferService OfferService
+@inject IMemberService MemberService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["CreateSubscription"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@L["CreateSubscription"]</h1>
+    <button class="btn btn-outline-secondary" @onclick="GoBack">
+        <i class="fas fa-arrow-left"></i> @L["BackToOffer"]
+    </button>
+</div>
+
+@if (_offer == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Offer Summary -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><i class="fas fa-info-circle"></i> @L["LoanOffer"]: @_offer.Title</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>@L["InterestRate"]:</strong>
+                    <p>@((_offer.InterestRate * 100).ToString("F2"))%</p>
+                </div>
+                <div class="col-md-3">
+                    <strong>@L["Term"]:</strong>
+                    <p>@_offer.TermMonths @L["Months"]</p>
+                </div>
+                <div class="col-md-3">
+                    <strong>@L["PaymentInterval"]:</strong>
+                    <p>@GetLocalizedInterval(_offer.PaymentInterval)</p>
+                </div>
+                <div class="col-md-3">
+                    <strong>@L["RepaymentType"]:</strong>
+                    <p>@L["Annuity"]</p>
+                </div>
+                @if (_offer.GracePeriodMonths > 0)
+                {
+                    <div class="col-md-3">
+                        <strong>@L["GracePeriod"]:</strong>
+                        <p>@_offer.GracePeriodMonths @L["Months"]</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <EditForm Model="_subscription" OnValidSubmit="SaveSubscription" FormName="subscriptionForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@L["SelectMember"] *</label>
+                        <InputSelect class="form-select" @bind-Value="_subscription.MemberId">
+                            <option value="0">-- @L["SelectMember"] --</option>
+                            @if (_members != null)
+                            {
+                                @foreach (var member in _members)
+                                {
+                                    <option value="@member.Id">@member.FullName (@member.MemberNumber)</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@L["SubscriptionDate"] *</label>
+                        <InputDate class="form-control" @bind-Value="_subscription.SubscriptionDate" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@L["SubscriptionAmount"] *</label>
+                        <InputNumber class="form-control" @bind-Value="_subscription.Amount" />
+                        @if (_offer.MinSubscriptionAmount.HasValue || _offer.MaxSubscriptionAmount.HasValue)
+                        {
+                            <small class="text-muted">
+                                @if (_offer.MinSubscriptionAmount.HasValue)
+                                {
+                                    @($"Min: {FormattingService.FormatCurrency(_offer.MinSubscriptionAmount.Value)}")
+                                }
+                                @if (_offer.MinSubscriptionAmount.HasValue && _offer.MaxSubscriptionAmount.HasValue)
+                                {
+                                    @(" | ")
+                                }
+                                @if (_offer.MaxSubscriptionAmount.HasValue)
+                                {
+                                    @($"Max: {FormattingService.FormatCurrency(_offer.MaxSubscriptionAmount.Value)}")
+                                }
+                            </small>
+                        }
+                    </div>
+                </div>
+
+                <h6 class="mt-3 mb-3">@L["BankDetails"]</h6>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">@L["IBAN"] *</label>
+                        <InputText class="form-control" @bind-Value="_subscription.IBAN" />
+                        <ValidationMessage For="() => _subscription.IBAN" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">@L["BIC"] *</label>
+                        <InputText class="form-control" @bind-Value="_subscription.BIC" />
+                        <ValidationMessage For="() => _subscription.BIC" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">@L["BankAccountHolder"] *</label>
+                        <InputText class="form-control" @bind-Value="_subscription.BankAccountHolder" />
+                        <ValidationMessage For="() => _subscription.BankAccountHolder" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success" disabled="@(_saving || _subscription.MemberId == 0)">
+                        @if (_saving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        <i class="fas fa-check"></i> @L["Subscribe"]
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="GoBack">@L["Cancel"]</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int OfferId { get; set; }
+
+    private LoanOffer? _offer;
+    private IEnumerable<Member>? _members;
+    private LoanSubscription _subscription = new() { SubscriptionDate = DateTime.Today };
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _offer = await OfferService.GetOfferByIdAsync(OfferId);
+            if (_offer == null)
+            {
+                Navigation.NavigateTo("/loan-projects");
+                return;
+            }
+            _subscription.LoanOfferId = OfferId;
+
+            _members = await MemberService.GetAllMembersAsync();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private async Task SaveSubscription()
+    {
+        if (_subscription.MemberId == 0)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], L["SelectMember"]);
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            var created = await SubscriptionService.CreateSubscriptionAsync(_subscription);
+            Navigation.NavigateTo($"/loan-subscriptions/{created.Id}");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo($"/loan-offers/{OfferId}");
+
+    private string GetLocalizedInterval(PaymentInterval interval) => interval switch
+    {
+        PaymentInterval.Monthly => L["Monthly"],
+        PaymentInterval.Quarterly => L["Quarterly"],
+        PaymentInterval.SemiAnnual => L["SemiAnnual"],
+        PaymentInterval.Annual => L["Annual"],
+        _ => interval.ToString()
+    };
+}

@@ -68,7 +68,7 @@ public class Member
     public virtual ICollection<CooperativeShare> Shares { get; set; } = new List<CooperativeShare>();
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public virtual ICollection<Dividend> Dividends { get; set; } = new List<Dividend>();
-    public virtual ICollection<SubordinatedLoan> SubordinatedLoans { get; set; } = new List<SubordinatedLoan>();
+    public virtual ICollection<LoanSubscription> LoanSubscriptions { get; set; } = new List<LoanSubscription>();
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
     
     // Computed properties

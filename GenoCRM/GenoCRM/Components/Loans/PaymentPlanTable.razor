@@ -1,0 +1,105 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Localization
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5><i class="fas fa-table"></i> @L["RepaymentPlan"]</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>@L["Period"]</th>
+                        <th>@L["DueDate"]</th>
+                        <th class="text-end">@L["PrincipalAmount"]</th>
+                        <th class="text-end">@L["InterestAmount"]</th>
+                        <th class="text-end">@L["TotalAmount"]</th>
+                        <th class="text-end">@L["RemainingBalance"]</th>
+                        <th>@L["Status"]</th>
+                        @if (OnMarkAsPaid.HasDelegate)
+                        {
+                            <th></th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Entries)
+                    {
+                        <tr class="@GetRowClass(entry.Status)">
+                            <td>@entry.PeriodNumber</td>
+                            <td>@FormattingService.FormatDate(entry.DueDate)</td>
+                            <td class="text-end">@FormattingService.FormatCurrency(entry.PrincipalAmount)</td>
+                            <td class="text-end">@FormattingService.FormatCurrency(entry.InterestAmount)</td>
+                            <td class="text-end fw-bold">@FormattingService.FormatCurrency(entry.TotalAmount)</td>
+                            <td class="text-end">@FormattingService.FormatCurrency(entry.RemainingBalance)</td>
+                            <td>
+                                <span class="badge bg-@GetEntryStatusColor(entry.Status)">
+                                    @GetLocalizedEntryStatus(entry.Status)
+                                </span>
+                                @if (entry.PaidDate.HasValue)
+                                {
+                                    <br /><small class="text-muted">@FormattingService.FormatDate(entry.PaidDate)</small>
+                                }
+                            </td>
+                            @if (OnMarkAsPaid.HasDelegate)
+                            {
+                                <td>
+                                    @if (entry.Status != PaymentPlanEntryStatus.Paid)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                                @onclick="() => OnMarkAsPaid.InvokeAsync(entry.Id)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="2">@L["TotalAmount"]</td>
+                        <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.PrincipalAmount))</td>
+                        <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.InterestAmount))</td>
+                        <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.TotalAmount))</td>
+                        <td colspan="@(OnMarkAsPaid.HasDelegate ? "2" : "1")"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<LoanPaymentPlanEntry> Entries { get; set; } = new();
+    [Parameter] public EventCallback<int> OnMarkAsPaid { get; set; }
+
+    private static string GetEntryStatusColor(PaymentPlanEntryStatus status) => status switch
+    {
+        PaymentPlanEntryStatus.Pending => "secondary",
+        PaymentPlanEntryStatus.Due => "warning",
+        PaymentPlanEntryStatus.Paid => "success",
+        PaymentPlanEntryStatus.Overdue => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedEntryStatus(PaymentPlanEntryStatus status) => status switch
+    {
+        PaymentPlanEntryStatus.Pending => L["Pending"],
+        PaymentPlanEntryStatus.Due => L["Due"],
+        PaymentPlanEntryStatus.Paid => L["Paid"],
+        PaymentPlanEntryStatus.Overdue => L["Overdue"],
+        _ => status.ToString()
+    };
+
+    private static string GetRowClass(PaymentPlanEntryStatus status) => status switch
+    {
+        PaymentPlanEntryStatus.Paid => "table-success",
+        PaymentPlanEntryStatus.Overdue => "table-danger",
+        PaymentPlanEntryStatus.Due => "table-warning",
+        _ => ""
+    };
+}

@@ -1,0 +1,244 @@
+@page "/loan-projects/{ProjectId:int}"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@attribute [Authorize]
+@inject ILoanProjectService ProjectService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["ProjectDetails"]</PageTitle>
+
+@if (_project == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@_project.Title</h1>
+        <div>
+            <button class="btn btn-outline-secondary me-2" @onclick="GoBack">
+                <i class="fas fa-arrow-left"></i> @L["BackToProjects"]
+            </button>
+            <button class="btn btn-primary me-2" @onclick="EditProject">
+                <i class="fas fa-edit"></i> @L["Edit"]
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> @L["ProjectDetails"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>@L["ProjectNumber"]:</strong>
+                            <p>@_project.ProjectNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["Status"]:</strong>
+                            <p>
+                                <span class="badge bg-@GetProjectStatusColor(_project.Status)">
+                                    @GetLocalizedProjectStatus(_project.Status)
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["StartDate"]:</strong>
+                            <p>@FormattingService.FormatDate(_project.StartDate)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["FinancingAmount"]:</strong>
+                            <p>@FormattingService.FormatCurrency(_project.FinancingAmount)</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(_project.Description))
+                        {
+                            <div class="col-md-12">
+                                <strong>@L["Description"]:</strong>
+                                <p>@_project.Description</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> @L["FinancingProgress"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>@L["TotalSubscribed"]:</strong>
+                        <p class="h4 text-success">@FormattingService.FormatCurrency(_project.TotalSubscribed)</p>
+                    </div>
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar @GetProgressBarColor(_project.FinancingProgress)"
+                             role="progressbar"
+                             style="width: @Math.Min(_project.FinancingProgress, 100)%">
+                            @_project.FinancingProgress.ToString("F1")%
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        @FormattingService.FormatCurrency(_project.TotalSubscribed) / @FormattingService.FormatCurrency(_project.FinancingAmount)
+                    </small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn btn-primary w-100" @onclick="CreateOffer">
+                        <i class="fas fa-plus"></i> @L["CreateOffer"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offers Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5><i class="fas fa-list"></i> @L["LoanOffers"]</h5>
+        </div>
+        <div class="card-body">
+            @if (!_project.LoanOffers.Any())
+            {
+                <div class="alert alert-info mb-0">@L["NoOffersYet"]</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@L["Title"]</th>
+                                <th>@L["InterestRate"]</th>
+                                <th>@L["Term"]</th>
+                                <th>@L["PaymentInterval"]</th>
+                                <th>@L["LoanSubscriptions"]</th>
+                                <th>@L["Status"]</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var offer in _project.LoanOffers)
+                            {
+                                <tr class="cursor-pointer" @onclick="() => ViewOffer(offer.Id)">
+                                    <td>@offer.Title</td>
+                                    <td>@((offer.InterestRate * 100).ToString("F2"))%</td>
+                                    <td>@offer.TermMonths @L["Months"]</td>
+                                    <td>@GetLocalizedInterval(offer.PaymentInterval)</td>
+                                    <td>@offer.Subscriptions.Count</td>
+                                    <td>
+                                        <span class="badge bg-@GetOfferStatusColor(offer.Status)">
+                                            @GetLocalizedOfferStatus(offer.Status)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick:stopPropagation="true" @onclick="() => ViewOffer(offer.Id)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+
+    private LoanProject? _project;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _project = await ProjectService.GetProjectByIdAsync(ProjectId);
+            if (_project == null)
+            {
+                await ModalService.ShowErrorAsync(L["Error"], "Project not found");
+                Navigation.NavigateTo("/loan-projects");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+            Navigation.NavigateTo("/loan-projects");
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/loan-projects");
+    private void EditProject() => Navigation.NavigateTo($"/loan-projects/{ProjectId}/edit");
+    private void CreateOffer() => Navigation.NavigateTo($"/loan-projects/{ProjectId}/offers/create");
+    private void ViewOffer(int id) => Navigation.NavigateTo($"/loan-offers/{id}");
+
+    private static string GetProjectStatusColor(LoanProjectStatus status) => status switch
+    {
+        LoanProjectStatus.Draft => "secondary",
+        LoanProjectStatus.Active => "success",
+        LoanProjectStatus.Closed => "info",
+        LoanProjectStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedProjectStatus(LoanProjectStatus status) => status switch
+    {
+        LoanProjectStatus.Draft => L["Draft"],
+        LoanProjectStatus.Active => L["Active"],
+        LoanProjectStatus.Closed => L["Closed"],
+        LoanProjectStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+
+    private static string GetProgressBarColor(decimal progress) => progress switch
+    {
+        >= 100 => "bg-success",
+        >= 75 => "bg-info",
+        >= 50 => "bg-warning",
+        _ => "bg-danger"
+    };
+
+    private static string GetOfferStatusColor(LoanOfferStatus status) => status switch
+    {
+        LoanOfferStatus.Open => "success",
+        LoanOfferStatus.Closed => "info",
+        LoanOfferStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedOfferStatus(LoanOfferStatus status) => status switch
+    {
+        LoanOfferStatus.Open => L["Open"],
+        LoanOfferStatus.Closed => L["Closed"],
+        LoanOfferStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+
+    private string GetLocalizedInterval(PaymentInterval interval) => interval switch
+    {
+        PaymentInterval.Monthly => L["Monthly"],
+        PaymentInterval.Quarterly => L["Quarterly"],
+        PaymentInterval.SemiAnnual => L["SemiAnnual"],
+        PaymentInterval.Annual => L["Annual"],
+        _ => interval.ToString()
+    };
+}

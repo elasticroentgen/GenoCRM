@@ -1,0 +1,295 @@
+@page "/loan-subscriptions/{SubscriptionId:int}"
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
+@using GenoCRM.Services.UI
+@using GenoCRM.Components.Loans
+@attribute [Authorize]
+@inject ILoanSubscriptionService SubscriptionService
+@inject ILoanPaymentPlanService PaymentPlanService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+@inject IFormattingService FormattingService
+@inject IModalService ModalService
+@rendermode InteractiveServer
+
+<PageTitle>@L["SubscriptionDetails"]</PageTitle>
+
+@if (_subscription == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@L["LoanSubscription"] @_subscription.SubscriptionNumber</h1>
+        <div>
+            @if (!_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+            {
+                <button class="btn btn-outline-danger me-2" @onclick="CancelSubscription">
+                    <i class="fas fa-times"></i> @L["CancelSubscription"]
+                </button>
+            }
+            <button class="btn btn-outline-secondary" @onclick="GoBack">
+                <i class="fas fa-arrow-left"></i> @L["BackToOffer"]
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> @L["SubscriptionDetails"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>@L["SubscriptionNumber"]:</strong>
+                            <p>@_subscription.SubscriptionNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["Status"]:</strong>
+                            <p>
+                                <span class="badge bg-@GetSubscriptionStatusColor(_subscription.Status)">
+                                    @GetLocalizedSubscriptionStatus(_subscription.Status)
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["Member"]:</strong>
+                            <p>
+                                <a href="/members/@_subscription.MemberId">@_subscription.Member.FullName</a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["SubscriptionDate"]:</strong>
+                            <p>@FormattingService.FormatDate(_subscription.SubscriptionDate)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["SubscriptionAmount"]:</strong>
+                            <p class="h5 text-primary">@FormattingService.FormatCurrency(_subscription.Amount)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["PaidIn"]:</strong>
+                            <p>
+                                @if (_subscription.PaidInDate.HasValue)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> @FormattingService.FormatDate(_subscription.PaidInDate)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">@L["Pending"]</span>
+                                    <button class="btn btn-sm btn-outline-success ms-2" @onclick="MarkAsPaidIn">
+                                        <i class="fas fa-check"></i> @L["MarkAsPaidIn"]
+                                    </button>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-university"></i> @L["BankDetails"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>@L["IBAN"]:</strong>
+                            <p>@_subscription.IBAN</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>@L["BIC"]:</strong>
+                            <p>@_subscription.BIC</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>@L["BankAccountHolder"]:</strong>
+                            <p>@_subscription.BankAccountHolder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-invoice-dollar"></i> @L["LoanOffer"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>@L["LoanProject"]:</strong>
+                            <p><a href="/loan-projects/@_subscription.LoanOffer.LoanProjectId">@_subscription.LoanOffer.LoanProject.Title</a></p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>@L["LoanOffer"]:</strong>
+                            <p><a href="/loan-offers/@_subscription.LoanOfferId">@_subscription.LoanOffer.Title</a></p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>@L["InterestRate"]:</strong>
+                            <p>@((_subscription.LoanOffer.InterestRate * 100).ToString("F2"))%</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>@L["Term"]:</strong>
+                            <p>@_subscription.LoanOffer.TermMonths @L["Months"]</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>@L["PaymentInterval"]:</strong>
+                            <p>@GetLocalizedInterval(_subscription.LoanOffer.PaymentInterval)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            @if (_subscription.PaymentPlan != null)
+            {
+                var entries = _subscription.PaymentPlan.Entries;
+                var totalInterest = entries.Sum(e => e.InterestAmount);
+                var totalPayment = entries.Sum(e => e.TotalAmount);
+                var paidEntries = entries.Count(e => e.Status == PaymentPlanEntryStatus.Paid);
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> @L["Summary"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>@L["PrincipalAmount"]:</strong>
+                            <p class="mb-1">@FormattingService.FormatCurrency(_subscription.Amount)</p>
+                        </div>
+                        <div class="mb-2">
+                            <strong>@L["InterestAmount"] (@L["TotalAmount"]):</strong>
+                            <p class="mb-1">@FormattingService.FormatCurrency(totalInterest)</p>
+                        </div>
+                        <div class="mb-2">
+                            <strong>@L["TotalAmount"]:</strong>
+                            <p class="h5 mb-1">@FormattingService.FormatCurrency(totalPayment)</p>
+                        </div>
+                        <hr />
+                        <div>
+                            <strong>@L["Progress"]:</strong>
+                            <p>@paidEntries / @entries.Count @L["Paid"]</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Payment Plan Table -->
+    @if (_subscription.PaymentPlan != null)
+    {
+        <PaymentPlanTable Entries="_subscription.PaymentPlan.Entries.OrderBy(e => e.PeriodNumber).ToList()"
+                          OnMarkAsPaid="MarkEntryAsPaid" />
+    }
+}
+
+@code {
+    [Parameter] public int SubscriptionId { get; set; }
+
+    private LoanSubscription? _subscription;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscription();
+    }
+
+    private async Task LoadSubscription()
+    {
+        try
+        {
+            _subscription = await SubscriptionService.GetSubscriptionByIdAsync(SubscriptionId);
+            if (_subscription == null)
+            {
+                await ModalService.ShowErrorAsync(L["Error"], "Subscription not found");
+                Navigation.NavigateTo("/loan-projects");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+            Navigation.NavigateTo("/loan-projects");
+        }
+    }
+
+    private async Task MarkAsPaidIn()
+    {
+        try
+        {
+            await SubscriptionService.MarkAsPaidInAsync(SubscriptionId);
+            await LoadSubscription();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private async Task MarkEntryAsPaid(int entryId)
+    {
+        try
+        {
+            await PaymentPlanService.MarkEntryAsPaidAsync(entryId);
+            await LoadSubscription();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private async Task CancelSubscription()
+    {
+        var confirmed = await ModalService.ShowConfirmationAsync(L["CancelSubscription"], L["CancelSubscriptionConfirm"]);
+        if (!confirmed) return;
+
+        try
+        {
+            await SubscriptionService.CancelSubscriptionAsync(SubscriptionId);
+            Navigation.NavigateTo($"/loan-offers/{_subscription?.LoanOfferId}");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo($"/loan-offers/{_subscription?.LoanOfferId}");
+
+    private static string GetSubscriptionStatusColor(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => "success",
+        LoanSubscriptionStatus.Completed => "info",
+        LoanSubscriptionStatus.Cancelled => "danger",
+        _ => "secondary"
+    };
+
+    private string GetLocalizedSubscriptionStatus(LoanSubscriptionStatus status) => status switch
+    {
+        LoanSubscriptionStatus.Active => L["Active"],
+        LoanSubscriptionStatus.Completed => L["Completed"],
+        LoanSubscriptionStatus.Cancelled => L["Cancelled"],
+        _ => status.ToString()
+    };
+
+    private string GetLocalizedInterval(PaymentInterval interval) => interval switch
+    {
+        PaymentInterval.Monthly => L["Monthly"],
+        PaymentInterval.Quarterly => L["Quarterly"],
+        PaymentInterval.SemiAnnual => L["SemiAnnual"],
+        PaymentInterval.Annual => L["Annual"],
+        _ => interval.ToString()
+    };
+}
