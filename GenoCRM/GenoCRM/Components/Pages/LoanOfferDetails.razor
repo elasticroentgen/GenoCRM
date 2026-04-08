@@ -123,7 +123,7 @@ else
 
             @{
                 var exampleAmount = _offer.MinSubscriptionAmount ?? 1000m;
-                var yield = CalculateYield(exampleAmount, _offer.InterestRate, _offer.TermMonths, _offer.PaymentInterval, _offer.GracePeriodMonths);
+                var yield = CalculateYield(exampleAmount, _offer.InterestRate, _offer.TermMonths, _offer.PaymentInterval, _offer.GracePeriodMonths, _offer.RepaymentType);
             }
             <div class="card mb-4 border-info">
                 <div class="card-header bg-info bg-opacity-10">
@@ -293,7 +293,7 @@ else
 
     private record YieldResult(decimal TotalInterest, decimal TotalReturn, decimal EffectiveYieldPercent);
 
-    private static YieldResult CalculateYield(decimal principal, decimal annualRate, int termMonths, PaymentInterval interval, int gracePeriodMonths)
+    private static YieldResult CalculateYield(decimal principal, decimal annualRate, int termMonths, PaymentInterval interval, int gracePeriodMonths, RepaymentType repaymentType)
     {
         int periodsPerYear = interval switch
         {
@@ -308,27 +308,35 @@ else
         if (totalPeriods <= 0) return new(0, principal, 0);
 
         decimal periodicRate = annualRate / periodsPerYear;
+        decimal totalInterest;
 
-        decimal annuityPayment;
-        if (periodicRate == 0)
+        if (repaymentType == RepaymentType.BulletLoan)
         {
-            annuityPayment = principal / totalPeriods;
+            totalInterest = principal * periodicRate * totalPeriods;
         }
         else
         {
-            double r = (double)periodicRate;
-            double factor = Math.Pow(1 + r, totalPeriods);
-            annuityPayment = principal * (decimal)(r * factor / (factor - 1));
-        }
+            decimal annuityPayment;
+            if (periodicRate == 0)
+            {
+                annuityPayment = principal / totalPeriods;
+            }
+            else
+            {
+                double r = (double)periodicRate;
+                double factor = Math.Pow(1 + r, totalPeriods);
+                annuityPayment = principal * (decimal)(r * factor / (factor - 1));
+            }
 
-        decimal remaining = principal;
-        decimal totalInterest = 0;
+            decimal remaining = principal;
+            totalInterest = 0;
 
-        for (int i = 0; i < totalPeriods; i++)
-        {
-            decimal interest = remaining * periodicRate;
-            totalInterest += interest;
-            remaining -= (annuityPayment - interest);
+            for (int i = 0; i < totalPeriods; i++)
+            {
+                decimal interest = remaining * periodicRate;
+                totalInterest += interest;
+                remaining -= (annuityPayment - interest);
+            }
         }
 
         decimal totalReturn = principal + totalInterest;
