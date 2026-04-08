@@ -3,6 +3,7 @@
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
+@using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @attribute [Authorize]
 @inject ILoanOfferService OfferService
@@ -10,6 +11,7 @@
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
 @inject IModalService ModalService
+@inject IFormattingService FormattingService
 @rendermode InteractiveServer
 
 <PageTitle>@(_isEdit ? L["Edit"] : L["CreateOffer"])</PageTitle>
@@ -20,6 +22,14 @@
         <i class="fas fa-arrow-left"></i> @L["Back"]
     </button>
 </div>
+
+@if (_hasActiveSubscriptions)
+{
+    <div class="alert alert-warning d-flex align-items-center mb-4">
+        <i class="fas fa-lock me-2"></i>
+        @L["EditLimitedActiveSubscriptions"]
+    </div>
+}
 
 <div class="card">
     <div class="card-body">
@@ -46,15 +56,15 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@L["InterestRate"] (%) *</label>
-                    <InputNumber class="form-control" @bind-Value="_interestRatePercent" step="0.01" />
+                    <InputNumber class="form-control" @bind-Value="_interestRatePercent" step="0.01" disabled="@_hasActiveSubscriptions" />
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@L["TermMonths"] *</label>
-                    <InputNumber class="form-control" @bind-Value="_offer.TermMonths" />
+                    <InputNumber class="form-control" @bind-Value="_offer.TermMonths" disabled="@_hasActiveSubscriptions" />
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@L["PaymentInterval"]</label>
-                    <InputSelect class="form-select" @bind-Value="_offer.PaymentInterval">
+                    <InputSelect class="form-select" @bind-Value="_offer.PaymentInterval" disabled="@_hasActiveSubscriptions">
                         <option value="@PaymentInterval.Monthly">@L["Monthly"]</option>
                         <option value="@PaymentInterval.Quarterly">@L["Quarterly"]</option>
                         <option value="@PaymentInterval.SemiAnnual">@L["SemiAnnual"]</option>
@@ -66,24 +76,25 @@
             <div class="row">
                 <div class="col-md-3 mb-3">
                     <label class="form-label">@L["RepaymentType"]</label>
-                    <InputSelect class="form-select" @bind-Value="_offer.RepaymentType">
+                    <InputSelect class="form-select" @bind-Value="_offer.RepaymentType" disabled="@_hasActiveSubscriptions">
                         <option value="@RepaymentType.Annuity">@L["Annuity"]</option>
+                        <option value="@RepaymentType.BulletLoan">@L["BulletLoan"]</option>
                     </InputSelect>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">@L["GracePeriod"]</label>
                     <div class="input-group">
-                        <InputNumber class="form-control" @bind-Value="_offer.GracePeriodMonths" />
+                        <InputNumber class="form-control" @bind-Value="_offer.GracePeriodMonths" disabled="@_hasActiveSubscriptions" />
                         <span class="input-group-text">@L["Months"]</span>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">@L["MinSubscriptionAmount"]</label>
-                    <InputNumber class="form-control" @bind-Value="_offer.MinSubscriptionAmount" />
+                    <InputNumber class="form-control" @bind-Value="_offer.MinSubscriptionAmount" disabled="@_hasActiveSubscriptions" />
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">@L["MaxSubscriptionAmount"]</label>
-                    <InputNumber class="form-control" @bind-Value="_offer.MaxSubscriptionAmount" />
+                    <InputNumber class="form-control" @bind-Value="_offer.MaxSubscriptionAmount" disabled="@_hasActiveSubscriptions" />
                 </div>
             </div>
 
@@ -101,6 +112,34 @@
     </div>
 </div>
 
+@if (_interestRatePercent > 0 && _offer.TermMonths > 0)
+{
+    var exampleAmount = _offer.MinSubscriptionAmount ?? 1000m;
+    var yield = CalculateYield(exampleAmount, _interestRatePercent / 100, _offer.TermMonths, _offer.PaymentInterval, _offer.GracePeriodMonths, _offer.RepaymentType);
+
+    <div class="card mt-4 border-info">
+        <div class="card-header bg-info bg-opacity-10">
+            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>@L["ExpectedYield"] – @L["ExampleInvestment"]: @FormattingService.FormatCurrency(exampleAmount)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="fs-4 fw-bold text-info">@FormattingService.FormatCurrency(yield.TotalInterest)</div>
+                    <div class="text-muted">@L["InterestAmount"]</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fs-4 fw-bold text-success">@FormattingService.FormatCurrency(yield.TotalReturn)</div>
+                    <div class="text-muted">@L["TotalReturn"]</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fs-4 fw-bold text-primary">@yield.EffectiveYieldPercent.ToString("F2") %</div>
+                    <div class="text-muted">@L["YieldPerYear"]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int? ProjectId { get; set; }
     [Parameter] public int? OfferId { get; set; }
@@ -109,6 +148,7 @@
     private decimal _interestRatePercent;
     private bool _isEdit;
     private bool _saving;
+    private bool _hasActiveSubscriptions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,6 +164,8 @@
             _offer = existing;
             ProjectId = existing.LoanProjectId;
             _interestRatePercent = existing.InterestRate * 100;
+            _hasActiveSubscriptions = existing.Subscriptions
+                .Any(s => s.Status == LoanSubscriptionStatus.Active);
         }
         else if (ProjectId.HasValue)
         {
@@ -167,5 +209,62 @@
             Navigation.NavigateTo($"/loan-projects/{ProjectId}");
         else
             Navigation.NavigateTo("/loan-projects");
+    }
+
+    private record YieldResult(decimal TotalInterest, decimal TotalReturn, decimal EffectiveYieldPercent);
+
+    private static YieldResult CalculateYield(decimal principal, decimal annualRate, int termMonths, PaymentInterval interval, int gracePeriodMonths, RepaymentType repaymentType)
+    {
+        int periodsPerYear = interval switch
+        {
+            PaymentInterval.Monthly => 12,
+            PaymentInterval.Quarterly => 4,
+            PaymentInterval.SemiAnnual => 2,
+            PaymentInterval.Annual => 1,
+            _ => 12
+        };
+
+        int totalPeriods = termMonths * periodsPerYear / 12;
+        if (totalPeriods <= 0) return new(0, principal, 0);
+
+        decimal periodicRate = annualRate / periodsPerYear;
+        decimal totalInterest;
+
+        if (repaymentType == RepaymentType.BulletLoan)
+        {
+            // Bullet loan: interest on full principal every period
+            totalInterest = principal * periodicRate * totalPeriods;
+        }
+        else
+        {
+            // Annuity calculation
+            decimal annuityPayment;
+            if (periodicRate == 0)
+            {
+                annuityPayment = principal / totalPeriods;
+            }
+            else
+            {
+                double r = (double)periodicRate;
+                double factor = Math.Pow(1 + r, totalPeriods);
+                annuityPayment = principal * (decimal)(r * factor / (factor - 1));
+            }
+
+            decimal remaining = principal;
+            totalInterest = 0;
+
+            for (int i = 0; i < totalPeriods; i++)
+            {
+                decimal interest = remaining * periodicRate;
+                totalInterest += interest;
+                remaining -= (annuityPayment - interest);
+            }
+        }
+
+        decimal totalReturn = principal + totalInterest;
+        decimal termYears = termMonths / 12m;
+        decimal effectiveYield = termYears > 0 ? (totalInterest / principal) / termYears * 100 : 0;
+
+        return new(Math.Round(totalInterest, 2), Math.Round(totalReturn, 2), Math.Round(effectiveYield, 4));
     }
 }

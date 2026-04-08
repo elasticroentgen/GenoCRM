@@ -72,7 +72,7 @@ else
                         </div>
                         <div class="col-md-6">
                             <strong>@L["RepaymentType"]:</strong>
-                            <p>@L["Annuity"]</p>
+                            <p>@L[_offer.RepaymentType.ToString()]</p>
                         </div>
                         @if (_offer.GracePeriodMonths > 0)
                         {
@@ -117,6 +117,31 @@ else
                                 .Where(s => s.Status != LoanSubscriptionStatus.Cancelled)
                                 .Sum(s => s.Amount))
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var exampleAmount = _offer.MinSubscriptionAmount ?? 1000m;
+                var yield = CalculateYield(exampleAmount, _offer.InterestRate, _offer.TermMonths, _offer.PaymentInterval, _offer.GracePeriodMonths);
+            }
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info bg-opacity-10">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>@L["ExpectedYield"]</h5>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted d-block mb-2">@L["ExampleInvestment"]: @FormattingService.FormatCurrency(exampleAmount)</small>
+                    <div class="mb-2">
+                        <strong>@L["InterestAmount"]:</strong>
+                        <span class="text-info ms-1">@FormattingService.FormatCurrency(yield.TotalInterest)</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>@L["TotalReturn"]:</strong>
+                        <span class="text-success ms-1">@FormattingService.FormatCurrency(yield.TotalReturn)</span>
+                    </div>
+                    <div>
+                        <strong>@L["YieldPerYear"]:</strong>
+                        <span class="h5 text-primary ms-1">@yield.EffectiveYieldPercent.ToString("F2") %</span>
                     </div>
                 </div>
             </div>
@@ -265,4 +290,51 @@ else
         LoanSubscriptionStatus.Cancelled => L["Cancelled"],
         _ => status.ToString()
     };
+
+    private record YieldResult(decimal TotalInterest, decimal TotalReturn, decimal EffectiveYieldPercent);
+
+    private static YieldResult CalculateYield(decimal principal, decimal annualRate, int termMonths, PaymentInterval interval, int gracePeriodMonths)
+    {
+        int periodsPerYear = interval switch
+        {
+            PaymentInterval.Monthly => 12,
+            PaymentInterval.Quarterly => 4,
+            PaymentInterval.SemiAnnual => 2,
+            PaymentInterval.Annual => 1,
+            _ => 12
+        };
+
+        int totalPeriods = termMonths * periodsPerYear / 12;
+        if (totalPeriods <= 0) return new(0, principal, 0);
+
+        decimal periodicRate = annualRate / periodsPerYear;
+
+        decimal annuityPayment;
+        if (periodicRate == 0)
+        {
+            annuityPayment = principal / totalPeriods;
+        }
+        else
+        {
+            double r = (double)periodicRate;
+            double factor = Math.Pow(1 + r, totalPeriods);
+            annuityPayment = principal * (decimal)(r * factor / (factor - 1));
+        }
+
+        decimal remaining = principal;
+        decimal totalInterest = 0;
+
+        for (int i = 0; i < totalPeriods; i++)
+        {
+            decimal interest = remaining * periodicRate;
+            totalInterest += interest;
+            remaining -= (annuityPayment - interest);
+        }
+
+        decimal totalReturn = principal + totalInterest;
+        decimal termYears = termMonths / 12m;
+        decimal effectiveYield = termYears > 0 ? (totalInterest / principal) / termYears * 100 : 0;
+
+        return new(Math.Round(totalInterest, 2), Math.Round(totalReturn, 2), Math.Round(effectiveYield, 4));
+    }
 }

@@ -1591,6 +1591,9 @@
   <data name="Annuity" xml:space="preserve">
     <value>Annuität</value>
   </data>
+  <data name="BulletLoan" xml:space="preserve">
+    <value>Endfälligkeitsdarlehen</value>
+  </data>
   <data name="ProjectNumber" xml:space="preserve">
     <value>Projektnummer</value>
   </data>
@@ -1740,5 +1743,20 @@
   </data>
   <data name="MarkAllAsPaidConfirm" xml:space="preserve">
     <value>Möchten Sie wirklich alle Einträge für diesen Monat als bezahlt markieren?</value>
+  </data>
+  <data name="ExpectedYield" xml:space="preserve">
+    <value>Erwartete Rendite</value>
+  </data>
+  <data name="TotalReturn" xml:space="preserve">
+    <value>Gesamtrückfluss</value>
+  </data>
+  <data name="YieldPerYear" xml:space="preserve">
+    <value>Rendite p.a.</value>
+  </data>
+  <data name="ExampleInvestment" xml:space="preserve">
+    <value>Beispielanlage</value>
+  </data>
+  <data name="EditLimitedActiveSubscriptions" xml:space="preserve">
+    <value>Dieses Angebot hat aktive Zeichnungen. Nur Titel und Status können geändert werden, um bestehende Tilgungspläne zu schützen.</value>
   </data>
 </root>

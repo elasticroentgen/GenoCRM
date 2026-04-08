@@ -12,24 +12,15 @@
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM.Tests/GenoCRM.Tests.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM.Tests/GenoCRM.Tests.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM.Client/GenoCRM.Client.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM.Client/GenoCRM.Client.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AuditLog.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AuditLog.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/MemberDetails.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/MemberDetails.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/MemberConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/MemberConfiguration.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/PaymentConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/PaymentConfiguration.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/GenoDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/GenoDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/SeedData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/SeedData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Payment.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Payment.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/SubordinatedLoan.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/AuditHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/AuditHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/MemberService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/PaymentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/PaymentService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor.css" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Layout/NavMenu.razor.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/Home.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanOfferCreate.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanOfferCreate.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanOfferDetails.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanOfferDetails.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanProjectDetails.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanProjectDetails.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionDetails.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionDetails.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/LoanOffer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/LoanOffer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanPaymentPlanService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanPaymentPlanService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.de.resx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.resx" afterDir="false" />
     </list>
@@ -45,17 +36,13 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/621526284d3e4868b98948aff942206525763e57e194a27623b66c384466/ServiceProviderServiceExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AccessDenied.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Toolset" />
   </component>
@@ -70,29 +57,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.GenoCRM: http.executor": "Run",
-    ".NET Launch Settings Profile.GenoCRM: https.executor": "Run",
-    ".NET Project.GenoCRM.Client.executor": "Run",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/markus/dev/GenoCRM/GenoCRM.sln",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settings.ide.settings.web.browsers",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.GenoCRM: http.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.GenoCRM: https.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Project.GenoCRM.Client.executor&quot;: &quot;Run&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/markus/dev/GenoCRM/GenoCRM.sln&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.GenoCRM: https">
     <configuration name="GenoCRM.Client" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
@@ -224,13 +211,32 @@
       <workItem from="1755014859640" duration="1697000" />
       <workItem from="1756218214406" duration="412000" />
       <workItem from="1757421976254" duration="4531000" />
-      <workItem from="1772740595554" duration="10113000" />
+      <workItem from="1772740595554" duration="16904000" />
+      <workItem from="1775075838018" duration="3151000" />
     </task>
+    <task id="LOCAL-00001" summary="add loan system">
+      <option name="closed" value="true" />
+      <created>1772906127026</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772906127026</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add loan system">
+      <option name="closed" value="true" />
+      <created>1772906142122</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772906142122</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="UnknownFeatures">
     <option featureType="dependencySupport" implementationName="executable:docker" />
@@ -243,6 +249,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="add loan system" />
+    <option name="LAST_COMMIT_MESSAGE" value="add loan system" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

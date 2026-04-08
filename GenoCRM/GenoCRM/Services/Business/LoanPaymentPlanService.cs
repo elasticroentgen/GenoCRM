@@ -53,25 +53,8 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
             int totalPeriods = offer.TermMonths * periodsPerYear / 12;
             int monthsPerPeriod = 12 / periodsPerYear;
 
-            // Annuity calculation
-            // Rate = P × (r × (1+r)^n) / ((1+r)^n - 1)
             decimal principal = subscription.Amount;
             decimal periodicRate = offer.InterestRate / periodsPerYear;
-            decimal annuityRate;
-
-            if (periodicRate == 0)
-            {
-                annuityRate = principal / totalPeriods;
-            }
-            else
-            {
-                double r = (double)periodicRate;
-                int n = totalPeriods;
-                double factor = Math.Pow(1 + r, n);
-                annuityRate = principal * (decimal)(r * factor / (factor - 1));
-            }
-
-            annuityRate = Math.Round(annuityRate, 2);
 
             // Create plan
             var plan = new LoanPaymentPlan
@@ -90,43 +73,95 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
             var startDate = subscription.SubscriptionDate.AddMonths(offer.GracePeriodMonths);
             var entries = new List<LoanPaymentPlanEntry>();
 
-            for (int i = 1; i <= totalPeriods; i++)
+            if (offer.RepaymentType == RepaymentType.BulletLoan)
             {
-                var dueDate = startDate.AddMonths(i * monthsPerPeriod);
-                decimal interest = Math.Round(remainingBalance * periodicRate, 2);
-                decimal principalPayment;
-                decimal totalAmount;
-
-                if (i == totalPeriods)
+                // Bullet loan: interest-only payments, full principal repaid at end
+                for (int i = 1; i <= totalPeriods; i++)
                 {
-                    // Last period: pay remaining balance exactly
-                    principalPayment = remainingBalance;
-                    totalAmount = principalPayment + interest;
+                    var dueDate = startDate.AddMonths(i * monthsPerPeriod);
+                    decimal interest = Math.Round(principal * periodicRate, 2);
+                    decimal principalPayment = 0;
+
+                    if (i == totalPeriods)
+                    {
+                        // Last period: repay full principal + interest
+                        principalPayment = principal;
+                        remainingBalance = 0;
+                    }
+
+                    entries.Add(new LoanPaymentPlanEntry
+                    {
+                        LoanPaymentPlanId = plan.Id,
+                        PeriodNumber = i,
+                        DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc),
+                        PrincipalAmount = principalPayment,
+                        InterestAmount = interest,
+                        TotalAmount = Math.Round(principalPayment + interest, 2),
+                        RemainingBalance = i == totalPeriods ? 0 : principal,
+                        Status = PaymentPlanEntryStatus.Pending,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+            else
+            {
+                // Annuity calculation
+                // Rate = P × (r × (1+r)^n) / ((1+r)^n - 1)
+                decimal annuityRate;
+
+                if (periodicRate == 0)
+                {
+                    annuityRate = principal / totalPeriods;
                 }
                 else
                 {
-                    totalAmount = annuityRate;
-                    principalPayment = totalAmount - interest;
+                    double r = (double)periodicRate;
+                    int n = totalPeriods;
+                    double factor = Math.Pow(1 + r, n);
+                    annuityRate = principal * (decimal)(r * factor / (factor - 1));
                 }
 
-                remainingBalance -= principalPayment;
+                annuityRate = Math.Round(annuityRate, 2);
 
-                // Ensure remaining balance doesn't go negative due to rounding
-                if (remainingBalance < 0) remainingBalance = 0;
-
-                entries.Add(new LoanPaymentPlanEntry
+                for (int i = 1; i <= totalPeriods; i++)
                 {
-                    LoanPaymentPlanId = plan.Id,
-                    PeriodNumber = i,
-                    DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc),
-                    PrincipalAmount = principalPayment,
-                    InterestAmount = interest,
-                    TotalAmount = Math.Round(totalAmount, 2),
-                    RemainingBalance = Math.Round(remainingBalance, 2),
-                    Status = PaymentPlanEntryStatus.Pending,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
+                    var dueDate = startDate.AddMonths(i * monthsPerPeriod);
+                    decimal interest = Math.Round(remainingBalance * periodicRate, 2);
+                    decimal principalPayment;
+                    decimal totalAmount;
+
+                    if (i == totalPeriods)
+                    {
+                        // Last period: pay remaining balance exactly
+                        principalPayment = remainingBalance;
+                        totalAmount = principalPayment + interest;
+                    }
+                    else
+                    {
+                        totalAmount = annuityRate;
+                        principalPayment = totalAmount - interest;
+                    }
+
+                    remainingBalance -= principalPayment;
+
+                    // Ensure remaining balance doesn't go negative due to rounding
+                    if (remainingBalance < 0) remainingBalance = 0;
+
+                    entries.Add(new LoanPaymentPlanEntry
+                    {
+                        LoanPaymentPlanId = plan.Id,
+                        PeriodNumber = i,
+                        DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc),
+                        PrincipalAmount = principalPayment,
+                        InterestAmount = interest,
+                        TotalAmount = Math.Round(totalAmount, 2),
+                        RemainingBalance = Math.Round(remainingBalance, 2),
+                        Status = PaymentPlanEntryStatus.Pending,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
             }
 
             _context.LoanPaymentPlanEntries.AddRange(entries);

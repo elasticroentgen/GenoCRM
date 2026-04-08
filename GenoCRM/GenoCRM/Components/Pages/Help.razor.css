@@ -1,0 +1,111 @@
+.process-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.process-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+}
+
+.step-label {
+    font-size: 0.85rem;
+    text-align: center;
+    color: #495057;
+    max-width: 120px;
+}
+
+.step-arrow {
+    width: 30px;
+    height: 2px;
+    background-color: #adb5bd;
+    position: relative;
+    margin-bottom: 1.4rem;
+}
+
+.step-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -4px;
+    border: solid #adb5bd;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    transform: rotate(-45deg);
+}
+
+.help-tip {
+    background-color: #f8f9fa;
+    border-left: 4px solid #0d6efd;
+    padding: 0.75rem 1rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.9rem;
+}
+
+.step-details {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background-color: #fdfdfe;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+}
+
+.step-details h6 {
+    color: #0d6efd;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.step-details h6:first-child {
+    margin-top: 0;
+}
+
+.step-details p {
+    margin-bottom: 0.5rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.step-details ul {
+    font-size: 0.92rem;
+    margin-bottom: 0.5rem;
+}
+
+.formula-box {
+    background-color: #e9ecef;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    display: inline-block;
+}
+
+::deep .accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0c63e4;
+}
+
+::deep .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}

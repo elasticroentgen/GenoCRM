@@ -157,6 +157,9 @@ else
                 var totalInterest = entries.Sum(e => e.InterestAmount);
                 var totalPayment = entries.Sum(e => e.TotalAmount);
                 var paidEntries = entries.Count(e => e.Status == PaymentPlanEntryStatus.Paid);
+                var termYears = _subscription.LoanOffer.TermMonths / 12m;
+                var effectiveYield = termYears > 0 && _subscription.Amount > 0
+                    ? (totalInterest / _subscription.Amount) / termYears * 100 : 0;
 
                 <div class="card mb-4">
                     <div class="card-header">
@@ -174,6 +177,19 @@ else
                         <div class="mb-2">
                             <strong>@L["TotalAmount"]:</strong>
                             <p class="h5 mb-1">@FormattingService.FormatCurrency(totalPayment)</p>
+                        </div>
+                        <hr />
+                        <div class="mb-2">
+                            <strong>@L["ExpectedYield"]:</strong>
+                            <p class="mb-1">
+                                <span class="h5 text-success">@FormattingService.FormatCurrency(totalInterest)</span>
+                            </p>
+                        </div>
+                        <div class="mb-2">
+                            <strong>@L["YieldPerYear"]:</strong>
+                            <p class="mb-1">
+                                <span class="h5 text-primary">@effectiveYield.ToString("F2") %</span>
+                            </p>
                         </div>
                         <hr />
                         <div>

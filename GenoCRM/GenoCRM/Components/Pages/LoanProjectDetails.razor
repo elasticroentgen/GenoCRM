@@ -89,7 +89,10 @@ else
                     <div class="progress mb-2" style="height: 25px;">
                         <div class="progress-bar @GetProgressBarColor(_project.FinancingProgress)"
                              role="progressbar"
-                             style="width: @Math.Min(_project.FinancingProgress, 100)%">
+                             style="width: @(Math.Min(_project.FinancingProgress, 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"
+                             aria-valuenow="@_project.FinancingProgress"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
                             @_project.FinancingProgress.ToString("F1")%
                         </div>
                     </div>
@@ -142,7 +145,17 @@ else
                                     <td>@((offer.InterestRate * 100).ToString("F2"))%</td>
                                     <td>@offer.TermMonths @L["Months"]</td>
                                     <td>@GetLocalizedInterval(offer.PaymentInterval)</td>
-                                    <td>@offer.Subscriptions.Count</td>
+                                    @{
+                                        var activeSubs = offer.Subscriptions.Count(s => s.Status == LoanSubscriptionStatus.Active);
+                                        var inactiveSubs = offer.Subscriptions.Count(s => s.Status != LoanSubscriptionStatus.Active);
+                                    }
+                                    <td>
+                                        <span class="badge bg-success">@activeSubs</span>
+                                        @if (inactiveSubs > 0)
+                                        {
+                                            <span class="badge bg-secondary ms-1">@inactiveSubs</span>
+                                        }
+                                    </td>
                                     <td>
                                         <span class="badge bg-@GetOfferStatusColor(offer.Status)">
                                             @GetLocalizedOfferStatus(offer.Status)

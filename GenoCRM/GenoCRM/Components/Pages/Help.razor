@@ -1,0 +1,562 @@
+@page "/help"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Hilfe</PageTitle>
+
+<h1 class="mb-4"><i class="bi bi-question-circle me-2"></i>Hilfe &amp; Übersicht</h1>
+<p class="lead mb-4">Willkommen im Hilfecenter von GenoCRM. Hier finden Sie eine Übersicht aller Bereiche und deren Abläufe.</p>
+
+<div class="accordion" id="helpAccordion">
+
+    @* === Mitgliederverwaltung === *@
+    @{ var membersOpen = _openSection == "members"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(membersOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("members")'>
+                <i class="bi bi-people-fill me-2 text-primary"></i>
+                <strong>Mitgliederverwaltung</strong>
+            </button>
+        </h2>
+        @if (membersOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Verwalten Sie alle Mitglieder Ihrer Genossenschaft – von der Neuaufnahme bis zur Dokumentenverwaltung. Jedes Mitglied erhält eine automatisch generierte Mitgliedsnummer.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Anlegen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Bearbeiten</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Anteile zuordnen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Dokumente verwalten</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Mitglied anlegen</h6>
+                        <p>Wählen Sie den Mitgliedstyp: <strong>Natürliche Person</strong> (mit Anrede, Vor- und Nachname, Geburtsdatum) oder <strong>Unternehmen</strong> (mit Firmenname und Ansprechpartner). Pflichtangaben sind: E-Mail, Telefon, vollständige Adresse (Straße, PLZ, Ort, Land) und Beitrittsdatum. Bei der Anlage wird automatisch eine Mitgliedsnummer vergeben und eine Anfangsanzahl an Geschäftsanteilen zugewiesen.</p>
+
+                        <h6>Schritt 2 – Mitglied bearbeiten</h6>
+                        <p>Kontaktdaten und Adresse können jederzeit aktualisiert werden. Der Mitgliedstyp und die Mitgliedsnummer sind nach der Anlage nicht mehr änderbar. Der <strong>Status</strong> kann angepasst werden:</p>
+                        <ul>
+                            <li><strong>Aktiv</strong> – Volle Mitgliedsrechte</li>
+                            <li><strong>Inaktiv</strong> – Eingeschränkte Rechte</li>
+                            <li><strong>Gesperrt</strong> – Gesperrt (z.B. bei Streitigkeiten)</li>
+                            <li><strong>Abmeldung läuft</strong> – Mitglied ist im Austrittsverfahren</li>
+                            <li><strong>Ausgeschieden</strong> – Mitgliedschaft beendet (Austrittsdatum wird Pflicht)</li>
+                        </ul>
+
+                        <h6>Schritt 3 – Anteile zuordnen</h6>
+                        <p>Einem Mitglied können weitere Geschäftsanteile zugewiesen werden. <strong>Voraussetzung:</strong> Das Mitglied muss den Status „Aktiv" haben. Die maximale Anzahl an Anteilen pro Mitglied wird durch die Satzung begrenzt.</p>
+
+                        <h6>Schritt 4 – Dokumente verwalten</h6>
+                        <p>Laden Sie relevante Dokumente zum Mitglied hoch, z.B. Beitrittserklärung, Ausweiskopie oder Korrespondenz. Die Dokumente werden direkt beim Mitgliedsprofil gespeichert.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Satzungshinweis:</strong> Jedes Mitglied muss laut Satzung mindestens einen Geschäftsanteil zeichnen. Die maximale Anzahl ist in den Genossenschaftseinstellungen hinterlegt (Standard: 100).
+                    </div>
+
+                    <a href="members" class="btn btn-outline-primary btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zur Mitgliederverwaltung
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Geschäftsanteile === *@
+    @{ var sharesOpen = _openSection == "shares"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(sharesOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("shares")'>
+                <i class="bi bi-graph-up-arrow me-2 text-success"></i>
+                <strong>Geschäftsanteile</strong>
+            </button>
+        </h2>
+        @if (sharesOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Hier verwalten Sie die Geschäftsanteile Ihrer Genossenschaft – von der Zeichnung über die Einzahlung bis zur Konsolidierung.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Anteil erstellen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Zahlung erfassen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Übertragung</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Konsolidierung</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Anteil erstellen</h6>
+                        <p>Wählen Sie ein <strong>aktives Mitglied</strong> und legen Sie die Anzahl der Anteile fest (mindestens 1, maximal 1.000 pro Vorgang). Der Nennwert wird automatisch anhand der in der Satzung festgelegten Anteilshöhe berechnet (Standard: 250 € je Anteil). Es wird automatisch eine eindeutige <strong>Zertifikatsnummer</strong> vergeben. Das Ausgabedatum darf nicht in der Zukunft liegen und höchstens ein Jahr zurück.</p>
+
+                        <h6>Schritt 2 – Zahlung erfassen</h6>
+                        <p>Für jeden Anteil können Zahlungen erfasst werden. <strong>Teilzahlungen</strong> sind möglich – der offene Betrag wird automatisch berechnet. Ein Anteil gilt als „vollständig eingezahlt", sobald die Summe der Zahlungen den Gesamtwert erreicht. Bei der Erstellung eines Anteils wird automatisch eine Zahlungserinnerung an das Mitglied versendet.</p>
+
+                        <h6>Schritt 3 – Übertragung</h6>
+                        <p>Anteile können zwischen Mitgliedern übertragen werden (siehe Bereich „Anteilsübertragungen"). Der Anteil erhält dann den Status „Übertragen" und gilt beim empfangenden Mitglied als vollständig eingezahlt.</p>
+
+                        <h6>Schritt 4 – Konsolidierung</h6>
+                        <p>Mehrere Anteile eines Mitglieds können zusammengeführt werden, wenn die Voraussetzungen erfüllt sind. Dies vereinfacht die Verwaltung bei Mitgliedern mit vielen Einzelanteilen.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Statusübersicht:</strong> Ein Anteil kann folgende Status haben: <em>Aktiv</em> (Zahlung erwartet), <em>Gekündigt</em>, <em>Übertragen</em> (an anderes Mitglied) oder <em>Ausgesetzt</em>.
+                    </div>
+
+                    <a href="shares" class="btn btn-outline-success btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Geschäftsanteilen
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Anteilsübertragungen === *@
+    @{ var transfersOpen = _openSection == "transfers"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(transfersOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("transfers")'>
+                <i class="bi bi-arrow-left-right me-2 text-info"></i>
+                <strong>Anteilsübertragungen</strong>
+            </button>
+        </h2>
+        @if (transfersOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Übertragen Sie Geschäftsanteile zwischen Mitgliedern – z.B. bei Verkauf, Schenkung oder Erbschaft. Jede Übertragung durchläuft einen Genehmigungsprozess.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Übertragung anlegen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Genehmigung</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Abschließen</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Übertragung anlegen</h6>
+                        <p>Wählen Sie das <strong>abgebende Mitglied</strong>, das <strong>empfangende Mitglied</strong> und den zu übertragenden <strong>Anteil</strong>. Die gewünschte Anzahl darf die verfügbare Menge nicht übersteigen. <strong>Voraussetzungen:</strong></p>
+                        <ul>
+                            <li>Beide Mitglieder müssen den Status „Aktiv" haben</li>
+                            <li>Der Anteil muss den Status „Aktiv" haben (nicht gesperrt oder gekündigt)</li>
+                            <li>Das empfangende Mitglied darf die maximale Anteilsgrenze nicht überschreiten</li>
+                        </ul>
+                        <p>Der Status der Übertragung wird auf <strong>Ausstehend</strong> gesetzt.</p>
+
+                        <h6>Schritt 2 – Genehmigung</h6>
+                        <p>Ein berechtigter Benutzer prüft die Übertragung und genehmigt oder lehnt sie ab. Bei der Genehmigung werden das <strong>Genehmigungsdatum</strong> und der <strong>genehmigende Benutzer</strong> erfasst. Bei einer Ablehnung kann ein <strong>Ablehnungsgrund</strong> hinterlegt werden.</p>
+
+                        <h6>Schritt 3 – Abschließen</h6>
+                        <p>Nach der Genehmigung wird die Übertragung durchgeführt: Der Anteil wechselt den Besitzer, der ursprüngliche Anteil wird als „Übertragen" markiert und beim empfangenden Mitglied wird ggf. ein neuer Anteil angelegt. Das Abschlussdatum wird gesetzt.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Satzungshinweis:</strong> Eine Übertragung bedarf in der Regel der Zustimmung des Vorstands gemäß Satzung. Eine genehmigte Übertragung kann anschließend noch storniert werden, solange sie nicht abgeschlossen ist.
+                    </div>
+
+                    <a href="shares/transfers" class="btn btn-outline-info btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Übertragungen
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Dividenden === *@
+    @{ var dividendsOpen = _openSection == "dividends"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(dividendsOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("dividends")'>
+                <i class="bi bi-currency-euro me-2 text-warning"></i>
+                <strong>Dividenden</strong>
+            </button>
+        </h2>
+        @if (dividendsOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Berechnen und verwalten Sie die jährlichen Dividendenausschüttungen an Ihre Mitglieder auf Basis der eingezahlten Geschäftsanteile.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Berechnung</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Genehmigung</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Auszahlung</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Berechnung</h6>
+                        <p>Dividenden werden pro <strong>Geschäftsjahr</strong> berechnet. Sie können wahlweise für ein einzelnes Mitglied oder für <strong>alle Mitglieder auf einmal</strong> berechnet werden. Die Berechnung erfolgt nach der Formel:</p>
+                        <div class="formula-box">
+                            Dividende = Eingezahlter Anteilswert × Dividendensatz
+                        </div>
+                        <p>Der <strong>Basisbetrag</strong> (eingezahltes Kapital) und der angewandte <strong>Zinssatz</strong> werden gespeichert. Der Status wird auf „Festgestellt" gesetzt.</p>
+
+                        <h6>Schritt 2 – Genehmigung</h6>
+                        <p>Die berechneten Dividenden werden geprüft und genehmigt. Vor der Genehmigung können bei Bedarf steuerliche Abzüge (<strong>Quellensteuer</strong>) erfasst werden. Der <strong>Nettobetrag</strong> wird automatisch berechnet (Dividende abzüglich Steuer).</p>
+
+                        <h6>Schritt 3 – Auszahlung</h6>
+                        <p>Nach der Genehmigung wird die Dividende zur Auszahlung freigegeben. Das <strong>Auszahlungsdatum</strong> wird erfasst und der Status auf „Ausgezahlt" gesetzt. Die Mitglieder werden per Nachricht über die Ausschüttung informiert.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Statusübersicht:</strong> <em>Festgestellt</em> → <em>Genehmigt</em> → <em>Ausgezahlt</em>. Eine Dividende kann auch storniert werden, solange sie noch nicht ausgezahlt wurde.
+                    </div>
+
+                    <a href="dividends" class="btn btn-outline-warning btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Dividenden
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Darlehensprojekte === *@
+    @{ var loansOpen = _openSection == "loans"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(loansOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("loans")'>
+                <i class="bi bi-bank me-2 text-secondary"></i>
+                <strong>Darlehensprojekte</strong>
+            </button>
+        </h2>
+        @if (loansOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Erstellen und verwalten Sie Darlehensprojekte zur Finanzierung durch Ihre Mitglieder. Ein Projekt bündelt mehrere Darlehensangebote mit unterschiedlichen Konditionen.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Projekt anlegen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Angebote erstellen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Zeichnungen annehmen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Tilgungsplan</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">5</div>
+                            <div class="step-label">Rückzahlungen</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Projekt anlegen</h6>
+                        <p>Erstellen Sie ein neues Darlehensprojekt mit <strong>Titel</strong>, <strong>Startdatum</strong>, <strong>Finanzierungsziel</strong> (Betrag in €) und optionaler Beschreibung. Das Projekt startet im Status <strong>Entwurf</strong> und kann bearbeitet werden, bevor es aktiviert wird.</p>
+                        <p><strong>Projektstatus:</strong> <em>Entwurf</em> → <em>Aktiv</em> (offen für Zeichnungen) → <em>Geschlossen</em> oder <em>Abgebrochen</em></p>
+
+                        <h6>Schritt 2 – Darlehensangebote erstellen</h6>
+                        <p>Innerhalb eines Projekts können <strong>mehrere Angebote</strong> mit unterschiedlichen Konditionen erstellt werden:</p>
+                        <ul>
+                            <li><strong>Zinssatz</strong> – Jährlicher Zinssatz (z.B. 4,5 %)</li>
+                            <li><strong>Laufzeit</strong> – Gesamtlaufzeit in Monaten</li>
+                            <li><strong>Zahlungsintervall</strong> – Monatlich, vierteljährlich, halbjährlich oder jährlich</li>
+                            <li><strong>Tilgungsfreie Zeit</strong> – Monate vor der ersten Rückzahlung (optional)</li>
+                            <li><strong>Mindest-/Höchstbetrag</strong> – Zeichnungsgrenzen pro Mitglied (optional)</li>
+                        </ul>
+                        <p>Rückzahlung erfolgt nach dem <strong>Annuitätenverfahren</strong> (gleichbleibende Raten aus Zins und Tilgung).</p>
+
+                        <h6>Schritt 3 – Zeichnungen annehmen</h6>
+                        <p>Mitglieder zeichnen ein Angebot mit einem bestimmten <strong>Betrag</strong> und geben ihre <strong>Bankverbindung</strong> (IBAN, BIC, Kontoinhaber) an – die IBAN wird automatisch validiert. Jede Zeichnung erhält eine eindeutige Zeichnungsnummer. Der Betrag muss ggf. die im Angebot definierten Grenzen einhalten. Der <strong>Finanzierungsfortschritt</strong> des Projekts wird anhand aller Zeichnungen berechnet und als Fortschrittsbalken angezeigt.</p>
+
+                        <h6>Schritt 4 – Tilgungsplan</h6>
+                        <p>Für jede Zeichnung wird ein detaillierter <strong>Tilgungsplan</strong> nach dem Annuitätenverfahren generiert. Jede Planposition enthält:</p>
+                        <ul>
+                            <li><strong>Periodennummer</strong> und <strong>Fälligkeitsdatum</strong></li>
+                            <li><strong>Tilgungsanteil</strong> und <strong>Zinsanteil</strong></li>
+                            <li><strong>Gesamtrate</strong> und <strong>Restschuld</strong></li>
+                        </ul>
+                        <p>Eine etwaige tilgungsfreie Zeit verschiebt das Startdatum der ersten Rate entsprechend.</p>
+
+                        <h6>Schritt 5 – Rückzahlungen verfolgen</h6>
+                        <p>Die fälligen Rückzahlungen werden im Rückzahlungs-Dashboard angezeigt. Einzelne Raten können dort als „bezahlt" markiert werden (siehe nächster Abschnitt).</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Tipp:</strong> Der Finanzierungsfortschritt wird farblich dargestellt: <span class="text-danger">Rot</span> (&lt; 50 %), <span class="text-warning">Gelb</span> (50–75 %), <span class="text-primary">Blau</span> (75–100 %), <span class="text-success">Grün</span> (≥ 100 %).
+                    </div>
+
+                    <a href="loan-projects" class="btn btn-outline-secondary btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Darlehensprojekten
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Rückzahlungs-Dashboard === *@
+    @{ var repaymentsOpen = _openSection == "repayments"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(repaymentsOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("repayments")'>
+                <i class="bi bi-calendar-check me-2 text-primary"></i>
+                <strong>Rückzahlungs-Dashboard</strong>
+            </button>
+        </h2>
+        @if (repaymentsOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Behalten Sie den Überblick über alle anstehenden und erfolgten Rückzahlungen aus den Darlehensprojekten – monatsweise aufbereitet für einfache Verwaltung.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Monat wählen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Zahlungen prüfen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Als bezahlt markieren</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Monat und Jahr wählen</h6>
+                        <p>Wählen Sie über die Dropdown-Felder den gewünschten <strong>Monat</strong> und das <strong>Jahr</strong> aus. Das Dashboard lädt automatisch alle fälligen Rückzahlungen für den gewählten Zeitraum.</p>
+
+                        <h6>Schritt 2 – Zahlungen prüfen</h6>
+                        <p>Die Übersicht zeigt alle fälligen Raten als Tabelle mit folgenden Informationen:</p>
+                        <ul>
+                            <li><strong>Mitglied</strong> – Name des Darlehensnehmers</li>
+                            <li><strong>Zeichnungsnummer</strong> – Zuordnung zur Zeichnung</li>
+                            <li><strong>Bankverbindung</strong> – IBAN, BIC und Kontoinhaber für die Überweisung</li>
+                            <li><strong>Verwendungszweck</strong> – Automatisch generiert (z.B. „Tilgung ZN-001 – Projekt A – Periode 3")</li>
+                            <li><strong>Betrag</strong> – Gesamtrate der Periode</li>
+                            <li><strong>Status</strong> – Ausstehend, Fällig, Bezahlt oder Überfällig</li>
+                        </ul>
+                        <p>Oben werden Statistiken angezeigt: <strong>Gesamtbetrag</strong> des Monats und <strong>Anzahl der Zahlungen</strong>.</p>
+
+                        <h6>Schritt 3 – Als bezahlt markieren</h6>
+                        <p>Jede einzelne Rate kann über den Button „Als bezahlt markieren" bestätigt werden. Alternativ können Sie mit <strong>„Alle als bezahlt markieren"</strong> sämtliche Zahlungen des Monats auf einmal abschließen (nach Bestätigung). Das Zahlungsdatum wird automatisch erfasst.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Tipp:</strong> Nutzen Sie die Bankverbindungs-Informationen in der Tabelle, um Sammelüberweisungen effizient vorzubereiten. Überfällige Zahlungen werden farblich hervorgehoben.
+                    </div>
+
+                    <a href="loan-repayments" class="btn btn-outline-primary btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zum Rückzahlungs-Dashboard
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Nachrichten (Admin) === *@
+    @{ var messagesOpen = _openSection == "messages"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(messagesOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("messages")'>
+                <i class="bi bi-envelope me-2 text-danger"></i>
+                <strong>Nachrichten</strong>
+                <span class="badge bg-secondary ms-2">Admin</span>
+            </button>
+        </h2>
+        @if (messagesOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Versenden und verwalten Sie Nachrichten an Ihre Mitglieder über verschiedene Kommunikationskanäle. Viele Benachrichtigungen werden auch automatisch ausgelöst (z.B. Zahlungserinnerungen bei neuen Anteilen).</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Nachricht erstellen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Kanal wählen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Versenden</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Nachricht erstellen</h6>
+                        <p>Erstellen Sie eine Nachricht mit <strong>Betreff</strong> und <strong>Inhalt</strong>. Sie können Vorlagen nutzen, die Platzhalter für Mitgliedsdaten enthalten. Wählen Sie den <strong>Nachrichtentyp</strong>:</p>
+                        <ul>
+                            <li>Zahlungserinnerung</li>
+                            <li>Anteilsübertragung</li>
+                            <li>Dividendenbenachrichtigung</li>
+                            <li>Einladung zur Generalversammlung</li>
+                            <li>Willkommensnachricht</li>
+                            <li>Allgemeine Rundschreiben</li>
+                            <li>und weitere...</li>
+                        </ul>
+
+                        <h6>Schritt 2 – Kanal wählen</h6>
+                        <p>Wählen Sie den Versandkanal: <strong>E-Mail</strong>, <strong>SMS</strong>, <strong>WhatsApp</strong> oder <strong>Push-Nachricht</strong>. Mitglieder können in ihren Einstellungen bevorzugte Kanäle pro Nachrichtentyp festlegen.</p>
+
+                        <h6>Schritt 3 – Versenden</h6>
+                        <p>Die Nachricht wird in die Warteschlange eingereiht und versendet. Der <strong>Zustellstatus</strong> wird nachverfolgt:</p>
+                        <ul>
+                            <li><em>Ausstehend</em> → <em>Warteschlange</em> → <em>Wird gesendet</em> → <em>Gesendet</em> → <em>Zugestellt</em> → <em>Gelesen</em></li>
+                        </ul>
+                        <p>Bei fehlgeschlagenen Zustellungen erfolgt ein automatischer <strong>Wiederholungsversuch</strong>. Die Statistiken zeigen Gesamt-, Zugestellt-, Ausstehend- und Fehlerzahlen.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Hinweis:</strong> Dieser Bereich ist nur für Administratoren zugänglich. Automatische Nachrichten (z.B. Zahlungserinnerungen) werden systemseitig versendet und hier ebenfalls angezeigt.
+                    </div>
+
+                    <a href="messages" class="btn btn-outline-danger btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Nachrichten
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* === Prüfprotokoll (Admin) === *@
+    @{ var auditOpen = _openSection == "audit"; }
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(auditOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("audit")'>
+                <i class="bi bi-shield-check me-2 text-dark"></i>
+                <strong>Prüfprotokoll</strong>
+                <span class="badge bg-secondary ms-2">Admin</span>
+            </button>
+        </h2>
+        @if (auditOpen)
+        {
+            <div class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <p>Das Prüfprotokoll zeichnet sämtliche relevante Aktionen im System lückenlos auf – für volle Transparenz, Nachvollziehbarkeit und Revisionssicherheit.</p>
+
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Filter setzen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Einträge prüfen</div>
+                        </div>
+                        <div class="step-arrow"></div>
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Details einsehen</div>
+                        </div>
+                    </div>
+
+                    <div class="step-details">
+                        <h6>Schritt 1 – Filter setzen</h6>
+                        <p>Grenzen Sie die Ergebnisse ein durch Kombination folgender Filter:</p>
+                        <ul>
+                            <li><strong>Entitätstyp</strong> – z.B. Mitglied, Geschäftsanteil, Darlehensprojekt, Zeichnung</li>
+                            <li><strong>Benutzer</strong> – Wer hat die Aktion ausgeführt</li>
+                            <li><strong>Zeitraum</strong> – Von-/Bis-Datum</li>
+                        </ul>
+
+                        <h6>Schritt 2 – Einträge prüfen</h6>
+                        <p>Die Ergebnisse werden als paginierte Tabelle angezeigt (50 Einträge pro Seite) mit:</p>
+                        <ul>
+                            <li><strong>Zeitstempel</strong> – Wann die Aktion stattfand</li>
+                            <li><strong>Benutzer</strong> – Wer die Aktion durchgeführt hat</li>
+                            <li><strong>Aktion</strong> – Farblich markiert: <span class="text-success">Erstellen</span>, <span class="text-primary">Bearbeiten</span>, <span class="text-danger">Löschen</span>, Übertragen, Genehmigen, Stornieren, Bezahlen, Sperren, Reaktivieren</li>
+                            <li><strong>Entität</strong> – Betroffenes Objekt mit Beschreibung</li>
+                            <li><strong>Berechtigung</strong> – Welche Berechtigung für die Aktion erforderlich war</li>
+                        </ul>
+
+                        <h6>Schritt 3 – Details einsehen</h6>
+                        <p>Über den Detail-Button können Sie die konkreten <strong>Änderungen</strong> einsehen: Welche Felder wurden geändert, was waren die alten und neuen Werte? Zusätzlich werden <strong>IP-Adresse</strong> und <strong>Browser-Informationen</strong> des Benutzers protokolliert.</p>
+                    </div>
+
+                    <div class="help-tip mt-3">
+                        <strong>Hinweis:</strong> Das Prüfprotokoll ist nur für berechtigte Benutzer zugänglich (Berechtigung „ViewAuditLogs"). Einträge können nicht bearbeitet oder gelöscht werden und dienen der Revisionssicherheit.
+                    </div>
+
+                    <a href="audit-log" class="btn btn-outline-dark btn-sm mt-3">
+                        <i class="bi bi-arrow-right me-1"></i>Zum Prüfprotokoll
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@code {
+    private string? _openSection;
+
+    private void Toggle(string id)
+    {
+        _openSection = _openSection == id ? null : id;
+    }
+}

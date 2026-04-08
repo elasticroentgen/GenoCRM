@@ -54,7 +54,8 @@ public enum PaymentInterval
 
 public enum RepaymentType
 {
-    Annuity
+    Annuity,
+    BulletLoan
 }
 
 public enum LoanOfferStatus

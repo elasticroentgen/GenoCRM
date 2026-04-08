@@ -1591,6 +1591,9 @@
   <data name="Annuity" xml:space="preserve">
     <value>Annuity</value>
   </data>
+  <data name="BulletLoan" xml:space="preserve">
+    <value>Bullet Loan</value>
+  </data>
   <data name="ProjectNumber" xml:space="preserve">
     <value>Project Number</value>
   </data>
@@ -1740,5 +1743,20 @@
   </data>
   <data name="MarkAllAsPaidConfirm" xml:space="preserve">
     <value>Are you sure you want to mark all entries for this month as paid?</value>
+  </data>
+  <data name="ExpectedYield" xml:space="preserve">
+    <value>Expected Yield</value>
+  </data>
+  <data name="TotalReturn" xml:space="preserve">
+    <value>Total Return</value>
+  </data>
+  <data name="YieldPerYear" xml:space="preserve">
+    <value>Yield p.a.</value>
+  </data>
+  <data name="ExampleInvestment" xml:space="preserve">
+    <value>Example Investment</value>
+  </data>
+  <data name="EditLimitedActiveSubscriptions" xml:space="preserve">
+    <value>This offer has active subscriptions. Only the title and status can be changed to protect existing payment plans.</value>
   </data>
 </root>
