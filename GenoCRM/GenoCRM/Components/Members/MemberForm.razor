@@ -206,6 +206,7 @@
                     <div class="mb-3">
                         <label class="form-label">@SharedLocalizer["Status"]</label>
                         <InputSelect @bind-Value="_member.Status" class="form-select">
+                            <option value="@MemberStatus.Applied">@SharedLocalizer["Applied"]</option>
                             <option value="@MemberStatus.Active">@SharedLocalizer["Active"]</option>
                             <option value="@MemberStatus.Inactive">@SharedLocalizer["Inactive"]</option>
                             <option value="@MemberStatus.Suspended">@SharedLocalizer["Suspended"]</option>

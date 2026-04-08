@@ -83,6 +83,7 @@ public class Member
 
 public enum MemberStatus
 {
+    Applied,
     Active,
     Inactive,
     Suspended,

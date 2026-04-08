@@ -185,6 +185,9 @@
   <data name="Active" xml:space="preserve">
     <value>Aktiv</value>
   </data>
+  <data name="Applied" xml:space="preserve">
+    <value>Beantragt</value>
+  </data>
   <data name="Inactive" xml:space="preserve">
     <value>Inaktiv</value>
   </data>
