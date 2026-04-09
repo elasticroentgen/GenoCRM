@@ -1,12 +1,10 @@
 @using GenoCRM.Models.Domain
-@using GenoCRM.Services.Business
 @using GenoCRM.Services.Localization
-@inject ILoanSubscriptionService SubscriptionService
 @inject IStringLocalizer<GenoCRM.SharedResource> L
 @inject IFormattingService FormattingService
 @inject NavigationManager Navigation
 
-@if (_subscriptions != null && _subscriptions.Any())
+@if (Subscriptions != null && Subscriptions.Any())
 {
     <div class="card mt-4">
         <div class="card-header">
@@ -27,7 +25,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var sub in _subscriptions)
+                        @foreach (var sub in Subscriptions)
                         {
                             <tr>
                                 <td>@sub.SubscriptionNumber</td>
@@ -55,21 +53,7 @@
 }
 
 @code {
-    [Parameter] public int MemberId { get; set; }
-
-    private IEnumerable<LoanSubscription>? _subscriptions;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _subscriptions = await SubscriptionService.GetSubscriptionsByMemberIdAsync(MemberId);
-        }
-        catch
-        {
-            _subscriptions = Enumerable.Empty<LoanSubscription>();
-        }
-    }
+    [Parameter] public IEnumerable<LoanSubscription>? Subscriptions { get; set; }
 
     private void ViewSubscription(int id) => Navigation.NavigateTo($"/loan-subscriptions/{id}");
 

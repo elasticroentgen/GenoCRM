@@ -284,7 +284,7 @@ else
         </div>
         
         <!-- Loan Subscriptions Section -->
-        <MemberLoanSubscriptions MemberId="@MemberId" />
+        <MemberLoanSubscriptions Subscriptions="@_loanSubscriptions" />
 
         <!-- Documents Section -->
         <div class="card mt-4">
@@ -303,16 +303,20 @@ else
     
     private Member? _member;
     private IEnumerable<CooperativeShare>? _shares;
+    private IEnumerable<LoanSubscription>? _loanSubscriptions;
     private int _totalShares;
     private int _activeShares;
     private decimal _totalShareValue;
     private bool _canConsolidate;
     private ShareConsolidationModal _consolidationModal = null!;
 
+    [Inject] private ILoanSubscriptionService LoanSubscriptionService { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadMemberDetails();
         await LoadMemberShares();
+        await LoadLoanSubscriptions();
         await CheckConsolidationAvailability();
     }
 
@@ -390,6 +394,18 @@ else
     private void ViewDividends()
     {
         Navigation.NavigateTo($"/dividends?memberId={MemberId}");
+    }
+
+    private async Task LoadLoanSubscriptions()
+    {
+        try
+        {
+            _loanSubscriptions = await LoanSubscriptionService.GetSubscriptionsByMemberIdAsync(MemberId);
+        }
+        catch
+        {
+            _loanSubscriptions = Enumerable.Empty<LoanSubscription>();
+        }
     }
 
     private async Task CheckConsolidationAvailability()
