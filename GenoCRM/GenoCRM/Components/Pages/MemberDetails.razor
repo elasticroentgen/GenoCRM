@@ -427,10 +427,13 @@ else
     {
         return status switch
         {
+            MemberStatus.Applied => "info",
             MemberStatus.Active => "success",
             MemberStatus.Inactive => "warning",
             MemberStatus.Suspended => "danger",
+            MemberStatus.Offboarding => "warning",
             MemberStatus.Terminated => "secondary",
+            MemberStatus.Locked => "dark",
             _ => "secondary"
         };
     }
@@ -451,10 +454,13 @@ else
     {
         return status switch
         {
+            MemberStatus.Applied => SharedLocalizer["Applied"],
             MemberStatus.Active => SharedLocalizer["Active"],
             MemberStatus.Inactive => SharedLocalizer["Inactive"],
             MemberStatus.Suspended => MembersLocalizer["Suspended"],
+            MemberStatus.Offboarding => SharedLocalizer["Offboarding"],
             MemberStatus.Terminated => SharedLocalizer["Terminated"],
+            MemberStatus.Locked => SharedLocalizer["Locked"],
             _ => status.ToString()
         };
     }

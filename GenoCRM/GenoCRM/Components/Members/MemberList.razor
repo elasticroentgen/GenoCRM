@@ -67,10 +67,12 @@
     <div class="col-md-6">
         <select class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
             <option value="">@SharedLocalizer["AllStatus"]</option>
+            <option value="Applied">@SharedLocalizer["Applied"]</option>
             <option value="Active">@SharedLocalizer["Active"]</option>
             <option value="Inactive">@SharedLocalizer["Inactive"]</option>
             <option value="Suspended">@SharedLocalizer["Suspended"]</option>
             <option value="Offboarding">@SharedLocalizer["Offboarding"]</option>
+            <option value="Locked">@SharedLocalizer["Locked"]</option>
         </select>
     </div>
 </div>
