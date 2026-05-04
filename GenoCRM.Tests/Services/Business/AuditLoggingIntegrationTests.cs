@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
+using GenoCRM.Services.Integration;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -77,6 +78,8 @@ public class AuditLoggingIntegrationTests : IDisposable
         services.AddSingleton(_mockHttpContextAccessor.Object);
         
         // Add business services
+        services.AddScoped<IFiscalYearService, FiscalYearService>();
+        services.AddSingleton(new Mock<IListmonkService>().Object);
         services.AddScoped<IMemberService, MemberService>();
         services.AddScoped<IShareService, ShareService>();
         services.AddScoped<IShareConsolidationService, ShareConsolidationService>();
