@@ -188,9 +188,6 @@
   <data name="Active" xml:space="preserve">
     <value>Aktiv</value>
   </data>
-  <data name="Applied" xml:space="preserve">
-    <value>Beantragt</value>
-  </data>
   <data name="Inactive" xml:space="preserve">
     <value>Inaktiv</value>
   </data>
@@ -658,9 +655,6 @@
   <data name="Pending" xml:space="preserve">
     <value>Ausstehend</value>
   </data>
-  <data name="Approved" xml:space="preserve">
-    <value>Genehmigt</value>
-  </data>
   <data name="Completed" xml:space="preserve">
     <value>Abgeschlossen</value>
   </data>
@@ -822,9 +816,6 @@
   <data name="ConsolidationNotesPlaceholder" xml:space="preserve">
     <value>Optionale Notizen zu dieser Konsolidierung...</value>
   </data>
-  <data name="PartiallyPaid" xml:space="preserve">
-    <value>Teilweise bezahlt</value>
-  </data>
   <data name="ConsolidationPartiallyPaidWarning" xml:space="preserve">
     <value>Einige Anteile sind nicht vollständig bezahlt. Ausstehende Beträge werden im neuen Zertifikat zusammengefasst.</value>
   </data>
@@ -842,9 +833,6 @@
   </data>
   <data name="ErrorConsolidatingShares" xml:space="preserve">
     <value>Fehler beim Zusammenfassen der Anteile: {0}</value>
-  </data>
-  <data name="TotalQuantity" xml:space="preserve">
-    <value>Gesamtmenge</value>
   </data>
   <data name="Currency" xml:space="preserve">
     <value>€{0:F2}</value>
@@ -891,9 +879,6 @@
   <data name="GeneralAssemblyNotice" xml:space="preserve">
     <value>Generalversammlungseinladung</value>
   </data>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value>Willkommensnachricht</value>
-  </data>
   <data name="ShareCancellationConfirmation" xml:space="preserve">
     <value>Anteilskündigungsbestätigung</value>
   </data>
@@ -903,17 +888,11 @@
   <data name="GeneralBroadcast" xml:space="preserve">
     <value>Allgemeine Rundnachricht</value>
   </data>
-  <data name="Email" xml:space="preserve">
-    <value>E-Mail</value>
-  </data>
   <data name="WhatsApp" xml:space="preserve">
     <value>WhatsApp</value>
   </data>
   <data name="SMS" xml:space="preserve">
     <value>SMS</value>
-  </data>
-  <data name="Pending" xml:space="preserve">
-    <value>Ausstehend</value>
   </data>
   <data name="Queued" xml:space="preserve">
     <value>In Warteschlange</value>
@@ -929,9 +908,6 @@
   </data>
   <data name="Failed" xml:space="preserve">
     <value>Fehlgeschlagen</value>
-  </data>
-  <data name="Cancelled" xml:space="preserve">
-    <value>Abgebrochen</value>
   </data>
   <data name="SentAt" xml:space="preserve">
     <value>Gesendet am</value>
@@ -971,17 +947,8 @@
   </data>
 
   <!-- Share Creation -->
-  <data name="NewShare" xml:space="preserve">
-    <value>Neuer Anteil</value>
-  </data>
   <data name="CreateShare" xml:space="preserve">
     <value>Anteil erstellen</value>
-  </data>
-  <data name="ShareInformation" xml:space="preserve">
-    <value>Anteilsinformationen</value>
-  </data>
-  <data name="SelectMember" xml:space="preserve">
-    <value>Mitglied auswählen</value>
   </data>
   <data name="MinimumQuantityNote" xml:space="preserve">
     <value>Mindestens 1 Anteil erforderlich</value>
@@ -1003,12 +970,6 @@
   </data>
   <data name="ShareSummary" xml:space="preserve">
     <value>Anteilsübersicht</value>
-  </data>
-  <data name="TotalValue" xml:space="preserve">
-    <value>Gesamtwert</value>
-  </data>
-  <data name="PaymentStatus" xml:space="preserve">
-    <value>Zahlungsstatus</value>
   </data>
   <data name="Unpaid" xml:space="preserve">
     <value>Unbezahlt</value>
@@ -1323,9 +1284,6 @@
   </data>
   <data name="Download" xml:space="preserve">
     <value>Herunterladen</value>
-  </data>
-  <data name="View" xml:space="preserve">
-    <value>Anzeigen</value>
   </data>
   <data name="FileName" xml:space="preserve">
     <value>Dateiname</value>
@@ -1749,9 +1707,6 @@
   </data>
   <data name="NoEntriesForMonth" xml:space="preserve">
     <value>Keine Rückzahlungseinträge für diesen Monat.</value>
-  </data>
-  <data name="MarkAsPaid" xml:space="preserve">
-    <value>Als bezahlt markieren</value>
   </data>
   <data name="MarkAllAsPaid" xml:space="preserve">
     <value>Alle als bezahlt markieren</value>

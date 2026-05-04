@@ -5,6 +5,7 @@ using Moq;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
+using GenoCRM.Services.Integration;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Xunit;
@@ -20,6 +21,7 @@ public class MemberServiceTerminationTests : IDisposable
     private readonly Mock<IFiscalYearService> _mockFiscalYearService;
     private readonly Mock<IAuditService> _mockAuditService;
     private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+    private readonly Mock<IListmonkService> _mockListmonkService;
     private readonly MemberService _memberService;
 
     public MemberServiceTerminationTests()
@@ -35,6 +37,7 @@ public class MemberServiceTerminationTests : IDisposable
         _mockFiscalYearService = new Mock<IFiscalYearService>();
         _mockAuditService = new Mock<IAuditService>();
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        _mockListmonkService = new Mock<IListmonkService>();
 
         // Setup HTTP context with mock user
         var mockHttpContext = new Mock<HttpContext>();
@@ -43,8 +46,8 @@ public class MemberServiceTerminationTests : IDisposable
         mockHttpContext.Setup(x => x.User).Returns(mockUser.Object);
         _mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(mockHttpContext.Object);
 
-        _memberService = new MemberService(_context, _mockLogger.Object, _mockConfiguration.Object, 
-            _mockShareService.Object, _mockFiscalYearService.Object, _mockAuditService.Object, _mockHttpContextAccessor.Object);
+        _memberService = new MemberService(_context, _mockLogger.Object, _mockConfiguration.Object,
+            _mockShareService.Object, _mockFiscalYearService.Object, _mockAuditService.Object, _mockHttpContextAccessor.Object, _mockListmonkService.Object);
 
         // Setup fiscal year service defaults
         _mockFiscalYearService.Setup(x => x.GetFiscalYearEnd(It.IsAny<int>()))

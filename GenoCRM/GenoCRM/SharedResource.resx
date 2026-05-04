@@ -188,9 +188,6 @@
   <data name="Active" xml:space="preserve">
     <value>Active</value>
   </data>
-  <data name="Applied" xml:space="preserve">
-    <value>Applied</value>
-  </data>
   <data name="Inactive" xml:space="preserve">
     <value>Inactive</value>
   </data>
@@ -658,9 +655,6 @@
   <data name="Pending" xml:space="preserve">
     <value>Pending</value>
   </data>
-  <data name="Approved" xml:space="preserve">
-    <value>Approved</value>
-  </data>
   <data name="Completed" xml:space="preserve">
     <value>Completed</value>
   </data>
@@ -822,9 +816,6 @@
   <data name="ConsolidationNotesPlaceholder" xml:space="preserve">
     <value>Optional notes about this consolidation...</value>
   </data>
-  <data name="PartiallyPaid" xml:space="preserve">
-    <value>Partially Paid</value>
-  </data>
   <data name="ConsolidationPartiallyPaidWarning" xml:space="preserve">
     <value>Some shares are not fully paid. Outstanding amounts will be combined in the new certificate.</value>
   </data>
@@ -842,9 +833,6 @@
   </data>
   <data name="ErrorConsolidatingShares" xml:space="preserve">
     <value>Error consolidating shares: {0}</value>
-  </data>
-  <data name="TotalQuantity" xml:space="preserve">
-    <value>Total Quantity</value>
   </data>
   <data name="Currency" xml:space="preserve">
     <value>€{0:F2}</value>
@@ -891,9 +879,6 @@
   <data name="GeneralAssemblyNotice" xml:space="preserve">
     <value>General Assembly Notice</value>
   </data>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value>Welcome Message</value>
-  </data>
   <data name="ShareCancellationConfirmation" xml:space="preserve">
     <value>Share Cancellation Confirmation</value>
   </data>
@@ -903,17 +888,11 @@
   <data name="GeneralBroadcast" xml:space="preserve">
     <value>General Broadcast</value>
   </data>
-  <data name="Email" xml:space="preserve">
-    <value>Email</value>
-  </data>
   <data name="WhatsApp" xml:space="preserve">
     <value>WhatsApp</value>
   </data>
   <data name="SMS" xml:space="preserve">
     <value>SMS</value>
-  </data>
-  <data name="Pending" xml:space="preserve">
-    <value>Pending</value>
   </data>
   <data name="Queued" xml:space="preserve">
     <value>Queued</value>
@@ -929,9 +908,6 @@
   </data>
   <data name="Failed" xml:space="preserve">
     <value>Failed</value>
-  </data>
-  <data name="Cancelled" xml:space="preserve">
-    <value>Cancelled</value>
   </data>
   <data name="SentAt" xml:space="preserve">
     <value>Sent At</value>
@@ -971,17 +947,8 @@
   </data>
 
   <!-- Share Creation -->
-  <data name="NewShare" xml:space="preserve">
-    <value>New Share</value>
-  </data>
   <data name="CreateShare" xml:space="preserve">
     <value>Create Share</value>
-  </data>
-  <data name="ShareInformation" xml:space="preserve">
-    <value>Share Information</value>
-  </data>
-  <data name="SelectMember" xml:space="preserve">
-    <value>Select Member</value>
   </data>
   <data name="MinimumQuantityNote" xml:space="preserve">
     <value>Minimum 1 share required</value>
@@ -1003,12 +970,6 @@
   </data>
   <data name="ShareSummary" xml:space="preserve">
     <value>Share Summary</value>
-  </data>
-  <data name="TotalValue" xml:space="preserve">
-    <value>Total Value</value>
-  </data>
-  <data name="PaymentStatus" xml:space="preserve">
-    <value>Payment Status</value>
   </data>
   <data name="Unpaid" xml:space="preserve">
     <value>Unpaid</value>
@@ -1323,9 +1284,6 @@
   </data>
   <data name="Download" xml:space="preserve">
     <value>Download</value>
-  </data>
-  <data name="View" xml:space="preserve">
-    <value>View</value>
   </data>
   <data name="FileName" xml:space="preserve">
     <value>File Name</value>
@@ -1749,9 +1707,6 @@
   </data>
   <data name="NoEntriesForMonth" xml:space="preserve">
     <value>No repayment entries for this month.</value>
-  </data>
-  <data name="MarkAsPaid" xml:space="preserve">
-    <value>Mark as Paid</value>
   </data>
   <data name="MarkAllAsPaid" xml:space="preserve">
     <value>Mark All as Paid</value>

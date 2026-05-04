@@ -5,6 +5,7 @@ using Moq;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
+using GenoCRM.Services.Integration;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -19,6 +20,7 @@ public class MemberServiceEdgeCasesTests : IDisposable
     private readonly Mock<IFiscalYearService> _mockFiscalYearService;
     private readonly Mock<IAuditService> _mockAuditService;
     private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+    private readonly Mock<IListmonkService> _mockListmonkService;
     private readonly MemberService _memberService;
 
     public MemberServiceEdgeCasesTests()
@@ -46,17 +48,19 @@ public class MemberServiceEdgeCasesTests : IDisposable
         _mockFiscalYearService = new Mock<IFiscalYearService>();
         _mockAuditService = new Mock<IAuditService>();
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        _mockListmonkService = new Mock<IListmonkService>();
 
         SetupDefaultMocks();
 
         _memberService = new MemberService(
-            _context, 
-            _mockLogger.Object, 
+            _context,
+            _mockLogger.Object,
             _configuration,
-            _mockShareService.Object, 
-            _mockFiscalYearService.Object, 
+            _mockShareService.Object,
+            _mockFiscalYearService.Object,
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
     }
 
     private void SetupDefaultMocks()
@@ -101,10 +105,11 @@ public class MemberServiceEdgeCasesTests : IDisposable
             _context, 
             _mockLogger.Object, 
             invalidConfiguration,
-            _mockShareService.Object, 
-            _mockFiscalYearService.Object, 
+            _mockShareService.Object,
+            _mockFiscalYearService.Object,
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
 
         // Act
         var result = await memberServiceWithInvalidConfig.GetCurrentShareDenominationAsync();
@@ -131,10 +136,11 @@ public class MemberServiceEdgeCasesTests : IDisposable
             _context, 
             _mockLogger.Object, 
             emptyConfiguration,
-            _mockShareService.Object, 
-            _mockFiscalYearService.Object, 
+            _mockShareService.Object,
+            _mockFiscalYearService.Object,
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
 
         // Act
         var result = await memberServiceWithMissingConfig.GetCurrentShareDenominationAsync();
@@ -161,10 +167,11 @@ public class MemberServiceEdgeCasesTests : IDisposable
             _context, 
             _mockLogger.Object, 
             invalidConfiguration,
-            _mockShareService.Object, 
-            _mockFiscalYearService.Object, 
+            _mockShareService.Object,
+            _mockFiscalYearService.Object,
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
 
         // Act
         var result = await memberServiceWithInvalidConfig.GetMaxSharesPerMemberAsync();
@@ -191,10 +198,11 @@ public class MemberServiceEdgeCasesTests : IDisposable
             _context, 
             _mockLogger.Object, 
             emptyConfiguration,
-            _mockShareService.Object, 
-            _mockFiscalYearService.Object, 
+            _mockShareService.Object,
+            _mockFiscalYearService.Object,
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
 
         // Act
         var result = await memberServiceWithMissingConfig.GetMaxSharesPerMemberAsync();
