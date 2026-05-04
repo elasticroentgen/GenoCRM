@@ -5,6 +5,7 @@ using Moq;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
+using GenoCRM.Services.Integration;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -19,6 +20,7 @@ public class MemberServiceCrudTests : IDisposable
     private readonly Mock<IFiscalYearService> _mockFiscalYearService;
     private readonly Mock<IAuditService> _mockAuditService;
     private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+    private readonly Mock<IListmonkService> _mockListmonkService;
     private readonly MemberService _memberService;
 
     public MemberServiceCrudTests()
@@ -46,6 +48,7 @@ public class MemberServiceCrudTests : IDisposable
         _mockFiscalYearService = new Mock<IFiscalYearService>();
         _mockAuditService = new Mock<IAuditService>();
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        _mockListmonkService = new Mock<IListmonkService>();
 
         // Setup share service defaults
         _mockShareService.Setup(x => x.GenerateNextCertificateNumberAsync())
@@ -71,7 +74,8 @@ public class MemberServiceCrudTests : IDisposable
             _mockShareService.Object, 
             _mockFiscalYearService.Object, 
             _mockAuditService.Object,
-            _mockHttpContextAccessor.Object);
+            _mockHttpContextAccessor.Object,
+            _mockListmonkService.Object);
     }
 
     #region Create Tests
