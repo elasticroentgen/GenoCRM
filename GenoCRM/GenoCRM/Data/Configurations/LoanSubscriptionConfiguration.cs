@@ -36,7 +36,6 @@ public class LoanSubscriptionConfiguration : IEntityTypeConfiguration<LoanSubscr
             .HasMaxLength(34);
 
         builder.Property(s => s.BIC)
-            .IsRequired()
             .HasMaxLength(11);
 
         builder.Property(s => s.CreatedAt)

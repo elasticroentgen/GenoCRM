@@ -117,7 +117,7 @@ else if (_entries != null)
                                 <a href="/loan-subscriptions/@sub.Id">@sub.SubscriptionNumber</a>
                             </td>
                             <td>@sub.IBAN</td>
-                            <td>@sub.BIC</td>
+                            <td>@(string.IsNullOrWhiteSpace(sub.BIC) ? "—" : sub.BIC)</td>
                             <td>@sub.BankAccountHolder</td>
                             <td>Tilgung @sub.SubscriptionNumber - @project.Title - Periode @entry.PeriodNumber</td>
                             <td class="text-end">@FormattingService.FormatCurrency(entry.TotalAmount)</td>

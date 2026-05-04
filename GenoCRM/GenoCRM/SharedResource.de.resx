@@ -1729,4 +1729,19 @@
   <data name="EditLimitedActiveSubscriptions" xml:space="preserve">
     <value>Dieses Angebot hat aktive Zeichnungen. Nur Titel und Status können geändert werden, um bestehende Tilgungspläne zu schützen.</value>
   </data>
+  <data name="ConfirmPayIn" xml:space="preserve">
+    <value>Einzahlung bestätigen</value>
+  </data>
+  <data name="PaidInDate" xml:space="preserve">
+    <value>Einzahlungsdatum</value>
+  </data>
+  <data name="PaymentPlanPendingPayIn" xml:space="preserve">
+    <value>Der Tilgungsplan wird erstellt, sobald die Einzahlung bestätigt wurde.</value>
+  </data>
+  <data name="SearchMemberPlaceholder" xml:space="preserve">
+    <value>Nach Vor- oder Nachnamen suchen…</value>
+  </data>
+  <data name="NoMembersFound" xml:space="preserve">
+    <value>Keine Mitglieder gefunden</value>
+  </data>
 </root>

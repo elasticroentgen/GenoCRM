@@ -69,8 +69,12 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
             await _context.SaveChangesAsync();
 
             // Generate entries
+            // Interest accrues from the date funds were actually received (PaidInDate). The fallback to
+            // SubscriptionDate is defensive — the new flow only triggers GeneratePaymentPlanAsync after
+            // pay-in is confirmed, so PaidInDate should always be set when this runs.
             decimal remainingBalance = principal;
-            var startDate = subscription.SubscriptionDate.AddMonths(offer.GracePeriodMonths);
+            var basisDate = subscription.PaidInDate ?? subscription.SubscriptionDate;
+            var startDate = basisDate.AddMonths(offer.GracePeriodMonths);
             var entries = new List<LoanPaymentPlanEntry>();
 
             if (offer.RepaymentType == RepaymentType.BulletLoan)

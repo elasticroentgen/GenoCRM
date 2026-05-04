@@ -1,0 +1,142 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Services.Business
+@using System.Timers
+@implements IDisposable
+@inject IMemberService MemberService
+@inject IStringLocalizer<GenoCRM.SharedResource> L
+
+<div class="position-relative">
+    <input type="text"
+           class="form-control"
+           placeholder="@L["SearchMemberPlaceholder"]"
+           value="@_inputValue"
+           @oninput="OnInput"
+           @onfocus="OnFocus"
+           @onblur="OnBlur"
+           autocomplete="off" />
+
+    @if (_showDropdown && _results.Any())
+    {
+        <ul class="list-group position-absolute w-100 shadow"
+            style="z-index: 1050; max-height: 280px; overflow-y: auto;">
+            @foreach (var member in _results)
+            {
+                <li class="list-group-item list-group-item-action"
+                    style="cursor: pointer;"
+                    @onmousedown="() => Select(member)">
+                    <strong>@member.FirstName @member.LastName</strong>
+                    <small class="text-muted ms-2">(@member.MemberNumber)</small>
+                </li>
+            }
+        </ul>
+    }
+    else if (_showDropdown && !_searching && !string.IsNullOrWhiteSpace(_inputValue) && _inputValue.Length >= 2)
+    {
+        <ul class="list-group position-absolute w-100 shadow" style="z-index: 1050;">
+            <li class="list-group-item text-muted">@L["NoMembersFound"]</li>
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public int MemberId { get; set; }
+    [Parameter] public EventCallback<int> MemberIdChanged { get; set; }
+
+    private string _inputValue = string.Empty;
+    private List<Member> _results = new();
+    private bool _showDropdown;
+    private bool _searching;
+    private Timer? _debounce;
+    private int _lastSelectedId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (MemberId != 0 && MemberId != _lastSelectedId)
+        {
+            var member = await MemberService.GetMemberByIdAsync(MemberId);
+            if (member != null)
+            {
+                _inputValue = $"{member.FirstName} {member.LastName} ({member.MemberNumber})";
+                _lastSelectedId = MemberId;
+            }
+        }
+        else if (MemberId == 0 && _lastSelectedId != 0)
+        {
+            _inputValue = string.Empty;
+            _lastSelectedId = 0;
+        }
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        _inputValue = e.Value?.ToString() ?? string.Empty;
+        _showDropdown = true;
+
+        if (MemberId != 0)
+        {
+            MemberId = 0;
+            _lastSelectedId = 0;
+            _ = MemberIdChanged.InvokeAsync(0);
+        }
+
+        _debounce?.Stop();
+        _debounce?.Dispose();
+
+        if (_inputValue.Length < 2)
+        {
+            _results.Clear();
+            StateHasChanged();
+            return;
+        }
+
+        _debounce = new Timer(300) { AutoReset = false };
+        _debounce.Elapsed += async (_, _) => await RunSearch(_inputValue);
+        _debounce.Start();
+    }
+
+    private async Task RunSearch(string term)
+    {
+        _searching = true;
+        try
+        {
+            var matches = await MemberService.SearchMembersAsync(term);
+            _results = matches.Take(10).ToList();
+        }
+        finally
+        {
+            _searching = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnFocus()
+    {
+        if (_results.Any() || (_inputValue.Length >= 2))
+        {
+            _showDropdown = true;
+        }
+    }
+
+    private async Task OnBlur()
+    {
+        await Task.Delay(150);
+        _showDropdown = false;
+        StateHasChanged();
+    }
+
+    private async Task Select(Member member)
+    {
+        _inputValue = $"{member.FirstName} {member.LastName} ({member.MemberNumber})";
+        MemberId = member.Id;
+        _lastSelectedId = member.Id;
+        _showDropdown = false;
+        _results.Clear();
+        await MemberIdChanged.InvokeAsync(member.Id);
+    }
+
+    public void Dispose()
+    {
+        _debounce?.Stop();
+        _debounce?.Dispose();
+    }
+}

@@ -1,0 +1,47 @@
+@using GenoCRM.Services.UI
+@inject IModalService ModalService
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+    <input type="date" class="form-control" @bind="SelectedDate" @onkeypress="HandleKeyPress" />
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+    <button type="button" class="btn btn-primary" @onclick="Confirm">@SharedLocalizer["OK"]</button>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public DateTime DefaultValue { get; set; } = DateTime.Today;
+
+    private DateTime SelectedDate { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SelectedDate = DefaultValue;
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Confirm();
+        }
+        else if (e.Key == "Escape")
+        {
+            Cancel();
+        }
+    }
+
+    private void Confirm()
+    {
+        ModalService.Close(ModalResult.Ok(SelectedDate));
+    }
+
+    private void Cancel()
+    {
+        ModalService.Close(ModalResult.Cancel());
+    }
+}

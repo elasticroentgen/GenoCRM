@@ -53,6 +53,7 @@
       <Content Update="Config\group-permissions.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <EmbeddedResource Include="Resources\Banking\blz.txt" />
     </ItemGroup>
 
 </Project>

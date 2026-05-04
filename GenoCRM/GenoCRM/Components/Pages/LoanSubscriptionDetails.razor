@@ -5,9 +5,12 @@
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @using GenoCRM.Components.Loans
+@using GenoCRM.Components.Shared
 @attribute [Authorize]
 @inject ILoanSubscriptionService SubscriptionService
+@inject ILoanOfferService OfferService
 @inject ILoanPaymentPlanService PaymentPlanService
+@inject IIbanBicLookupService IbanBicLookup
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
 @inject IFormattingService FormattingService
@@ -44,78 +47,161 @@ else
     <div class="row">
         <div class="col-md-8">
             <div class="card mb-4">
-                <div class="card-header">
-                    <h5><i class="fas fa-info-circle"></i> @L["SubscriptionDetails"]</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> @L["SubscriptionDetails"]</h5>
+                    @if (!_editingSubscription && !_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+                    {
+                        <button class="btn btn-sm btn-outline-primary" @onclick="StartEditSubscription">
+                            <i class="fas fa-edit"></i> @L["Edit"]
+                        </button>
+                    }
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>@L["SubscriptionNumber"]:</strong>
-                            <p>@_subscription.SubscriptionNumber</p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>@L["Status"]:</strong>
-                            <p>
-                                <span class="badge bg-@GetSubscriptionStatusColor(_subscription.Status)">
-                                    @GetLocalizedSubscriptionStatus(_subscription.Status)
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>@L["Member"]:</strong>
-                            <p>
-                                <a href="/members/@_subscription.MemberId">@_subscription.Member.FullName</a>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>@L["SubscriptionDate"]:</strong>
-                            <p>@FormattingService.FormatDate(_subscription.SubscriptionDate)</p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>@L["SubscriptionAmount"]:</strong>
-                            <p class="h5 text-primary">@FormattingService.FormatCurrency(_subscription.Amount)</p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>@L["PaidIn"]:</strong>
-                            <p>
-                                @if (_subscription.PaidInDate.HasValue)
-                                {
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check"></i> @FormattingService.FormatDate(_subscription.PaidInDate)
+                    @if (!_editingSubscription)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>@L["SubscriptionNumber"]:</strong>
+                                <p>@_subscription.SubscriptionNumber</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@L["Status"]:</strong>
+                                <p>
+                                    <span class="badge bg-@GetSubscriptionStatusColor(_subscription.Status)">
+                                        @GetLocalizedSubscriptionStatus(_subscription.Status)
                                     </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">@L["Pending"]</span>
-                                    <button class="btn btn-sm btn-outline-success ms-2" @onclick="MarkAsPaidIn">
-                                        <i class="fas fa-check"></i> @L["MarkAsPaidIn"]
-                                    </button>
-                                }
-                            </p>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@L["Member"]:</strong>
+                                <p>
+                                    <a href="/members/@_subscription.MemberId">@_subscription.Member.FullName</a>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@L["SubscriptionDate"]:</strong>
+                                <p>@FormattingService.FormatDate(_subscription.SubscriptionDate)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@L["SubscriptionAmount"]:</strong>
+                                <p class="h5 text-primary">@FormattingService.FormatCurrency(_subscription.Amount)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>@L["PaidIn"]:</strong>
+                                <p>
+                                    @if (_subscription.PaidInDate.HasValue)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> @FormattingService.FormatDate(_subscription.PaidInDate)
+                                        </span>
+                                    }
+                                    else if (_subscription.Status == LoanSubscriptionStatus.Cancelled)
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">@L["Pending"]</span>
+                                        <button class="btn btn-sm btn-outline-success ms-2" @onclick="MarkAsPaidIn">
+                                            <i class="fas fa-check"></i> @L["MarkAsPaidIn"]
+                                        </button>
+                                    }
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">@L["LoanOffer"] *</label>
+                                <select class="form-select" @bind="_editLoanOfferId">
+                                    @foreach (var offer in _availableOffers)
+                                    {
+                                        <option value="@offer.Id">
+                                            @offer.LoanProject.Title — @offer.Title (@((offer.InterestRate * 100).ToString("F2"))%)
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@L["SubscriptionDate"] *</label>
+                                <input type="date" class="form-control" @bind="_editSubscriptionDate" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">@L["SubscriptionAmount"] *</label>
+                                <input type="number" step="0.01" class="form-control" @bind="_editAmount" />
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm" @onclick="SaveSubscriptionDetails" disabled="@_savingSubscription">
+                                @if (_savingSubscription)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                <i class="fas fa-check"></i> @L["Save"]
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="CancelEditSubscription">@L["Cancel"]</button>
+                        </div>
+                    }
                 </div>
             </div>
 
             <div class="card mb-4">
-                <div class="card-header">
-                    <h5><i class="fas fa-university"></i> @L["BankDetails"]</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-university"></i> @L["BankDetails"]</h5>
+                    @if (!_editingBankDetails && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+                    {
+                        <button class="btn btn-sm btn-outline-primary" @onclick="StartEditBankDetails">
+                            <i class="fas fa-edit"></i> @L["Edit"]
+                        </button>
+                    }
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>@L["IBAN"]:</strong>
-                            <p>@_subscription.IBAN</p>
+                    @if (!_editingBankDetails)
+                    {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>@L["IBAN"]:</strong>
+                                <p>@_subscription.IBAN</p>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>@L["BIC"]:</strong>
+                                <p>@(string.IsNullOrWhiteSpace(_subscription.BIC) ? "—" : _subscription.BIC)</p>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>@L["BankAccountHolder"]:</strong>
+                                <p>@_subscription.BankAccountHolder</p>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <strong>@L["BIC"]:</strong>
-                            <p>@_subscription.BIC</p>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@L["IBAN"] *</label>
+                                <input type="text" class="form-control" @bind="_editIban" @onblur="AutoFillEditBic" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@L["BIC"]</label>
+                                <input type="text" class="form-control" @bind="_editBic" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">@L["BankAccountHolder"] *</label>
+                                <input type="text" class="form-control" @bind="_editAccountHolder" />
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <strong>@L["BankAccountHolder"]:</strong>
-                            <p>@_subscription.BankAccountHolder</p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm" @onclick="SaveBankDetails" disabled="@_savingBankDetails">
+                                @if (_savingBankDetails)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                <i class="fas fa-check"></i> @L["Save"]
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="CancelEditBankDetails">@L["Cancel"]</button>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -151,7 +237,16 @@ else
         </div>
 
         <div class="col-md-4">
-            @if (_subscription.PaymentPlan != null)
+            @if (_subscription.PaymentPlan == null)
+            {
+                <div class="card mb-4">
+                    <div class="card-body text-center text-muted">
+                        <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                        <p class="mb-0">@L["PaymentPlanPendingPayIn"]</p>
+                    </div>
+                </div>
+            }
+            else
             {
                 var entries = _subscription.PaymentPlan.Entries;
                 var totalInterest = entries.Sum(e => e.InterestAmount);
@@ -240,15 +335,133 @@ else
 
     private async Task MarkAsPaidIn()
     {
+        var result = await ModalService.ShowAsync<DatePickerModal>(
+            L["ConfirmPayIn"],
+            new Dictionary<string, object>
+            {
+                { "Label", L["PaidInDate"].ToString() },
+                { "DefaultValue", DateTime.Today }
+            });
+        if (!result.Confirmed || result.Data is not DateTime selected) return;
+
         try
         {
-            await SubscriptionService.MarkAsPaidInAsync(SubscriptionId);
+            var utcDate = DateTime.SpecifyKind(selected.Date, DateTimeKind.Utc);
+            await SubscriptionService.MarkAsPaidInAsync(SubscriptionId, utcDate);
             await LoadSubscription();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private bool _editingBankDetails;
+    private bool _savingBankDetails;
+    private string _editAccountHolder = string.Empty;
+    private string _editIban = string.Empty;
+    private string _editBic = string.Empty;
+
+    private void StartEditBankDetails()
+    {
+        if (_subscription == null) return;
+        _editAccountHolder = _subscription.BankAccountHolder;
+        _editIban = _subscription.IBAN;
+        _editBic = _subscription.BIC ?? string.Empty;
+        _editingBankDetails = true;
+    }
+
+    private void CancelEditBankDetails()
+    {
+        _editingBankDetails = false;
+    }
+
+    private void AutoFillEditBic()
+    {
+        if (!string.IsNullOrWhiteSpace(_editBic)) return;
+        var bic = IbanBicLookup.Lookup(_editIban);
+        if (!string.IsNullOrEmpty(bic))
+        {
+            _editBic = bic;
+        }
+    }
+
+    private async Task SaveBankDetails()
+    {
+        _savingBankDetails = true;
+        try
+        {
+            await SubscriptionService.UpdateBankDetailsAsync(
+                SubscriptionId,
+                _editAccountHolder,
+                _editIban,
+                string.IsNullOrWhiteSpace(_editBic) ? null : _editBic);
+            _editingBankDetails = false;
+            await LoadSubscription();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _savingBankDetails = false;
+        }
+    }
+
+    private bool _editingSubscription;
+    private bool _savingSubscription;
+    private int _editLoanOfferId;
+    private decimal _editAmount;
+    private DateTime _editSubscriptionDate;
+    private List<LoanOffer> _availableOffers = new();
+
+    private async Task StartEditSubscription()
+    {
+        if (_subscription == null) return;
+
+        var openOffers = (await OfferService.GetOpenOffersAsync()).ToList();
+        if (!openOffers.Any(o => o.Id == _subscription.LoanOfferId))
+        {
+            // Keep the current offer selectable even if it's no longer Open.
+            openOffers.Insert(0, _subscription.LoanOffer);
+        }
+        _availableOffers = openOffers;
+
+        _editLoanOfferId = _subscription.LoanOfferId;
+        _editAmount = _subscription.Amount;
+        _editSubscriptionDate = _subscription.SubscriptionDate.Date;
+        _editingSubscription = true;
+    }
+
+    private void CancelEditSubscription()
+    {
+        _editingSubscription = false;
+    }
+
+    private async Task SaveSubscriptionDetails()
+    {
+        _savingSubscription = true;
+        try
+        {
+            await SubscriptionService.UpdateSubscriptionDetailsAsync(
+                SubscriptionId,
+                _editLoanOfferId,
+                _editAmount,
+                _editSubscriptionDate);
+            _editingSubscription = false;
+            await LoadSubscription();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+        finally
+        {
+            _savingSubscription = false;
         }
     }
 

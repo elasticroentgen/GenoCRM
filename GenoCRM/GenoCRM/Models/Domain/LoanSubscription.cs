@@ -38,9 +38,9 @@ public class LoanSubscription
     [IbanValidation]
     public string IBAN { get; set; } = string.Empty;
 
-    [Required]
     [StringLength(11)]
-    public string BIC { get; set; } = string.Empty;
+    [BicValidation]
+    public string? BIC { get; set; }
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

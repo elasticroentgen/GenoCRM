@@ -12,6 +12,8 @@ public interface ILoanSubscriptionService
     Task<LoanSubscription> CreateSubscriptionAsync(LoanSubscription subscription);
     Task<bool> CancelSubscriptionAsync(int id);
     Task<bool> MarkAsPaidInAsync(int id, DateTime? paidInDate = null);
+    Task<bool> UpdateBankDetailsAsync(int id, string accountHolder, string iban, string? bic);
+    Task<bool> UpdateSubscriptionDetailsAsync(int id, int loanOfferId, decimal amount, DateTime subscriptionDate);
     Task<string> GenerateNextSubscriptionNumberAsync();
 }
 
@@ -124,9 +126,8 @@ public class LoanSubscriptionService : ILoanSubscriptionService
             _context.LoanSubscriptions.Add(subscription);
             await _context.SaveChangesAsync();
 
-            // Automatically generate payment plan
-            await _paymentPlanService.GeneratePaymentPlanAsync(subscription.Id);
-
+            // Payment plan is generated when pay-in is confirmed (so the schedule
+            // is anchored to the actual cash receipt date, not the subscription date).
             await transaction.CommitAsync();
 
             _logger.LogInformation("Loan subscription created with ID {SubscriptionId}, number {SubscriptionNumber}",
@@ -179,6 +180,7 @@ public class LoanSubscriptionService : ILoanSubscriptionService
 
     public async Task<bool> MarkAsPaidInAsync(int id, DateTime? paidInDate = null)
     {
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             var subscription = await _context.LoanSubscriptions.FindAsync(id);
@@ -189,12 +191,97 @@ public class LoanSubscriptionService : ILoanSubscriptionService
 
             await _context.SaveChangesAsync();
 
+            // Generate (or regenerate) the payment plan now that we have an actual pay-in date.
+            await _paymentPlanService.GeneratePaymentPlanAsync(id);
+
+            await transaction.CommitAsync();
+
             _logger.LogInformation("Loan subscription {SubscriptionId} marked as paid in", id);
             return true;
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             _logger.LogError(ex, "Error marking loan subscription {SubscriptionId} as paid in", id);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateBankDetailsAsync(int id, string accountHolder, string iban, string? bic)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(accountHolder))
+                throw new InvalidOperationException("Account holder is required");
+            if (string.IsNullOrWhiteSpace(iban))
+                throw new InvalidOperationException("IBAN is required");
+
+            var ibanValidator = new Models.Validation.IbanValidationAttribute();
+            if (!ibanValidator.IsValid(iban))
+                throw new InvalidOperationException("Invalid IBAN");
+
+            var bicValidator = new Models.Validation.BicValidationAttribute();
+            if (!bicValidator.IsValid(bic))
+                throw new InvalidOperationException("Invalid BIC");
+
+            var subscription = await _context.LoanSubscriptions.FindAsync(id);
+            if (subscription == null) return false;
+
+            subscription.BankAccountHolder = accountHolder.Trim();
+            subscription.IBAN = iban.Trim().ToUpperInvariant();
+            subscription.BIC = string.IsNullOrWhiteSpace(bic) ? null : bic.Replace(" ", "").ToUpperInvariant();
+            subscription.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Bank details updated for loan subscription {SubscriptionId}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating bank details for loan subscription {SubscriptionId}", id);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateSubscriptionDetailsAsync(int id, int loanOfferId, decimal amount, DateTime subscriptionDate)
+    {
+        try
+        {
+            var subscription = await _context.LoanSubscriptions.FindAsync(id);
+            if (subscription == null) return false;
+
+            if (subscription.PaidInDate.HasValue)
+                throw new InvalidOperationException("Cannot edit a subscription that has already been paid in");
+            if (subscription.Status == LoanSubscriptionStatus.Cancelled)
+                throw new InvalidOperationException("Cannot edit a cancelled subscription");
+
+            // Validate the (possibly new) offer
+            var offer = await _context.LoanOffers.FindAsync(loanOfferId);
+            if (offer == null)
+                throw new InvalidOperationException($"Loan offer with ID {loanOfferId} not found");
+            if (loanOfferId != subscription.LoanOfferId && offer.Status != LoanOfferStatus.Open)
+                throw new InvalidOperationException("Loan offer is not open for subscriptions");
+
+            // Validate amount constraints against the (possibly new) offer
+            if (offer.MinSubscriptionAmount.HasValue && amount < offer.MinSubscriptionAmount.Value)
+                throw new InvalidOperationException($"Subscription amount must be at least {offer.MinSubscriptionAmount.Value:F2}");
+            if (offer.MaxSubscriptionAmount.HasValue && amount > offer.MaxSubscriptionAmount.Value)
+                throw new InvalidOperationException($"Subscription amount must not exceed {offer.MaxSubscriptionAmount.Value:F2}");
+
+            subscription.LoanOfferId = loanOfferId;
+            subscription.Amount = amount;
+            subscription.SubscriptionDate = DateTime.SpecifyKind(subscriptionDate.Date, DateTimeKind.Utc);
+            subscription.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Subscription details updated for loan subscription {SubscriptionId}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating subscription details for loan subscription {SubscriptionId}", id);
             throw;
         }
     }

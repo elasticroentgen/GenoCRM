@@ -4,10 +4,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
+@using GenoCRM.Components.Members
 @attribute [Authorize]
 @inject ILoanSubscriptionService SubscriptionService
 @inject ILoanOfferService OfferService
 @inject IMemberService MemberService
+@inject IIbanBicLookupService IbanBicLookup
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
 @inject IFormattingService FormattingService
@@ -54,7 +56,7 @@ else
                 </div>
                 <div class="col-md-3">
                     <strong>@L["RepaymentType"]:</strong>
-                    <p>@L["Annuity"]</p>
+                    <p>@GetLocalizedRepaymentType(_offer.RepaymentType)</p>
                 </div>
                 @if (_offer.GracePeriodMonths > 0)
                 {
@@ -76,16 +78,7 @@ else
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">@L["SelectMember"] *</label>
-                        <InputSelect class="form-select" @bind-Value="_subscription.MemberId">
-                            <option value="0">-- @L["SelectMember"] --</option>
-                            @if (_members != null)
-                            {
-                                @foreach (var member in _members)
-                                {
-                                    <option value="@member.Id">@member.FullName (@member.MemberNumber)</option>
-                                }
-                            }
-                        </InputSelect>
+                        <MemberAutocomplete MemberId="_subscription.MemberId" MemberIdChanged="OnMemberSelected" />
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">@L["SubscriptionDate"] *</label>
@@ -121,11 +114,11 @@ else
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">@L["IBAN"] *</label>
-                        <InputText class="form-control" @bind-Value="_subscription.IBAN" />
+                        <InputText class="form-control" @bind-Value="_subscription.IBAN" @onblur="AutoFillBic" />
                         <ValidationMessage For="() => _subscription.IBAN" />
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">@L["BIC"] *</label>
+                        <label class="form-label">@L["BIC"]</label>
                         <InputText class="form-control" @bind-Value="_subscription.BIC" />
                         <ValidationMessage For="() => _subscription.BIC" />
                     </div>
@@ -155,7 +148,6 @@ else
     [Parameter] public int OfferId { get; set; }
 
     private LoanOffer? _offer;
-    private IEnumerable<Member>? _members;
     private LoanSubscription _subscription = new() { SubscriptionDate = DateTime.Today };
     private bool _saving;
 
@@ -170,12 +162,35 @@ else
                 return;
             }
             _subscription.LoanOfferId = OfferId;
-
-            _members = await MemberService.GetAllMembersAsync();
         }
         catch (Exception ex)
         {
             await ModalService.ShowErrorAsync(L["Error"], ex.Message);
+        }
+    }
+
+    private void AutoFillBic()
+    {
+        if (!string.IsNullOrWhiteSpace(_subscription.BIC)) return;
+        var bic = IbanBicLookup.Lookup(_subscription.IBAN);
+        if (!string.IsNullOrEmpty(bic))
+        {
+            _subscription.BIC = bic;
+        }
+    }
+
+    private async Task OnMemberSelected(int memberId)
+    {
+        _subscription.MemberId = memberId;
+        if (memberId == 0) return;
+
+        if (string.IsNullOrWhiteSpace(_subscription.BankAccountHolder))
+        {
+            var member = await MemberService.GetMemberByIdAsync(memberId);
+            if (member != null)
+            {
+                _subscription.BankAccountHolder = $"{member.FirstName} {member.LastName}".Trim();
+            }
         }
     }
 
@@ -212,5 +227,12 @@ else
         PaymentInterval.SemiAnnual => L["SemiAnnual"],
         PaymentInterval.Annual => L["Annual"],
         _ => interval.ToString()
+    };
+
+    private string GetLocalizedRepaymentType(RepaymentType type) => type switch
+    {
+        RepaymentType.Annuity => L["Annuity"],
+        RepaymentType.BulletLoan => L["BulletLoan"],
+        _ => type.ToString()
     };
 }

@@ -1729,4 +1729,19 @@
   <data name="EditLimitedActiveSubscriptions" xml:space="preserve">
     <value>This offer has active subscriptions. Only the title and status can be changed to protect existing payment plans.</value>
   </data>
+  <data name="ConfirmPayIn" xml:space="preserve">
+    <value>Confirm Pay-In</value>
+  </data>
+  <data name="PaidInDate" xml:space="preserve">
+    <value>Pay-In Date</value>
+  </data>
+  <data name="PaymentPlanPendingPayIn" xml:space="preserve">
+    <value>The payment plan will be generated once pay-in is confirmed.</value>
+  </data>
+  <data name="SearchMemberPlaceholder" xml:space="preserve">
+    <value>Search by first or last name…</value>
+  </data>
+  <data name="NoMembersFound" xml:space="preserve">
+    <value>No members found</value>
+  </data>
 </root>

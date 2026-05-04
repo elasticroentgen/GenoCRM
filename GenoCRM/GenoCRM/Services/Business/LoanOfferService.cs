@@ -8,6 +8,7 @@ public interface ILoanOfferService
 {
     Task<LoanOffer?> GetOfferByIdAsync(int id);
     Task<IEnumerable<LoanOffer>> GetOffersByProjectIdAsync(int projectId);
+    Task<IEnumerable<LoanOffer>> GetOpenOffersAsync();
     Task<LoanOffer> CreateOfferAsync(LoanOffer offer);
     Task<LoanOffer> UpdateOfferAsync(LoanOffer offer);
     Task<bool> DeleteOfferAsync(int id);
@@ -57,6 +58,24 @@ public class LoanOfferService : ILoanOfferService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving loan offers for project {ProjectId}", projectId);
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<LoanOffer>> GetOpenOffersAsync()
+    {
+        try
+        {
+            return await _context.LoanOffers
+                .Include(o => o.LoanProject)
+                .Where(o => o.Status == LoanOfferStatus.Open)
+                .OrderBy(o => o.LoanProject.Title)
+                    .ThenBy(o => o.Title)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving open loan offers");
             throw;
         }
     }

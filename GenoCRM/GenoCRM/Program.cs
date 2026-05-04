@@ -204,6 +204,7 @@ builder.Services.AddScoped<ILoanProjectService, LoanProjectService>();
 builder.Services.AddScoped<ILoanOfferService, LoanOfferService>();
 builder.Services.AddScoped<ILoanSubscriptionService, LoanSubscriptionService>();
 builder.Services.AddScoped<ILoanPaymentPlanService, LoanPaymentPlanService>();
+builder.Services.AddSingleton<IIbanBicLookupService, IbanBicLookupService>();
 
 // Messaging providers
 builder.Services.AddScoped<IEmailProvider, SmtpEmailProvider>();
