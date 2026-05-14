@@ -1,0 +1,175 @@
+@using GenoCRM.Models.Domain
+@using GenoCRM.Models.Export
+@using GenoCRM.Resources.Pages
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IStringLocalizer<Members> MembersLocalizer
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5)">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-export me-2"></i>@MembersLocalizer["ExportMembersTitle"]
+                </h5>
+                <button type="button" class="btn-close" @onclick="OnCancel"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">@string.Format(MembersLocalizer["ExportRowCount"], Members.Count)</p>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">@MembersLocalizer["ExportFormat"]</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="export-fmt-csv"
+                                   checked="@(_format == MemberExportFormat.Csv)"
+                                   @onchange="() => _format = MemberExportFormat.Csv" />
+                            <label class="form-check-label" for="export-fmt-csv">
+                                @MembersLocalizer["ExportFormat_Csv"]
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="export-fmt-xlsx"
+                                   checked="@(_format == MemberExportFormat.Xlsx)"
+                                   @onchange="() => _format = MemberExportFormat.Xlsx" />
+                            <label class="form-check-label" for="export-fmt-xlsx">
+                                @MembersLocalizer["ExportFormat_Xlsx"]
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="form-label fw-bold">@MembersLocalizer["ExportSelectFields"]</label>
+                <div class="row">
+                    @foreach (var group in Enum.GetValues<MemberExportFieldGroup>())
+                    {
+                        var groupFields = MemberExportFieldMetadata.FieldGroup
+                            .Where(kv => kv.Value == group)
+                            .Select(kv => kv.Key)
+                            .ToList();
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                    <strong>@MembersLocalizer[$"ExportGroup_{group}"]</strong>
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input" type="checkbox"
+                                               id="grp-@group"
+                                               checked="@AllSelected(groupFields)"
+                                               @onchange="e => ToggleGroup(groupFields, (bool)e.Value!)" />
+                                        <label class="form-check-label small text-muted" for="grp-@group">
+                                            @MembersLocalizer["ExportToggleAll"]
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card-body py-2">
+                                    @foreach (var field in groupFields)
+                                    {
+                                        var id = $"fld-{field}";
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="@id"
+                                                   checked="@_selected.Contains(field)"
+                                                   @onchange="e => ToggleField(field, (bool)e.Value!)" />
+                                            <label class="form-check-label" for="@id">
+                                                @GetFieldLabel(field)
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="alert alert-warning d-flex align-items-start mt-3 mb-0" role="alert">
+                    <i class="fas fa-user-shield fa-lg me-2 mt-1"></i>
+                    <div>
+                        <strong>@MembersLocalizer["ExportPrivacyNoticeTitle"]</strong><br />
+                        <small>@MembersLocalizer["ExportPrivacyNoticeBody"]</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="OnCancel">
+                    @SharedLocalizer["Cancel"]
+                </button>
+                <button type="button" class="btn btn-primary"
+                        disabled="@(_selected.Count == 0 || Members.Count == 0 || _isExporting)"
+                        @onclick="Confirm">
+                    @if (_isExporting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    <i class="fas fa-download me-1"></i>@MembersLocalizer["ExportConfirm"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (!window.downloadFile) {
+        window.downloadFile = function(filename, base64Data) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = 'data:application/octet-stream;base64,' + base64Data;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+</script>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyCollection<Member> Members { get; set; } = Array.Empty<Member>();
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<MemberExportSelection> OnConfirm { get; set; }
+
+    private HashSet<MemberExportField> _selected = new();
+    private MemberExportFormat _format = MemberExportFormat.Csv;
+    private bool _isExporting;
+
+    protected override void OnInitialized()
+    {
+        _selected = new HashSet<MemberExportField>(Enum.GetValues<MemberExportField>());
+    }
+
+    private string GetFieldLabel(MemberExportField field)
+    {
+        var meta = MemberExportFieldMetadata.FieldHeader[field];
+        return meta.Source == HeaderSource.Shared
+            ? SharedLocalizer[meta.Key]
+            : MembersLocalizer[meta.Key];
+    }
+
+    private bool AllSelected(IEnumerable<MemberExportField> fields) =>
+        fields.All(_selected.Contains);
+
+    private void ToggleField(MemberExportField field, bool isChecked)
+    {
+        if (isChecked) _selected.Add(field);
+        else _selected.Remove(field);
+    }
+
+    private void ToggleGroup(IEnumerable<MemberExportField> fields, bool isChecked)
+    {
+        foreach (var f in fields)
+        {
+            if (isChecked) _selected.Add(f);
+            else _selected.Remove(f);
+        }
+    }
+
+    private async Task Confirm()
+    {
+        if (_selected.Count == 0) return;
+        _isExporting = true;
+        try
+        {
+            await OnConfirm.InvokeAsync(new MemberExportSelection(new HashSet<MemberExportField>(_selected), _format));
+        }
+        finally
+        {
+            _isExporting = false;
+        }
+    }
+}

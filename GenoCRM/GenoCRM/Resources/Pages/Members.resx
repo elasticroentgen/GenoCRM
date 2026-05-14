@@ -326,4 +326,69 @@
   <data name="MemberType" xml:space="preserve">
     <value>Member-Type</value>
   </data>
+
+  <!-- Export Dialog -->
+  <data name="ExportMembers" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportMembersTitle" xml:space="preserve">
+    <value>Export members</value>
+  </data>
+  <data name="ExportRowCount" xml:space="preserve">
+    <value>{0} members will be exported.</value>
+  </data>
+  <data name="ExportFormat" xml:space="preserve">
+    <value>File format</value>
+  </data>
+  <data name="ExportFormat_Csv" xml:space="preserve">
+    <value>CSV (semicolon-separated)</value>
+  </data>
+  <data name="ExportFormat_Xlsx" xml:space="preserve">
+    <value>Excel (xlsx)</value>
+  </data>
+  <data name="ExportSelectFields" xml:space="preserve">
+    <value>Fields to export</value>
+  </data>
+  <data name="ExportGroup_Basic" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="ExportGroup_Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="ExportGroup_Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="ExportGroup_Membership" xml:space="preserve">
+    <value>Membership</value>
+  </data>
+  <data name="ExportGroup_Shares" xml:space="preserve">
+    <value>Shares</value>
+  </data>
+  <data name="ExportField_TotalShareCount" xml:space="preserve">
+    <value>Total share count</value>
+  </data>
+  <data name="ExportField_TotalShareValue" xml:space="preserve">
+    <value>Total share value</value>
+  </data>
+  <data name="ExportField_MemberSince" xml:space="preserve">
+    <value>Member since</value>
+  </data>
+  <data name="ExportField_LeaveDate" xml:space="preserve">
+    <value>Leave date</value>
+  </data>
+  <data name="ExportToggleAll" xml:space="preserve">
+    <value>All in this group</value>
+  </data>
+  <data name="ExportConfirm" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportWorksheetName" xml:space="preserve">
+    <value>Members</value>
+  </data>
+  <data name="ExportPrivacyNoticeTitle" xml:space="preserve">
+    <value>Data protection notice</value>
+  </data>
+  <data name="ExportPrivacyNoticeBody" xml:space="preserve">
+    <value>This file contains personal data of cooperative members. Only export the fields you actually need, store the file securely, share it only with people who require it for a legitimate purpose, and delete it once no longer needed.</value>
+  </data>
 </root>

@@ -9,22 +9,22 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanRepaymentDashboard.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanRepaymentDashboard.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionCreate.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionCreate.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionDetails.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/LoanSubscriptionDetails.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/LoanSubscriptionConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Data/Configurations/LoanSubscriptionConfiguration.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/GenoCRM.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Migrations/GenoDbContextModelSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/LoanSubscription.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/LoanSubscription.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanOfferService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanOfferService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanPaymentPlanService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanPaymentPlanService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanSubscriptionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Services/Business/LoanSubscriptionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.de.resx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/SharedResource.resx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,16 +34,25 @@
   <component name="DpaMonitoringSettings">
     <option name="firstShow" value="false" />
   </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="5" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aa77d914d3d265ba37bfefeefc5d816e41f693f41643370d9a17bd3c14af/NpgsqlConnector.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Pages/AccessDenied.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Toolset" />
@@ -59,29 +68,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.GenoCRM: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.GenoCRM: https.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Project.GenoCRM.Client.executor&quot;: &quot;Run&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/markus/dev/GenoCRM/GenoCRM.sln&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.web.browsers&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.GenoCRM: http.executor": "Run",
+    ".NET Launch Settings Profile.GenoCRM: https.executor": "Run",
+    ".NET Project.GenoCRM.Client.executor": "Run",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/markus/dev/GenoCRM/GenoCRM.sln",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.web.browsers",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.GenoCRM: https">
     <configuration name="GenoCRM.Client" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
@@ -216,6 +230,7 @@
       <workItem from="1772740595554" duration="16904000" />
       <workItem from="1775075838018" duration="12496000" />
       <workItem from="1777307044426" duration="14048000" />
+      <workItem from="1778737462704" duration="3024000" />
     </task>
     <task id="LOCAL-00001" summary="add loan system">
       <option name="closed" value="true" />
@@ -316,13 +331,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs</url>
-          <line>296</line>
+          <line>301</line>
           <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" containingFunctionPresentation="">
             <startOffsets>
-              <option value="16358" />
+              <option value="16676" />
             </startOffsets>
             <endOffsets>
-              <option value="16418" />
+              <option value="16736" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="14" />

@@ -326,4 +326,69 @@
   <data name="MemberType" xml:space="preserve">
     <value>Mitgliedstyp</value>
   </data>
+
+  <!-- Export Dialog -->
+  <data name="ExportMembers" xml:space="preserve">
+    <value>Exportieren</value>
+  </data>
+  <data name="ExportMembersTitle" xml:space="preserve">
+    <value>Mitglieder exportieren</value>
+  </data>
+  <data name="ExportRowCount" xml:space="preserve">
+    <value>{0} Mitglieder werden exportiert.</value>
+  </data>
+  <data name="ExportFormat" xml:space="preserve">
+    <value>Dateiformat</value>
+  </data>
+  <data name="ExportFormat_Csv" xml:space="preserve">
+    <value>CSV (semikolongetrennt)</value>
+  </data>
+  <data name="ExportFormat_Xlsx" xml:space="preserve">
+    <value>Excel (xlsx)</value>
+  </data>
+  <data name="ExportSelectFields" xml:space="preserve">
+    <value>Zu exportierende Felder</value>
+  </data>
+  <data name="ExportGroup_Basic" xml:space="preserve">
+    <value>Stammdaten</value>
+  </data>
+  <data name="ExportGroup_Contact" xml:space="preserve">
+    <value>Kontakt</value>
+  </data>
+  <data name="ExportGroup_Address" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="ExportGroup_Membership" xml:space="preserve">
+    <value>Mitgliedschaft</value>
+  </data>
+  <data name="ExportGroup_Shares" xml:space="preserve">
+    <value>Geschäftsanteile</value>
+  </data>
+  <data name="ExportField_TotalShareCount" xml:space="preserve">
+    <value>Anteile gesamt (Anzahl)</value>
+  </data>
+  <data name="ExportField_TotalShareValue" xml:space="preserve">
+    <value>Anteile gesamt (Wert)</value>
+  </data>
+  <data name="ExportField_MemberSince" xml:space="preserve">
+    <value>Mitglied seit</value>
+  </data>
+  <data name="ExportField_LeaveDate" xml:space="preserve">
+    <value>Austrittsdatum</value>
+  </data>
+  <data name="ExportToggleAll" xml:space="preserve">
+    <value>Alle in dieser Gruppe</value>
+  </data>
+  <data name="ExportConfirm" xml:space="preserve">
+    <value>Exportieren</value>
+  </data>
+  <data name="ExportWorksheetName" xml:space="preserve">
+    <value>Mitglieder</value>
+  </data>
+  <data name="ExportPrivacyNoticeTitle" xml:space="preserve">
+    <value>Hinweis zum Datenschutz</value>
+  </data>
+  <data name="ExportPrivacyNoticeBody" xml:space="preserve">
+    <value>Diese Datei enthält personenbezogene Daten von Genossenschaftsmitgliedern. Exportieren Sie nur die wirklich benötigten Felder, speichern Sie die Datei sicher, geben Sie sie ausschließlich an Personen mit berechtigtem Interesse weiter und löschen Sie sie, sobald sie nicht mehr benötigt wird.</value>
+  </data>
 </root>

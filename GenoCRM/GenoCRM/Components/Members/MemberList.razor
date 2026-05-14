@@ -6,6 +6,8 @@
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @using GenoCRM.Resources.Pages
+@using GenoCRM.Models.Export
+@using GenoCRM.Components.Members.Dialogs
 @attribute [Authorize(Policy = "ViewMembers")]
 @inject IMemberService MemberService
 @inject NavigationManager Navigation
@@ -14,6 +16,8 @@
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
 @inject IFiscalYearService FiscalYearService
+@inject IMemberExportService ExportService
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
 <PageTitle>@MembersLocalizer["PageTitle"]</PageTitle>
@@ -44,15 +48,22 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@MembersLocalizer["PageTitle"]</h1>
-    <CascadingAuthenticationState>
-    <AuthorizeView Policy="CreateMembers">
-        <Authorized>
-            <button class="btn btn-primary" @onclick="CreateMember">
-                <i class="fas fa-plus"></i> @MembersLocalizer["AddNewMember"]
-            </button>
-        </Authorized>
-    </AuthorizeView>
-    </CascadingAuthenticationState>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary"
+                disabled="@(_members is null || !_members.Any())"
+                @onclick="OpenExportDialog">
+            <i class="fas fa-file-export"></i> @MembersLocalizer["ExportMembers"]
+        </button>
+        <CascadingAuthenticationState>
+        <AuthorizeView Policy="CreateMembers">
+            <Authorized>
+                <button class="btn btn-primary" @onclick="CreateMember">
+                    <i class="fas fa-plus"></i> @MembersLocalizer["AddNewMember"]
+                </button>
+            </Authorized>
+        </AuthorizeView>
+        </CascadingAuthenticationState>
+    </div>
 </div>
 
 <div class="row mb-3">
@@ -166,11 +177,19 @@ else
     </div>
 }
 
+@if (_showExportDialog && _members is not null)
+{
+    <MemberExportDialog Members="_members.ToList()"
+                        OnCancel="() => _showExportDialog = false"
+                        OnConfirm="HandleExport" />
+}
+
 @code {
     private IEnumerable<Member>? _members;
     private string _searchTerm = string.Empty;
     private string _selectedStatus = string.Empty;
     private bool _isLoading = true;
+    private bool _showExportDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -256,6 +275,29 @@ else
     private void CreateMember()
     {
         Navigation.NavigateTo("/members/create");
+    }
+
+    private void OpenExportDialog()
+    {
+        if (_members is null || !_members.Any()) return;
+        _showExportDialog = true;
+    }
+
+    private async Task HandleExport(MemberExportSelection selection)
+    {
+        if (_members is null) return;
+        try
+        {
+            var result = ExportService.Export(_members, selection.Fields, selection.Format);
+            byte[] bytes = result.Bytes;
+            var base64 = Convert.ToBase64String(bytes);
+            await JSRuntime.InvokeVoidAsync("downloadFile", new object[] { result.FileName, base64 });
+            _showExportDialog = false;
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
     }
 
     private void ViewMember(int memberId)

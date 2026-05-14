@@ -188,8 +188,13 @@ builder.Services.AddDbContext<GenoDbContext>(options =>
     }
 });
 
+// EPPlus license (required by EPPlus 7+). NonCommercial is appropriate for
+// cooperative/non-profit use; a commercial deployment must purchase a license.
+OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
 // Business services
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IMemberExportService, MemberExportService>();
 builder.Services.AddScoped<IShareService, ShareService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDividendService, DividendService>();

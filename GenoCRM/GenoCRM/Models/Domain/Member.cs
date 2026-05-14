@@ -76,9 +76,9 @@ public class Member
         ? $"{(string.IsNullOrEmpty(Prefix) ? "" : $"{Prefix} ")}{FirstName} {LastName}".Trim()
         : CompanyName;
     
-    public decimal TotalShareValue => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.TotalValue);
+    public decimal TotalShareValue => Shares.Where(s => s is { Status: ShareStatus.Active, IsFullyPaid: true }).Sum(s => s.TotalValue);
     
-    public int TotalShareCount => Shares.Where(s => s.Status == ShareStatus.Active).Sum(s => s.Quantity);
+    public int TotalShareCount => Shares.Where(s => s is { Status: ShareStatus.Active, IsFullyPaid: true }).Sum(s => s.Quantity);
 }
 
 public enum MemberStatus
