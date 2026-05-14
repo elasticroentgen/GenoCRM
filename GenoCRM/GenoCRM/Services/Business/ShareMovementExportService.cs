@@ -64,12 +64,19 @@ public class ShareMovementExportService : IShareMovementExportService
                 .IgnoreQueryFilters()
                 .Include(s => s.Member)
                 .Include(s => s.Payments)
-                .Where(s => s.IssueDate >= fromUtc && s.IssueDate < toExclusiveUtc)
+                .Where(s => s.Payments.Any(p => p.Status == PaymentStatus.Completed
+                                                && p.PaymentDate >= fromUtc
+                                                && p.PaymentDate < toExclusiveUtc))
                 .ToListAsync();
 
-            rows.AddRange(acquisitions
-                .Where(s => s.IsFullyPaid)
-                .Select(s => BuildShareRow(s, ShareMovementType.ShareAcquisition, s.IssueDate)));
+            foreach (var share in acquisitions)
+            {
+                if (!share.IsFullyPaid) continue;
+                var paidDate = GetFullyPaidDate(share);
+                if (paidDate is null) continue;
+                if (paidDate.Value < fromUtc || paidDate.Value >= toExclusiveUtc) continue;
+                rows.Add(BuildShareRow(share, ShareMovementType.ShareAcquisition, paidDate.Value));
+            }
         }
 
         if (request.Types.Contains(ShareMovementType.ShareCancellation))
@@ -118,6 +125,20 @@ public class ShareMovementExportService : IShareMovementExportService
             ShareMovementExportFormat.Xlsx => WriteXlsx(ordered),
             _ => throw new ArgumentOutOfRangeException(nameof(request.Format))
         };
+    }
+
+    private static DateTime? GetFullyPaidDate(CooperativeShare share)
+    {
+        decimal cumulative = 0m;
+        foreach (var p in share.Payments
+                     .Where(p => p.Status == PaymentStatus.Completed)
+                     .OrderBy(p => p.PaymentDate))
+        {
+            cumulative += p.Amount;
+            if (cumulative >= share.TotalValue)
+                return p.PaymentDate;
+        }
+        return null;
     }
 
     private static ShareMovementRow BuildMemberRow(Member m, ShareMovementType type, DateTime date, string? notes) =>
