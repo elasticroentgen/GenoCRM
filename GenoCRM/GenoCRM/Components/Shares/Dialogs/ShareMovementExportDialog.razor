@@ -1,0 +1,229 @@
+@using GenoCRM.Models.Export
+@using GenoCRM.Resources.Pages
+@using GenoCRM.Services.Business
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IStringLocalizer<Shares> SharesLocalizer
+@inject IFiscalYearService FiscalYearService
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5)">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-export me-2"></i>@SharesLocalizer["ExportMovementsTitle"]
+                </h5>
+                <button type="button" class="btn-close" @onclick="OnCancel"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">@SharesLocalizer["ExportMovementsDescription"]</p>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">@SharesLocalizer["ExportFormat"]</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="mov-fmt-xlsx"
+                                   checked="@(_format == ShareMovementExportFormat.Xlsx)"
+                                   @onchange="() => _format = ShareMovementExportFormat.Xlsx" />
+                            <label class="form-check-label" for="mov-fmt-xlsx">
+                                @SharesLocalizer["ExportFormat_Xlsx"]
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="mov-fmt-csv"
+                                   checked="@(_format == ShareMovementExportFormat.Csv)"
+                                   @onchange="() => _format = ShareMovementExportFormat.Csv" />
+                            <label class="form-check-label" for="mov-fmt-csv">
+                                @SharesLocalizer["ExportFormat_Csv"]
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">@SharesLocalizer["ExportPeriod"]</label>
+                    <select class="form-select mb-2" @bind="_periodPreset" @bind:after="ApplyPreset">
+                        <option value="LastFiscalYear">@SharesLocalizer["ExportPeriodPreset_LastFiscalYear"]</option>
+                        <option value="CurrentFiscalYear">@SharesLocalizer["ExportPeriodPreset_CurrentFiscalYear"]</option>
+                        <option value="Custom">@SharesLocalizer["ExportPeriodPreset_Custom"]</option>
+                    </select>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted" for="mov-from">@SharesLocalizer["ExportFrom"]</label>
+                            <input type="date" id="mov-from" class="form-control"
+                                   disabled="@(_periodPreset != "Custom")"
+                                   value="@_from.ToString("yyyy-MM-dd")"
+                                   @onchange="OnFromChanged" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted" for="mov-to">@SharesLocalizer["ExportTo"]</label>
+                            <input type="date" id="mov-to" class="form-control"
+                                   disabled="@(_periodPreset != "Custom")"
+                                   value="@_to.ToString("yyyy-MM-dd")"
+                                   @onchange="OnToChanged" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">@SharesLocalizer["ExportSelectMovementTypes"]</label>
+                    <div class="card">
+                        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">§30 GenG</span>
+                            <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox"
+                                       id="mov-all"
+                                       checked="@(_selected.Count == Enum.GetValues<ShareMovementType>().Length)"
+                                       @onchange="e => ToggleAll((bool)e.Value!)" />
+                                <label class="form-check-label small text-muted" for="mov-all">
+                                    @SharesLocalizer["ExportToggleAll"]
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-body py-2">
+                            @foreach (var type in Enum.GetValues<ShareMovementType>())
+                            {
+                                var id = $"mov-type-{type}";
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="@id"
+                                           checked="@_selected.Contains(type)"
+                                           @onchange="e => ToggleType(type, (bool)e.Value!)" />
+                                    <label class="form-check-label" for="@id">
+                                        @SharesLocalizer[$"ShareMovement_{type}"]
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info d-flex align-items-start mb-2" role="alert">
+                    <i class="fas fa-info-circle fa-lg me-2 mt-1"></i>
+                    <div>
+                        <strong>@SharesLocalizer["ExportFullyPaidNoticeTitle"]</strong><br />
+                        <small>@SharesLocalizer["ExportFullyPaidNoticeBody"]</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning d-flex align-items-start mb-0" role="alert">
+                    <i class="fas fa-user-shield fa-lg me-2 mt-1"></i>
+                    <div>
+                        <strong>@SharesLocalizer["ExportPrivacyNoticeTitle"]</strong><br />
+                        <small>@SharesLocalizer["ExportPrivacyNoticeBody"]</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="OnCancel">
+                    @SharedLocalizer["Cancel"]
+                </button>
+                <button type="button" class="btn btn-primary"
+                        disabled="@(!IsValid() || _isExporting)"
+                        @onclick="Confirm">
+                    @if (_isExporting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    <i class="fas fa-download me-1"></i>@SharesLocalizer["ExportConfirm"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (!window.downloadFile) {
+        window.downloadFile = function(filename, base64Data) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = 'data:application/octet-stream;base64,' + base64Data;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+</script>
+
+@code {
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<ShareMovementExportRequest> OnConfirm { get; set; }
+
+    private ShareMovementExportFormat _format = ShareMovementExportFormat.Xlsx;
+    private string _periodPreset = "LastFiscalYear";
+    private DateTime _from;
+    private DateTime _to;
+    private HashSet<ShareMovementType> _selected = new(Enum.GetValues<ShareMovementType>());
+    private bool _isExporting;
+
+    protected override void OnInitialized()
+    {
+        ApplyPreset();
+    }
+
+    private void ApplyPreset()
+    {
+        switch (_periodPreset)
+        {
+            case "LastFiscalYear":
+                var currentStart = FiscalYearService.GetCurrentFiscalYearStart();
+                _from = FiscalYearService.GetFiscalYearStart(currentStart.Year - 1);
+                _to = FiscalYearService.GetFiscalYearEnd(currentStart.Year - 1);
+                break;
+            case "CurrentFiscalYear":
+                _from = FiscalYearService.GetCurrentFiscalYearStart();
+                _to = FiscalYearService.GetCurrentFiscalYearEnd();
+                break;
+            // Custom: leave existing values in place
+        }
+    }
+
+    private void OnFromChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d)) _from = d.Date;
+    }
+
+    private void OnToChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var d)) _to = d.Date;
+    }
+
+    private void ToggleType(ShareMovementType type, bool isChecked)
+    {
+        if (isChecked) _selected.Add(type);
+        else _selected.Remove(type);
+    }
+
+    private void ToggleAll(bool isChecked)
+    {
+        if (isChecked)
+        {
+            foreach (var t in Enum.GetValues<ShareMovementType>()) _selected.Add(t);
+        }
+        else
+        {
+            _selected.Clear();
+        }
+    }
+
+    private bool IsValid() =>
+        _selected.Count > 0 && _from.Date <= _to.Date;
+
+    private async Task Confirm()
+    {
+        if (!IsValid()) return;
+        _isExporting = true;
+        try
+        {
+            var request = new ShareMovementExportRequest(
+                _from.Date,
+                _to.Date,
+                new HashSet<ShareMovementType>(_selected),
+                _format);
+            await OnConfirm.InvokeAsync(request);
+        }
+        finally
+        {
+            _isExporting = false;
+        }
+    }
+}

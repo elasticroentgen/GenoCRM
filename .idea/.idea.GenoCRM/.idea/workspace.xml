@@ -18,13 +18,8 @@
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Members/MemberList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Models/Domain/Member.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.de.resx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Resources/Pages/Members.resx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -230,7 +225,7 @@
       <workItem from="1772740595554" duration="16904000" />
       <workItem from="1775075838018" duration="12496000" />
       <workItem from="1777307044426" duration="14048000" />
-      <workItem from="1778737462704" duration="3024000" />
+      <workItem from="1778737462704" duration="4132000" />
     </task>
     <task id="LOCAL-00001" summary="add loan system">
       <option name="closed" value="true" />
@@ -280,7 +275,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775631826076</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="add member export feature">
+      <option name="closed" value="true" />
+      <created>1778740819865</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1778740819865</updated>
+    </task>
+    <task id="LOCAL-00008" summary="add member export feature">
+      <option name="closed" value="true" />
+      <created>1778740834093</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1778740834093</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,7 +315,8 @@
     <MESSAGE value="change dotnet version in dockerfile" />
     <MESSAGE value="fix prediction" />
     <MESSAGE value="fix member data structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix member data structure" />
+    <MESSAGE value="add member export feature" />
+    <option name="LAST_COMMIT_MESSAGE" value="add member export feature" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -331,13 +343,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs</url>
-          <line>301</line>
+          <line>302</line>
           <properties documentPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" containingFunctionPresentation="">
             <startOffsets>
-              <option value="16676" />
+              <option value="16763" />
             </startOffsets>
             <endOffsets>
-              <option value="16736" />
+              <option value="16823" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="14" />

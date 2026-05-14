@@ -195,6 +195,7 @@ OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonComm
 // Business services
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IMemberExportService, MemberExportService>();
+builder.Services.AddScoped<IShareMovementExportService, ShareMovementExportService>();
 builder.Services.AddScoped<IShareService, ShareService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDividendService, DividendService>();

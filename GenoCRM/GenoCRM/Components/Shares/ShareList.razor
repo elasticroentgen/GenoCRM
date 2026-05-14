@@ -1,5 +1,7 @@
 @page "/shares"
 @using GenoCRM.Models.Domain
+@using GenoCRM.Models.Export
+@using GenoCRM.Resources.Pages
 @using GenoCRM.Services.Business
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
@@ -8,10 +10,13 @@
 @attribute [Authorize(Policy = "ViewShares")]
 @inject IShareService ShareService
 @inject IPaymentService PaymentService
+@inject IShareMovementExportService MovementExportService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
+@inject IStringLocalizer<Shares> SharesLocalizer
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
 <PageTitle>@SharedLocalizer["CooperativeShares"]</PageTitle>
@@ -48,9 +53,14 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@SharedLocalizer["CooperativeShares"]</h1>
-    <button class="btn btn-primary" @onclick="CreateShare">
-        <i class="fas fa-plus"></i> @SharedLocalizer["NewShare"]
-    </button>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" @onclick="OpenMovementExportDialog">
+            <i class="fas fa-file-export"></i> @SharesLocalizer["ExportMovements"]
+        </button>
+        <button class="btn btn-primary" @onclick="CreateShare">
+            <i class="fas fa-plus"></i> @SharedLocalizer["NewShare"]
+        </button>
+    </div>
 </div>
 
 <div class="row mb-3">
@@ -381,6 +391,12 @@ else
                           OnComplete="OnAdjustmentComplete" />
 }
 
+@if (_showMovementExportDialog)
+{
+    <ShareMovementExportDialog OnCancel="() => _showMovementExportDialog = false"
+                               OnConfirm="HandleMovementExport" />
+}
+
 @code {
     private IEnumerable<CooperativeShare>? _shares;
     private IEnumerable<CooperativeShare>? _activeShares;
@@ -562,7 +578,28 @@ else
     // Dialog states
     private bool _showPaymentDialog = false;
     private bool _showAdjustmentDialog = false;
+    private bool _showMovementExportDialog = false;
     private int _selectedShareId = 0;
+
+    private void OpenMovementExportDialog()
+    {
+        _showMovementExportDialog = true;
+    }
+
+    private async Task HandleMovementExport(ShareMovementExportRequest request)
+    {
+        try
+        {
+            var result = await MovementExportService.ExportAsync(request);
+            var base64 = Convert.ToBase64String(result.Bytes);
+            await JSRuntime.InvokeVoidAsync("downloadFile", new object[] { result.FileName, base64 });
+            _showMovementExportDialog = false;
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], ex.Message);
+        }
+    }
 
     private void ShowPaymentDialog(int shareId)
     {

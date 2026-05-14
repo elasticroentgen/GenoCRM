@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Share Movement Export -->
+  <data name="ExportMovements" xml:space="preserve">
+    <value>Export movements</value>
+  </data>
+  <data name="ExportMovementsTitle" xml:space="preserve">
+    <value>Export share movements (audit period)</value>
+  </data>
+  <data name="ExportMovementsDescription" xml:space="preserve">
+    <value>Generates a movement list of cooperative shares for the cooperative audit (§30 GenG): joinings, leavings, share acquisitions, cancellations and transfers within the selected period.</value>
+  </data>
+  <data name="ExportFormat" xml:space="preserve">
+    <value>File format</value>
+  </data>
+  <data name="ExportFormat_Csv" xml:space="preserve">
+    <value>CSV (semicolon-separated)</value>
+  </data>
+  <data name="ExportFormat_Xlsx" xml:space="preserve">
+    <value>Excel (xlsx)</value>
+  </data>
+  <data name="ExportPeriod" xml:space="preserve">
+    <value>Audit period</value>
+  </data>
+  <data name="ExportPeriodPreset_LastFiscalYear" xml:space="preserve">
+    <value>Last fiscal year</value>
+  </data>
+  <data name="ExportPeriodPreset_CurrentFiscalYear" xml:space="preserve">
+    <value>Current fiscal year</value>
+  </data>
+  <data name="ExportPeriodPreset_Custom" xml:space="preserve">
+    <value>Custom range</value>
+  </data>
+  <data name="ExportFrom" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="ExportTo" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="ExportSelectMovementTypes" xml:space="preserve">
+    <value>Movement types</value>
+  </data>
+  <data name="ExportToggleAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="ExportConfirm" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportWorksheetName" xml:space="preserve">
+    <value>Movements</value>
+  </data>
+  <data name="ExportFullyPaidNoticeTitle" xml:space="preserve">
+    <value>Only fully paid shares</value>
+  </data>
+  <data name="ExportFullyPaidNoticeBody" xml:space="preserve">
+    <value>Share acquisitions, cancellations and transfers are only included when the affected share is fully paid. Joinings and leavings are always included regardless of payment status.</value>
+  </data>
+  <data name="ExportPrivacyNoticeTitle" xml:space="preserve">
+    <value>Data protection notice</value>
+  </data>
+  <data name="ExportPrivacyNoticeBody" xml:space="preserve">
+    <value>This file contains personal data of cooperative members. Store the file securely, share it only with the auditor or persons with a legitimate purpose, and delete it once no longer needed.</value>
+  </data>
+  <data name="ExportField_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="ExportField_MovementType" xml:space="preserve">
+    <value>Movement type</value>
+  </data>
+  <data name="ExportField_CounterMemberNumber" xml:space="preserve">
+    <value>Counterparty member no.</value>
+  </data>
+  <data name="ExportField_CounterMemberName" xml:space="preserve">
+    <value>Counterparty member name</value>
+  </data>
+  <data name="ShareMovement_Joining" xml:space="preserve">
+    <value>Joining</value>
+  </data>
+  <data name="ShareMovement_Leaving" xml:space="preserve">
+    <value>Leaving</value>
+  </data>
+  <data name="ShareMovement_ShareAcquisition" xml:space="preserve">
+    <value>Share acquisition</value>
+  </data>
+  <data name="ShareMovement_ShareCancellation" xml:space="preserve">
+    <value>Share cancellation</value>
+  </data>
+  <data name="ShareMovement_ShareTransfer" xml:space="preserve">
+    <value>Share transfer</value>
+  </data>
+</root>
