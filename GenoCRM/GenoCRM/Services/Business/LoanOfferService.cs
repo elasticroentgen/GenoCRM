@@ -88,6 +88,8 @@ public class LoanOfferService : ILoanOfferService
             if (!projectExists)
                 throw new InvalidOperationException($"Loan project with ID {offer.LoanProjectId} not found");
 
+            LoanPaymentPlanService.ValidateTerm(offer.TermMonths, offer.PaymentInterval);
+
             offer.CreatedAt = DateTime.UtcNow;
             offer.UpdatedAt = DateTime.UtcNow;
 
@@ -114,11 +116,14 @@ public class LoanOfferService : ILoanOfferService
             if (existing == null)
                 throw new InvalidOperationException($"Loan offer with ID {offer.Id} not found");
 
+            LoanPaymentPlanService.ValidateTerm(offer.TermMonths, offer.PaymentInterval);
+
             existing.Title = offer.Title;
             existing.InterestRate = offer.InterestRate;
             existing.TermMonths = offer.TermMonths;
             existing.PaymentInterval = offer.PaymentInterval;
             existing.RepaymentType = offer.RepaymentType;
+            existing.GracePeriodMonths = offer.GracePeriodMonths;
             existing.MinSubscriptionAmount = offer.MinSubscriptionAmount;
             existing.MaxSubscriptionAmount = offer.MaxSubscriptionAmount;
             existing.Status = offer.Status;

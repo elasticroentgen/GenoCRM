@@ -49,9 +49,10 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
             }
 
             // Calculate number of periods based on payment interval
+            ValidateTerm(offer.TermMonths, offer.PaymentInterval);
             int periodsPerYear = GetPeriodsPerYear(offer.PaymentInterval);
-            int totalPeriods = offer.TermMonths * periodsPerYear / 12;
             int monthsPerPeriod = 12 / periodsPerYear;
+            int totalPeriods = offer.TermMonths / monthsPerPeriod;
 
             decimal principal = subscription.Amount;
             decimal periodicRate = offer.InterestRate / periodsPerYear;
@@ -276,6 +277,21 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
         {
             _logger.LogError(ex, "Error retrieving payment plan entries for {Year}-{Month}", year, month);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// The term must be a positive whole number of payment periods, otherwise the plan would
+    /// silently drop months (integer division) or produce zero periods and divide by zero.
+    /// </summary>
+    public static void ValidateTerm(int termMonths, PaymentInterval interval)
+    {
+        int monthsPerPeriod = 12 / GetPeriodsPerYear(interval);
+        if (termMonths <= 0 || termMonths % monthsPerPeriod != 0)
+        {
+            throw new ArgumentException(
+                $"Term of {termMonths} months is not a whole number of {interval} payment periods ({monthsPerPeriod} months each)",
+                nameof(termMonths));
         }
     }
 
