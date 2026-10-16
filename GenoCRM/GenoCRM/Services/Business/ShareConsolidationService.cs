@@ -123,15 +123,15 @@ public class ShareConsolidationService : IShareConsolidationService
                 return result;
             }
 
-            // Check for pending transfers
-            var pendingTransfers = await _context.ShareTransfers
-                .Where(st => shareIdList.Contains(st.ShareId) && 
-                            st.Status == ShareTransferStatus.Pending)
+            // Check for open (pending or approved but not yet completed) transfers
+            var openTransfers = await _context.ShareTransfers
+                .Where(st => shareIdList.Contains(st.ShareId) &&
+                            (st.Status == ShareTransferStatus.Pending || st.Status == ShareTransferStatus.Approved))
                 .ToListAsync();
 
-            if (pendingTransfers.Any())
+            if (openTransfers.Any())
             {
-                result.ErrorMessage = "Cannot consolidate shares with pending transfers";
+                result.ErrorMessage = "Cannot consolidate shares with pending or approved transfers";
                 return result;
             }
 
@@ -238,7 +238,7 @@ public class ShareConsolidationService : IShareConsolidationService
                     nameof(CooperativeShare),
                     share.Id.ToString(),
                     $"Certificate {share.CertificateNumber} (consolidated)",
-                    Permissions.TransferShares,
+                    Permissions.ConsolidateShares,
                     consolidationDetails);
             }
 

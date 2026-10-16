@@ -12,6 +12,8 @@ public interface IShareService
     Task<CooperativeShare> CreateShareAsync(CooperativeShare share);
     Task<CooperativeShare> UpdateShareAsync(CooperativeShare share);
     Task<bool> DeleteShareAsync(int id);
+    /// <summary>Cancel an active, fully paid share with the statutory two-year notice period (§5).</summary>
+    Task<bool> CancelShareAsync(int id, DateTime? cancellationDate = null);
     Task<bool> CertificateNumberExistsAsync(string certificateNumber);
     Task<string> GenerateNextCertificateNumberAsync();
     Task<decimal> GetTotalShareCapitalAsync();
@@ -213,6 +215,53 @@ public class ShareService : IShareService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting share with ID {ShareId}", id);
+            throw;
+        }
+    }
+
+    public async Task<bool> CancelShareAsync(int id, DateTime? cancellationDate = null)
+    {
+        try
+        {
+            var share = await _context.CooperativeShares
+                .Include(s => s.Payments)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (share == null)
+            {
+                return false;
+            }
+
+            if (share.Status != ShareStatus.Active)
+            {
+                throw new InvalidOperationException($"Only active shares can be cancelled (certificate {share.CertificateNumber} is {share.Status})");
+            }
+
+            if (!share.IsFullyPaid)
+            {
+                throw new InvalidOperationException($"Share {share.CertificateNumber} must be fully paid before it can be cancelled");
+            }
+
+            // §5: cancellation takes effect at the earliest two years after notice
+            var earliest = DateTime.Today.AddYears(2);
+            var effectiveDate = cancellationDate?.Date ?? earliest;
+            if (effectiveDate < earliest)
+            {
+                throw new InvalidOperationException($"Cancellation date must be at least two years from today ({earliest:d})");
+            }
+
+            share.Status = ShareStatus.Cancelled;
+            share.CancellationDate = effectiveDate;
+            share.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Share {ShareId} cancelled effective {CancellationDate}", id, effectiveDate);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error cancelling share with ID {ShareId}", id);
             throw;
         }
     }

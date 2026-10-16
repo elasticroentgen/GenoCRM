@@ -76,8 +76,8 @@ public class ShareTransferService : IShareTransferService
                 return false;
             }
 
-            // Re-validate the transfer
-            if (!await ValidateShareTransferAsync(transfer.FromMemberId, transfer.ToMemberId, transfer.ShareId, transfer.Quantity))
+            // Re-validate the transfer (its own pending quantity must not count as reserved)
+            if (!await ValidateShareTransferAsync(transfer.FromMemberId, transfer.ToMemberId, transfer.ShareId, transfer.Quantity, excludeTransferId: transfer.Id))
             {
                 return false;
             }
@@ -145,6 +145,18 @@ public class ShareTransferService : IShareTransferService
                 if (transfer == null || transfer.Status != ShareTransferStatus.Approved)
                 {
                     return false;
+                }
+
+                // Re-validate against the share's current state: it may have been transferred,
+                // consolidated or partially transferred since this request was approved
+                if (transfer.Share.Status != ShareStatus.Active)
+                {
+                    throw new InvalidOperationException($"Share {transfer.Share.CertificateNumber} is no longer active ({transfer.Share.Status}) and cannot be transferred");
+                }
+
+                if (transfer.Share.Quantity < transfer.Quantity)
+                {
+                    throw new InvalidOperationException($"Share {transfer.Share.CertificateNumber} only has {transfer.Share.Quantity} shares left; cannot transfer {transfer.Quantity}");
                 }
 
                 // Validate max shares per member limit for the recipient
@@ -339,7 +351,10 @@ public class ShareTransferService : IShareTransferService
         }
     }
 
-    public async Task<bool> ValidateShareTransferAsync(int fromMemberId, int toMemberId, int shareId, int quantity)
+    public Task<bool> ValidateShareTransferAsync(int fromMemberId, int toMemberId, int shareId, int quantity)
+        => ValidateShareTransferAsync(fromMemberId, toMemberId, shareId, quantity, excludeTransferId: null);
+
+    private async Task<bool> ValidateShareTransferAsync(int fromMemberId, int toMemberId, int shareId, int quantity, int? excludeTransferId)
     {
         try
         {
@@ -374,8 +389,9 @@ public class ShareTransferService : IShareTransferService
                 return false;
             }
 
-            // Check if sufficient quantity available
-            if (share.Quantity < quantity)
+            // Check if sufficient quantity available after subtracting what open transfers already reserve
+            var reserved = await GetReservedQuantityAsync(shareId, excludeTransferId);
+            if (share.Quantity - reserved < quantity)
             {
                 return false;
             }
@@ -387,6 +403,16 @@ public class ShareTransferService : IShareTransferService
             _logger.LogError(ex, "Error validating share transfer");
             throw;
         }
+    }
+
+    /// <summary>Quantity of a share already claimed by pending or approved (not yet completed) transfers.</summary>
+    private async Task<int> GetReservedQuantityAsync(int shareId, int? excludeTransferId = null)
+    {
+        return await _context.ShareTransfers
+            .Where(t => t.ShareId == shareId &&
+                        t.Id != excludeTransferId &&
+                        (t.Status == ShareTransferStatus.Pending || t.Status == ShareTransferStatus.Approved))
+            .SumAsync(t => t.Quantity);
     }
 
     private async Task CheckAndLockMemberIfNoSharesAsync(int memberId)
