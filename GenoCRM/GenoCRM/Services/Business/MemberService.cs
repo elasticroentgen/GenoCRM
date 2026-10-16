@@ -195,7 +195,11 @@ public class MemberService : IMemberService
 
             // Member number cannot be changed after creation
             // Keep the existing member number
-            
+
+            // The form may pass the very same tracked instance, so compare against the value
+            // loaded from the database rather than against the incoming object
+            var previousStatus = _context.Entry(existingMember).OriginalValues.GetValue<MemberStatus>(nameof(Member.Status));
+
             // Update properties (excluding MemberNumber)
             existingMember.FirstName = member.FirstName;
             existingMember.LastName = member.LastName;
@@ -235,7 +239,7 @@ public class MemberService : IMemberService
             _logger.LogInformation("Member updated with ID {MemberId}", member.Id);
 
             // Sync to Listmonk if status changed
-            if (existingMember.Status != member.Status)
+            if (existingMember.Status != previousStatus)
             {
                 await _listmonkService.SyncMemberAsync(existingMember);
             }

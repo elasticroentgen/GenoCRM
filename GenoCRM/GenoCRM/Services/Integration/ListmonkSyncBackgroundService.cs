@@ -68,7 +68,9 @@ public class ListmonkSyncBackgroundService : BackgroundService
         try
         {
             // Get all members with valid email addresses
+            // Include terminated members (hidden by the global filter) so they get unsubscribed
             var members = await context.Members
+                .IgnoreQueryFilters()
                 .Where(m => !string.IsNullOrEmpty(m.Email))
                 .ToListAsync(cancellationToken);
 

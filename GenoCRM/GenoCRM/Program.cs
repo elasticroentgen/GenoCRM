@@ -223,24 +223,22 @@ builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("W
 builder.Services.Configure<SmsSettings>(builder.Configuration.GetSection("Sms"));
 
 // HTTP clients for messaging providers
-builder.Services.AddHttpClient<IWhatsAppProvider, WhatsAppProvider>();
-builder.Services.AddHttpClient<ISmsProvider, SmsProvider>();
+builder.Services.AddHttpClient<IWhatsAppProvider, WhatsAppProvider>(c => c.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient<ISmsProvider, SmsProvider>(c => c.Timeout = TimeSpan.FromSeconds(30));
 
-// Integration services
-builder.Services.AddHttpClient<INextcloudDocumentService, NextcloudDocumentService>();
-builder.Services.AddScoped<INextcloudDocumentService, NextcloudDocumentService>();
+// Integration services (typed clients are registered transient by AddHttpClient;
+// a second AddScoped/AddTransient would silently override the typed-client setup)
+builder.Services.AddHttpClient<INextcloudDocumentService, NextcloudDocumentService>(c => c.Timeout = TimeSpan.FromSeconds(60));
 
 // Listmonk integration
-builder.Services.AddHttpClient<IListmonkService, ListmonkService>();
-builder.Services.AddScoped<IListmonkService, ListmonkService>();
+builder.Services.AddHttpClient<IListmonkService, ListmonkService>(c => c.Timeout = TimeSpan.FromSeconds(15));
 builder.Services.AddHostedService<ListmonkSyncBackgroundService>();
 
 // PDF generation services
 builder.Services.AddScoped<IPdfGenerationService, PdfGenerationService>();
 
 // Authentication services
-builder.Services.AddHttpClient<INextcloudAuthService, NextcloudAuthService>();
-builder.Services.AddTransient<INextcloudAuthService, NextcloudAuthService>();
+builder.Services.AddHttpClient<INextcloudAuthService, NextcloudAuthService>(c => c.Timeout = TimeSpan.FromSeconds(15));
 
 // Configuration services
 builder.Services.AddSingleton<IGroupPermissionService, GroupPermissionService>();

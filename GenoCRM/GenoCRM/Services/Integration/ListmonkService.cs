@@ -92,12 +92,25 @@ public class ListmonkService : IListmonkService
             // Check if subscriber exists
             var existingSubscriber = await GetSubscriberByEmailAsync(member.Email);
 
+            if (existingSubscriber != null && existingSubscriber.Status == "blocklisted")
+            {
+                // The person opted out in Listmonk; never silently re-enable them
+                _logger.LogInformation("Subscriber {SubscriberId} for member {MemberId} is blocklisted, leaving untouched",
+                    existingSubscriber.Id, member.Id);
+                return existingSubscriber.Id;
+            }
+
+            // Keep memberships in other lists when updating
+            var lists = existingSubscriber == null
+                ? new[] { listId.Value }
+                : existingSubscriber.Lists.Append(listId.Value).Distinct().ToArray();
+
             var subscriberData = new
             {
                 email = member.Email,
                 name = member.FullName,
                 status = "enabled",
-                lists = new[] { listId.Value },
+                lists,
                 attribs = new
                 {
                     member_number = member.MemberNumber,
@@ -176,18 +189,19 @@ public class ListmonkService : IListmonkService
                 return;
             }
 
-            // Remove from the newsletter list but keep the subscriber record
-            var updatedLists = subscriber.Lists.Where(l => l != listId.Value).ToArray();
-
+            // Unsubscribe from the newsletter list only, keeping the subscriber record and other lists.
+            // PUT /api/subscribers/lists is Listmonk's list-membership endpoint; the subscriber
+            // update endpoint would require the full record and does not accept "disabled".
             var updateData = new
             {
-                lists = updatedLists,
-                status = updatedLists.Length > 0 ? "enabled" : "disabled"
+                ids = new[] { subscriber.Id },
+                action = "unsubscribe",
+                target_list_ids = new[] { listId.Value }
             };
 
             var json = JsonSerializer.Serialize(updateData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"subscribers/{subscriber.Id}", content);
+            var response = await _httpClient.PutAsync("subscribers/lists", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -237,7 +251,10 @@ public class ListmonkService : IListmonkService
 
         try
         {
-            var response = await _httpClient.GetAsync($"subscribers?query=subscribers.email='{email}'");
+            // The query is evaluated as SQL by Listmonk: escape quotes, then URL-encode so '+' survives
+            var escapedEmail = email.Replace("'", "''");
+            var query = Uri.EscapeDataString($"subscribers.email='{escapedEmail}'");
+            var response = await _httpClient.GetAsync($"subscribers?query={query}");
 
             if (!response.IsSuccessStatusCode)
             {
