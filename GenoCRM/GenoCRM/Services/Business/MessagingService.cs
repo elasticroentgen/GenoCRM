@@ -386,10 +386,14 @@ public class MessagingService : IMessagingService
 
     public async Task<IEnumerable<Member>> GetMembersForPaymentRemindersAsync()
     {
+        // IsFullyPaid is a computed CLR property and cannot be translated to SQL,
+        // so express "not fully paid" in terms of mapped columns.
         return await _context.Members
             .Include(m => m.Shares)
+                .ThenInclude(s => s.Payments)
             .Where(m => m.Status == MemberStatus.Active &&
-                       m.Shares.Any(s => s.Status == ShareStatus.Active && !s.IsFullyPaid))
+                       m.Shares.Any(s => s.Status == ShareStatus.Active &&
+                                         s.Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount) < s.Quantity * s.Value))
             .ToListAsync();
     }
 
