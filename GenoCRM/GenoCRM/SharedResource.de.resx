@@ -1786,4 +1786,124 @@
   <data name="MemberOffboardedSuccessfully" xml:space="preserve">
     <value>Mitglied wurde zum Ausscheiden vorgemerkt.</value>
   </data>
+  <data name="Action" xml:space="preserve">
+    <value>Aktion</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Betrag</value>
+  </data>
+  <data name="AuditLogFilters" xml:space="preserve">
+    <value>Filter für das Audit-Log</value>
+  </data>
+  <data name="BankTransfer" xml:space="preserve">
+    <value>Überweisung</value>
+  </data>
+  <data name="CancellationDate" xml:space="preserve">
+    <value>Kündigungsdatum</value>
+  </data>
+  <data name="Cash" xml:space="preserve">
+    <value>Bar</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Löschen bestätigen</value>
+  </data>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Bestätigung</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Anlegen</value>
+  </data>
+  <data name="CreditCard" xml:space="preserve">
+    <value>Kreditkarte</value>
+  </data>
+  <data name="Dividend" xml:space="preserve">
+    <value>Dividende</value>
+  </data>
+  <data name="DividendStatus" xml:space="preserve">
+    <value>Dividendenstatus</value>
+  </data>
+  <data name="Document" xml:space="preserve">
+    <value>Dokument</value>
+  </data>
+  <data name="ErrorAdjustingShares" xml:space="preserve">
+    <value>Fehler beim Anpassen der Anteile</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="MemberStatus" xml:space="preserve">
+    <value>Mitgliedsstatus</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Nachricht</value>
+  </data>
+  <data name="MessageActions" xml:space="preserve">
+    <value>Aktionen</value>
+  </data>
+  <data name="MessageStatus" xml:space="preserve">
+    <value>Nachrichtenstatus</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Weiter</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Pay" xml:space="preserve">
+    <value>Auszahlen</value>
+  </data>
+  <data name="Payment" xml:space="preserve">
+    <value>Zahlung</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Berechtigung</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Alle auswählen</value>
+  </data>
+  <data name="ShareActions" xml:space="preserve">
+    <value>Aktionen</value>
+  </data>
+  <data name="ShareStatus" xml:space="preserve">
+    <value>Anteilsstatus</value>
+  </data>
+  <data name="ShareTransfer" xml:space="preserve">
+    <value>Anteilsübertragung</value>
+  </data>
+  <data name="SharesAdjustedSuccessfully" xml:space="preserve">
+    <value>Anteile erfolgreich angepasst</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>Betreff</value>
+  </data>
+  <data name="Suspend" xml:space="preserve">
+    <value>Sperren</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Gesamt</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Aktualisiert am</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Benutzer</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Wert</value>
+  </data>
 </root>

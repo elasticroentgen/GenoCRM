@@ -1786,4 +1786,124 @@
   <data name="MemberOffboardedSuccessfully" xml:space="preserve">
     <value>Member marked for offboarding.</value>
   </data>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="AuditLogFilters" xml:space="preserve">
+    <value>Audit log filters</value>
+  </data>
+  <data name="BankTransfer" xml:space="preserve">
+    <value>Bank transfer</value>
+  </data>
+  <data name="CancellationDate" xml:space="preserve">
+    <value>Cancellation date</value>
+  </data>
+  <data name="Cash" xml:space="preserve">
+    <value>Cash</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Confirm deletion</value>
+  </data>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="CreditCard" xml:space="preserve">
+    <value>Credit card</value>
+  </data>
+  <data name="Dividend" xml:space="preserve">
+    <value>Dividend</value>
+  </data>
+  <data name="DividendStatus" xml:space="preserve">
+    <value>Dividend status</value>
+  </data>
+  <data name="Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="ErrorAdjustingShares" xml:space="preserve">
+    <value>Error adjusting shares</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="MemberStatus" xml:space="preserve">
+    <value>Member status</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="MessageActions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="MessageStatus" xml:space="preserve">
+    <value>Message status</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Pay" xml:space="preserve">
+    <value>Pay</value>
+  </data>
+  <data name="Payment" xml:space="preserve">
+    <value>Payment</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="ShareActions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="ShareStatus" xml:space="preserve">
+    <value>Share status</value>
+  </data>
+  <data name="ShareTransfer" xml:space="preserve">
+    <value>Share transfer</value>
+  </data>
+  <data name="SharesAdjustedSuccessfully" xml:space="preserve">
+    <value>Shares adjusted successfully</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="Suspend" xml:space="preserve">
+    <value>Suspend</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
 </root>

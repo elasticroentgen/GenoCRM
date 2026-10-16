@@ -12,6 +12,7 @@
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
 @inject IModalService ModalService
+@inject GenoCRM.Services.Localization.IFormattingService FormattingService
 @rendermode InteractiveServer
 
 <PageTitle>@SharedLocalizer["Dividends"]</PageTitle>
@@ -95,7 +96,7 @@
         <div class="card">
             <div class="card-body text-center">
                 <h6 class="card-title">@SharedLocalizer["TotalDividends"] (@_selectedYear)</h6>
-                <h4 class="text-primary">@_totalDividends.ToString("C")</h4>
+                <h4 class="text-primary">@FormattingService.FormatCurrency(_totalDividends)</h4>
             </div>
         </div>
     </div>
@@ -134,11 +135,11 @@ else if (_dividends?.Any() == true)
                     <tr>
                         <td>@dividend.Member?.FullName</td>
                         <td>@dividend.FiscalYear</td>
-                        <td>@dividend.BaseAmount.ToString("C")</td>
+                        <td>@FormattingService.FormatCurrency(dividend.BaseAmount)</td>
                         <td>@(dividend.Rate * 100)%</td>
-                        <td>@dividend.Amount.ToString("C")</td>
-                        <td>@(dividend.TaxWithheld?.ToString("C") ?? "-")</td>
-                        <td>@dividend.CalculatedNetAmount.ToString("C")</td>
+                        <td>@FormattingService.FormatCurrency(dividend.Amount)</td>
+                        <td>@(dividend.TaxWithheld.HasValue ? FormattingService.FormatCurrency(dividend.TaxWithheld.Value) : "-")</td>
+                        <td>@FormattingService.FormatCurrency(dividend.CalculatedNetAmount)</td>
                         <td>@dividend.DeclarationDate.ToShortDateString()</td>
                         <td>@(dividend.PaymentDate?.ToShortDateString() ?? "-")</td>
                         <td>

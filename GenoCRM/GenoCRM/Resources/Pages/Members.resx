@@ -391,4 +391,7 @@
   <data name="ExportPrivacyNoticeBody" xml:space="preserve">
     <value>This file contains personal data of cooperative members. Only export the fields you actually need, store the file securely, share it only with people who require it for a legitimate purpose, and delete it once no longer needed.</value>
   </data>
+  <data name="MemberStatus" xml:space="preserve">
+    <value>Member status</value>
+  </data>
 </root>

@@ -34,10 +34,16 @@ public class FormattingService : IFormattingService
         return FormatDate(date.Value);
     }
 
+    private static readonly TimeZoneInfo DisplayTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin");
+
     public string FormatDateTime(DateTime dateTime)
     {
         var culture = _cultureService.GetCurrentCulture();
-        return dateTime.ToString("g", culture);
+        // Timestamps are stored in UTC (and come back from Postgres with Kind=Unspecified);
+        // show them in the cooperative's local time
+        var utc = dateTime.Kind == DateTimeKind.Local ? dateTime.ToUniversalTime() : DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, DisplayTimeZone);
+        return local.ToString("g", culture);
     }
 
     public string FormatDateTime(DateTime? dateTime)
@@ -49,18 +55,18 @@ public class FormattingService : IFormattingService
     public string FormatCurrency(decimal amount)
     {
         var culture = _cultureService.GetCurrentCulture();
-        
-        // Use Euro for German culture, otherwise use the system default
-        var currencySymbol = culture.Name == "de" ? "€" : culture.NumberFormat.CurrencySymbol;
-        
-        if (culture.Name == "de")
+
+        // Amounts are always euros, whatever the UI language. The neutral "en" culture has no
+        // euro symbol (it yields "$" or "¤" depending on the platform), so set it explicitly.
+        if (culture.TwoLetterISOLanguageName == "de")
         {
             // German format: 1.234,56 €
-            return $"{amount:N2} €";
+            return $"{amount.ToString("N2", culture)} €";
         }
-        
-        // Default format (English): $1,234.56
-        return amount.ToString("C", culture);
+
+        var format = (NumberFormatInfo)culture.NumberFormat.Clone();
+        format.CurrencySymbol = "€";
+        return amount.ToString("C", format);
     }
 
     public string FormatNumber(decimal number)

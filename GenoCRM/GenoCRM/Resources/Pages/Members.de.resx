@@ -391,4 +391,7 @@
   <data name="ExportPrivacyNoticeBody" xml:space="preserve">
     <value>Diese Datei enthält personenbezogene Daten von Genossenschaftsmitgliedern. Exportieren Sie nur die wirklich benötigten Felder, speichern Sie die Datei sicher, geben Sie sie ausschließlich an Personen mit berechtigtem Interesse weiter und löschen Sie sie, sobald sie nicht mehr benötigt wird.</value>
   </data>
+  <data name="MemberStatus" xml:space="preserve">
+    <value>Mitgliedsstatus</value>
+  </data>
 </root>
