@@ -181,6 +181,17 @@ else
                     _transfers = allTransfers;
                 }
             }
+
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var term = _searchTerm.Trim();
+                _transfers = _transfers.Where(t =>
+                    (t.FromMember?.FullName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (t.FromMember?.MemberNumber?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (t.ToMember?.FullName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (t.ToMember?.MemberNumber?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (t.Share?.CertificateNumber?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+            }
         }
         catch (Exception ex)
         {
@@ -195,8 +206,6 @@ else
 
     private async Task SearchTransfers()
     {
-        // For now, just reload all transfers
-        // In a real implementation, you might want to add search functionality to the service
         await LoadTransfers();
     }
 

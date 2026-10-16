@@ -4,7 +4,7 @@ namespace GenoCRM.Services.Business;
 
 public interface IShareTransferService
 {
-    Task<ShareTransfer> CreateShareTransferRequestAsync(int fromMemberId, int toMemberId, int shareId, int quantity);
+    Task<ShareTransfer> CreateShareTransferRequestAsync(int fromMemberId, int toMemberId, int shareId, int quantity, string? notes = null);
     Task<bool> ApproveShareTransferAsync(int transferId, string approvedBy);
     Task<bool> RejectShareTransferAsync(int transferId, string rejectedBy, string reason);
     Task<bool> CompleteShareTransferAsync(int transferId);

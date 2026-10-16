@@ -13,6 +13,7 @@ using GenoCRM.Services.PDF;
 using GenoCRM.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -264,8 +265,10 @@ builder.Services.AddAuthentication(options =>
     options.LoginPath = "/login";
     options.LogoutPath = "/logout";
     options.AccessDeniedPath = "/access-denied";
-    options.ExpireTimeSpan = TimeSpan.FromHours(24);
-    options.SlidingExpiration = true;
+    // Group/permission claims are frozen into the cookie at login, so keep its lifetime short
+    // and fixed: a removed permission takes effect at the next login, at most 8 hours later
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = false;
 })
 .AddOAuth("Nextcloud", options =>
 {
@@ -342,6 +345,18 @@ if (app.Environment.IsDevelopment())
         await next();
     });
 }
+
+// Behind a TLS-terminating reverse proxy (the container serves plain HTTP on 8080) the scheme
+// and client address must come from the forwarded headers, otherwise the OAuth redirect_uri is
+// built as http:// and cookies are issued without the Secure flag.
+var forwardedHeaders = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+// The proxy address is not known at build time; trust whatever proxy fronts the container
+forwardedHeaders.KnownIPNetworks.Clear();
+forwardedHeaders.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeaders);
 
 app.UseHttpsRedirection();
 

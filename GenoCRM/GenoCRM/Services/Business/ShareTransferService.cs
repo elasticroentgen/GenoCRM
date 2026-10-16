@@ -19,7 +19,7 @@ public class ShareTransferService : IShareTransferService
         _configuration = configuration;
     }
 
-    public async Task<ShareTransfer> CreateShareTransferRequestAsync(int fromMemberId, int toMemberId, int shareId, int quantity)
+    public async Task<ShareTransfer> CreateShareTransferRequestAsync(int fromMemberId, int toMemberId, int shareId, int quantity, string? notes = null)
     {
         try
         {
@@ -42,7 +42,8 @@ public class ShareTransferService : IShareTransferService
                 Quantity = quantity,
                 TotalValue = quantity * share.NominalValue,
                 Status = ShareTransferStatus.Pending,
-                RequestDate = DateTime.UtcNow
+                RequestDate = DateTime.UtcNow,
+                Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim()
             };
 
             _context.ShareTransfers.Add(transfer);

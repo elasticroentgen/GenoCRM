@@ -273,7 +273,7 @@
         _isSubmitting = true;
         try
         {
-            await ShareTransferService.CreateShareTransferRequestAsync(_model.FromMemberId, _model.ToMemberId, _model.ShareId, _model.Quantity);
+            await ShareTransferService.CreateShareTransferRequestAsync(_model.FromMemberId, _model.ToMemberId, _model.ShareId, _model.Quantity, _model.Notes);
             await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["TransferCreatedSuccessfully"]);
             Navigation.NavigateTo("/shares/transfers");
         }

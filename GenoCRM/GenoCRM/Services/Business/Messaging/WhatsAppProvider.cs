@@ -134,9 +134,10 @@ public class WhatsAppProvider : IWhatsAppProvider
         if (string.IsNullOrWhiteSpace(phoneNumber))
             return false;
 
-        // Basic international phone number validation
-        var phoneRegex = new Regex(@"^\+?[1-9]\d{1,14}$");
-        return await Task.FromResult(phoneRegex.IsMatch(phoneNumber.Replace(" ", "").Replace("-", "")));
+        // Normalise first (strip separators, add the German country code to national numbers),
+        // then check the E.164 shape; validating the raw input rejected every "0171 ..." number
+        var phoneRegex = new Regex(@"^\+[1-9]\d{6,14}$");
+        return await Task.FromResult(phoneRegex.IsMatch(FormatPhoneNumber(phoneNumber)));
     }
 
     public async Task<Dictionary<string, object>> GetDeliveryStatusAsync(string messageId)
@@ -176,14 +177,19 @@ public class WhatsAppProvider : IWhatsAppProvider
 
     private string FormatPhoneNumber(string phoneNumber)
     {
-        var cleaned = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
-        
-        if (!cleaned.StartsWith("+"))
+        var cleaned = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "").Replace("/", "");
+
+        if (cleaned.StartsWith("00"))
+        {
+            // International dialling prefix
+            cleaned = "+" + cleaned[2..];
+        }
+        else if (!cleaned.StartsWith("+"))
         {
             // Assume German country code if no country code provided
             cleaned = "+49" + cleaned.TrimStart('0');
         }
-        
+
         return cleaned;
     }
 }

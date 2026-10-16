@@ -21,6 +21,7 @@ public interface IMessagingService
     Task<IEnumerable<Message>> GetMessagesForMemberAsync(int memberId, MessageType? type = null);
     
     Task<IEnumerable<Message>> GetMessagesByTypeAsync(MessageType type, DateTime? from = null, DateTime? to = null);
+    Task<IEnumerable<Message>> GetMessagesAsync(DateTime? from = null, DateTime? to = null);
     
     Task<IEnumerable<Message>> GetPendingMessagesAsync();
     

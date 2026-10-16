@@ -228,7 +228,7 @@ public class LoanSubscriptionService : ILoanSubscriptionService
             if (subscription == null) return false;
 
             subscription.BankAccountHolder = accountHolder.Trim();
-            subscription.IBAN = iban.Trim().ToUpperInvariant();
+            subscription.IBAN = iban.Replace(" ", "").ToUpperInvariant();
             subscription.BIC = string.IsNullOrWhiteSpace(bic) ? null : bic.Replace(" ", "").ToUpperInvariant();
             subscription.UpdatedAt = DateTime.UtcNow;
 

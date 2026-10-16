@@ -165,6 +165,18 @@ public class ShareStateMachineTests : IDisposable
         Assert.Equal(0, await _context.CooperativeShares.CountAsync(s => s.MemberId == to.Id));
     }
 
+    [Fact]
+    public async Task CreateShareTransferRequestAsync_StoresTheNotes()
+    {
+        var from = await AddMemberAsync("M001");
+        var to = await AddMemberAsync("M002");
+        var share = await AddShareAsync(from, 5, paid: true);
+
+        var transfer = await _transferService.CreateShareTransferRequestAsync(from.Id, to.Id, share.Id, 2, "Gift to daughter");
+
+        Assert.Equal("Gift to daughter", transfer.Notes);
+    }
+
     // --- consolidation --------------------------------------------------------
 
     [Theory]

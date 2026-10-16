@@ -384,6 +384,14 @@ public class MessagingService : IMessagingService
         return MessageChannel.Email; // Default fallback
     }
 
+    public async Task<IEnumerable<Message>> GetMessagesAsync(DateTime? from = null, DateTime? to = null)
+    {
+        var query = _context.Messages.Include(m => m.Member).AsQueryable();
+        if (from.HasValue) query = query.Where(m => m.CreatedAt >= from.Value);
+        if (to.HasValue) query = query.Where(m => m.CreatedAt <= to.Value);
+        return await query.OrderByDescending(m => m.CreatedAt).ToListAsync();
+    }
+
     public async Task<IEnumerable<Member>> GetMembersForPaymentRemindersAsync()
     {
         // IsFullyPaid is a computed CLR property and cannot be translated to SQL,

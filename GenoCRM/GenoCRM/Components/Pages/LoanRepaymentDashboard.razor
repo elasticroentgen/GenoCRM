@@ -34,7 +34,7 @@
     <div class="col-md-3">
         <label class="form-label">@L["SelectYear"]</label>
         <select class="form-select" @bind="_selectedYear" @bind:after="LoadEntries">
-            @for (int y = _currentYear; y <= _currentYear + 10; y++)
+            @for (int y = _currentYear - 5; y <= _currentYear + 10; y++)
             {
                 <option value="@y">@y</option>
             }
@@ -42,6 +42,10 @@
     </div>
 </div>
 
+@if (_loadError != null)
+{
+    <div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> @_loadError</div>
+}
 @if (_loading)
 {
     <div class="text-center">
@@ -162,6 +166,7 @@ else if (_entries != null)
     private bool _loading;
     private bool _processing;
     private bool _canManage;
+    private string? _loadError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -176,7 +181,14 @@ else if (_entries != null)
         StateHasChanged();
         try
         {
+            _loadError = null;
             _entries = await PaymentPlanService.GetEntriesByMonthAsync(_selectedYear, _selectedMonth);
+        }
+        catch (Exception ex)
+        {
+            // Rendered inline: an unhandled exception here would tear down the circuit
+            _entries = new List<LoanPaymentPlanEntry>();
+            _loadError = ex.Message;
         }
         finally
         {

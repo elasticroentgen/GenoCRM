@@ -236,12 +236,9 @@ else
             }
             else
             {
-                // Get all messages from the last 30 days
+                // All message types from the last 30 days
                 var from = DateTime.UtcNow.AddDays(-30);
-                _messages = await MessagingService.GetMessagesByTypeAsync(MessageType.PaymentReminder, from);
-                
-                // This is a simplified implementation - in production you'd want proper pagination
-                // and more sophisticated filtering
+                _messages = await MessagingService.GetMessagesAsync(from);
             }
 
             // Apply additional filters
