@@ -232,7 +232,9 @@ public class PaymentService : IPaymentService
             var yearPrefix = $"PAY{currentYear}";
             
             // Get the highest payment number for this year
+            // Include payments of terminated members: the unique index covers them too
             var highestPayment = await _context.Payments
+                .IgnoreQueryFilters()
                 .Where(p => p.PaymentNumber.StartsWith(yearPrefix))
                 .OrderByDescending(p => p.PaymentNumber)
                 .Select(p => p.PaymentNumber)
@@ -259,7 +261,7 @@ public class PaymentService : IPaymentService
 
     public async Task<bool> PaymentNumberExistsAsync(string paymentNumber)
     {
-        return await _context.Payments.AnyAsync(p => p.PaymentNumber == paymentNumber);
+        return await _context.Payments.IgnoreQueryFilters().AnyAsync(p => p.PaymentNumber == paymentNumber);
     }
 
     public async Task<decimal> GetTotalPaymentsForShareAsync(int shareId)

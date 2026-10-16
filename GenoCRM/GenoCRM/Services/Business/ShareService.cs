@@ -214,7 +214,8 @@ public class ShareService : IShareService
 
     public async Task<bool> CertificateNumberExistsAsync(string certificateNumber)
     {
-        return await _context.CooperativeShares.AnyAsync(s => s.CertificateNumber == certificateNumber);
+        // Certificate numbers are unique across all members, including terminated ones hidden by query filters
+        return await _context.CooperativeShares.IgnoreQueryFilters().AnyAsync(s => s.CertificateNumber == certificateNumber);
     }
 
     public async Task<string> GenerateNextCertificateNumberAsync()
@@ -247,6 +248,7 @@ public class ShareService : IShareService
                         
                         // Check if this certificate number already exists (double-check)
                         var exists = await _context.CooperativeShares
+                            .IgnoreQueryFilters()
                             .AnyAsync(s => s.CertificateNumber == result);
                         
                         if (!exists)
@@ -271,6 +273,7 @@ public class ShareService : IShareService
                     
                     // Check if this certificate number already exists (double-check)
                     var exists = await _context.CooperativeShares
+                        .IgnoreQueryFilters()
                         .AnyAsync(s => s.CertificateNumber == result);
                     
                     if (!exists)
@@ -301,7 +304,9 @@ public class ShareService : IShareService
     private async Task<string> GenerateNextCertificateNumberInternalAsync()
     {
         // Get the highest numeric certificate number by parsing all certificate numbers
+        // Include shares of terminated members: the unique index covers them too
         var allShares = await _context.CooperativeShares
+            .IgnoreQueryFilters()
             .Select(s => s.CertificateNumber)
             .ToListAsync();
 
