@@ -1,3 +1,4 @@
+@using System.ComponentModel.DataAnnotations
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
 @using GenoCRM.Services.UI
@@ -146,7 +147,7 @@
             else
             {
                 await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
-                    SharedLocalizer["DocumentUpdateError"]);
+                    SharedLocalizer["DocumentUpdateFailed"]);
             }
         }
         catch (Exception ex)
@@ -169,6 +170,8 @@
 
     private class DocumentEditModel
     {
+        [Required(ErrorMessage = "Title is required")]
+        [StringLength(200)]
         public string Title { get; set; } = string.Empty;
         public DocumentType Type { get; set; }
         public string? Description { get; set; }

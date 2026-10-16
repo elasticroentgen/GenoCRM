@@ -39,7 +39,8 @@
                 <h5 class="mb-0">@SharedLocalizer["EditDocument"]</h5>
             </div>
             <div class="card-body">
-                <DocumentEdit Document="@EditingDocument" 
+                <DocumentEdit @key="EditingDocument.Id"
+                             Document="@EditingDocument" 
                              OnDocumentUpdated="@OnDocumentUpdated"
                              OnCancel="@HideEditDialog" />
             </div>

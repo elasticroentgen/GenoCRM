@@ -325,13 +325,9 @@ public class DocumentService : IDocumentService
 
             await _context.SaveChangesAsync();
 
-            // Optionally delete from Nextcloud
-            if (!string.IsNullOrEmpty(document.NextcloudPath))
-            {
-                await _nextcloudService.DeleteFileAsync(document.NextcloudPath);
-            }
-
-            _logger.LogInformation("Document deleted: {DocumentId}", documentId);
+            // Soft delete only: the file stays in Nextcloud so the record can be restored and
+            // retention obligations for membership documents are honoured.
+            _logger.LogInformation("Document soft-deleted: {DocumentId}", documentId);
             return true;
         }
         catch (Exception ex)
