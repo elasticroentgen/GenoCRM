@@ -60,9 +60,10 @@ public class DocumentService : IDocumentService
                 nextcloudPath = _nextcloudService.GetGeneratedDocumentPath(uniqueFileName);
             }
 
-            // Read file into memory for upload and hash calculation
+            // Read file into memory for upload and hash calculation.
+            // OpenReadStream defaults to a 500 KB limit; use the configured maximum instead.
             byte[] fileData;
-            using (var stream = file.OpenReadStream())
+            using (var stream = file.OpenReadStream(GetMaxUploadSize()))
             {
                 using var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
@@ -454,6 +455,12 @@ public class DocumentService : IDocumentService
         }
     }
 
+    private long GetMaxUploadSize()
+    {
+        var maxFileSize = _configuration.GetValue<long>("Nextcloud:MaxFileSize");
+        return maxFileSize > 0 ? maxFileSize : 10L * 1024 * 1024;
+    }
+
     public Task<bool> IsFileSizeAllowedAsync(long fileSize)
     {
         try
@@ -506,7 +513,7 @@ public class DocumentService : IDocumentService
 
             // Read file into memory for upload
             byte[] fileData;
-            using (var stream = file.OpenReadStream())
+            using (var stream = file.OpenReadStream(GetMaxUploadSize()))
             {
                 using var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
