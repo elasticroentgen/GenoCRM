@@ -16,6 +16,7 @@ public interface IDividendService
     Task<decimal> CalculateDividendForMemberAsync(int memberId, int fiscalYear, decimal rate);
     Task<IEnumerable<Dividend>> CalculateDividendsForAllMembersAsync(int fiscalYear, decimal rate);
     Task<decimal> GetTotalDividendsByYearAsync(int fiscalYear);
+    Task<IEnumerable<int>> GetFiscalYearsWithDividendsAsync();
     Task<bool> ApproveDividendAsync(int dividendId);
     Task<bool> PayDividendAsync(int dividendId);
 }
@@ -246,10 +247,34 @@ public class DividendService : IDividendService
         }
     }
 
+    /// <summary>Upper bound for a plausible dividend rate (20 %). Guards against culture mix-ups like "0.03" parsed as 3.</summary>
+    public const decimal MaxDividendRate = 0.2m;
+
     public async Task<IEnumerable<Dividend>> CalculateDividendsForAllMembersAsync(int fiscalYear, decimal rate)
     {
+        if (rate <= 0 || rate > MaxDividendRate)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rate), rate,
+                $"Dividend rate must be between 0 and {MaxDividendRate:P0} (e.g. 0.03 for 3 %)");
+        }
+
+        if (fiscalYear < 1900 || fiscalYear >= DateTime.UtcNow.Year)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fiscalYear), fiscalYear,
+                "Dividends can only be calculated for a closed fiscal year");
+        }
+
         try
         {
+            // Refuse to run twice: every member would otherwise receive a second dividend
+            var alreadyCalculated = await _context.Dividends
+                .AnyAsync(d => d.FiscalYear == fiscalYear && d.Status != DividendStatus.Cancelled);
+            if (alreadyCalculated)
+            {
+                throw new InvalidOperationException(
+                    $"Dividends for fiscal year {fiscalYear} already exist. Delete or cancel them before recalculating.");
+            }
+
             var dividends = new List<Dividend>();
 
             // Get all active members
@@ -309,7 +334,7 @@ public class DividendService : IDividendService
         try
         {
             return await _context.Dividends
-                .Where(d => d.FiscalYear == fiscalYear)
+                .Where(d => d.FiscalYear == fiscalYear && d.Status != DividendStatus.Cancelled)
                 .SumAsync(d => d.Amount);
         }
         catch (Exception ex)
@@ -317,6 +342,15 @@ public class DividendService : IDividendService
             _logger.LogError(ex, "Error calculating total dividends for fiscal year {FiscalYear}", fiscalYear);
             throw;
         }
+    }
+
+    public async Task<IEnumerable<int>> GetFiscalYearsWithDividendsAsync()
+    {
+        return await _context.Dividends
+            .Select(d => d.FiscalYear)
+            .Distinct()
+            .OrderByDescending(y => y)
+            .ToListAsync();
     }
 
     public async Task<bool> ApproveDividendAsync(int dividendId)

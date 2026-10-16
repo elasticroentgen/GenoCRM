@@ -116,7 +116,9 @@ public class GenoDbContext : DbContext
 
         // Dividend indexes
         modelBuilder.Entity<Dividend>()
-            .HasIndex(d => new { d.MemberId, d.FiscalYear });
+            .HasIndex(d => new { d.MemberId, d.FiscalYear })
+            .IsUnique()
+            .HasFilter("\"ShareId\" IS NULL");
         
         modelBuilder.Entity<Dividend>()
             .HasIndex(d => d.FiscalYear);

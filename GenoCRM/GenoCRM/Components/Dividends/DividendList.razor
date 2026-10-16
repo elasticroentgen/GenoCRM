@@ -67,9 +67,10 @@
         <label class="form-label">@SharedLocalizer["Year"]</label>
         <select class="form-select" @bind="_selectedYear" @bind:after="FilterByYear">
             <option value="0">@SharedLocalizer["AllYears"]</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
+            @foreach (var year in _availableYears)
+            {
+                <option value="@year">@year</option>
+            }
         </select>
     </div>
     <div class="col-md-4">
@@ -179,7 +180,8 @@ else
 
 @code {
     private IEnumerable<Dividend>? _dividends;
-    private int _selectedYear = DateTime.Now.Year;
+    private int _selectedYear = DateTime.Now.Year - 1;
+    private List<int> _availableYears = new();
     private string _selectedStatus = string.Empty;
     private bool _isLoading = true;
     private decimal _totalDividends;
@@ -193,8 +195,25 @@ else
         _canCalculate = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.CalculateDividends)).Succeeded;
         _canApprove = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ApproveDividends)).Succeeded;
         _canPay = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.PayDividends)).Succeeded;
+        await LoadAvailableYears();
         await LoadDividends();
         await LoadTotalDividends();
+    }
+
+    private async Task LoadAvailableYears()
+    {
+        // Years that have dividends, plus the last closed year as the natural next candidate
+        var years = (await DividendService.GetFiscalYearsWithDividendsAsync()).ToList();
+        var lastClosedYear = DateTime.Now.Year - 1;
+        if (!years.Contains(lastClosedYear))
+        {
+            years.Add(lastClosedYear);
+        }
+        _availableYears = years.OrderByDescending(y => y).ToList();
+        if (_selectedYear != 0 && !_availableYears.Contains(_selectedYear))
+        {
+            _selectedYear = lastClosedYear;
+        }
     }
 
     private async Task LoadDividends()
@@ -202,7 +221,16 @@ else
         try
         {
             _isLoading = true;
-            _dividends = await DividendService.GetAllDividendsAsync();
+            var dividends = _selectedYear == 0
+                ? await DividendService.GetAllDividendsAsync()
+                : await DividendService.GetDividendsByFiscalYearAsync(_selectedYear);
+
+            if (!string.IsNullOrEmpty(_selectedStatus) && Enum.TryParse<DividendStatus>(_selectedStatus, out var status))
+            {
+                dividends = dividends.Where(d => d.Status == status).ToList();
+            }
+
+            _dividends = dividends;
         }
         catch (Exception ex)
         {
@@ -231,50 +259,48 @@ else
 
     private async Task FilterByYear()
     {
-        if (_selectedYear == 0)
-        {
-            await LoadDividends();
-        }
-        else
-        {
-            try
-            {
-                _isLoading = true;
-                _dividends = await DividendService.GetDividendsByFiscalYearAsync(_selectedYear);
-            }
-            catch (Exception ex)
-            {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error filtering dividends: {ex.Message}");
-            }
-            finally
-            {
-                _isLoading = false;
-            }
-        }
+        await LoadDividends();
         await LoadTotalDividends();
     }
 
     private async Task FilterByStatus()
     {
-        await FilterByYear(); // Apply year filter first
+        await LoadDividends();
     }
 
     private async Task CalculateAllDividends()
     {
-        var rate = await ModalService.ShowPromptAsync("Dividend Rate", "Enter dividend rate (e.g., 0.03 for 3%):", "0.03");
-        if (!string.IsNullOrEmpty(rate) && decimal.TryParse(rate, out var dividendRate))
+        if (_selectedYear == 0 || _selectedYear >= DateTime.Now.Year)
         {
-            try
-            {
-                var calculatedDividends = await DividendService.CalculateDividendsForAllMembersAsync(_selectedYear, dividendRate);
-                await LoadDividends();
-                await LoadTotalDividends();
-                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], $"Calculated {calculatedDividends.Count()} dividends for {_selectedYear}");
-            }
-            catch (Exception ex)
-            {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error calculating dividends: {ex.Message}");
-            }
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["SelectClosedFiscalYearForDividends"]);
+            return;
+        }
+
+        var rate = await ModalService.ShowPromptAsync(SharedLocalizer["DividendRate"], SharedLocalizer["DividendRatePrompt"], "0.03");
+        if (string.IsNullOrWhiteSpace(rate))
+        {
+            return;
+        }
+
+        // Accept both "0.03" and "0,03" regardless of the UI culture
+        var normalized = rate.Trim().Replace(',', '.');
+        if (!decimal.TryParse(normalized, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var dividendRate))
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], SharedLocalizer["InvalidDividendRate"]);
+            return;
+        }
+
+        try
+        {
+            var calculatedDividends = await DividendService.CalculateDividendsForAllMembersAsync(_selectedYear, dividendRate);
+            await LoadAvailableYears();
+            await LoadDividends();
+            await LoadTotalDividends();
+            await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], $"Calculated {calculatedDividends.Count()} dividends for {_selectedYear}");
+        }
+        catch (Exception ex)
+        {
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error calculating dividends: {ex.Message}");
         }
     }
 

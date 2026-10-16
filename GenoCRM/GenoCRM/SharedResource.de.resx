@@ -1744,4 +1744,16 @@
   <data name="NoMembersFound" xml:space="preserve">
     <value>Keine Mitglieder gefunden</value>
   </data>
+  <data name="DividendRate" xml:space="preserve">
+    <value>Dividendensatz</value>
+  </data>
+  <data name="DividendRatePrompt" xml:space="preserve">
+    <value>Dividendensatz als Dezimalbruch eingeben (z. B. 0,03 für 3 %):</value>
+  </data>
+  <data name="InvalidDividendRate" xml:space="preserve">
+    <value>Bitte einen gültigen Dividendensatz wie 0,03 eingeben.</value>
+  </data>
+  <data name="SelectClosedFiscalYearForDividends" xml:space="preserve">
+    <value>Bitte zuerst ein abgeschlossenes Geschäftsjahr auswählen, bevor Dividenden berechnet werden.</value>
+  </data>
 </root>

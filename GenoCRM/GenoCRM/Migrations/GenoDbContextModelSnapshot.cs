@@ -17,7 +17,7 @@ namespace GenoCRM.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -201,7 +201,9 @@ namespace GenoCRM.Migrations
 
                     b.HasIndex("Status");
 
-                    b.HasIndex("MemberId", "FiscalYear");
+                    b.HasIndex("MemberId", "FiscalYear")
+                        .IsUnique()
+                        .HasFilter("\"ShareId\" IS NULL");
 
                     b.ToTable("Dividends");
                 });

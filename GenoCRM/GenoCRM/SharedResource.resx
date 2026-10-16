@@ -1744,4 +1744,16 @@
   <data name="NoMembersFound" xml:space="preserve">
     <value>No members found</value>
   </data>
+  <data name="DividendRate" xml:space="preserve">
+    <value>Dividend rate</value>
+  </data>
+  <data name="DividendRatePrompt" xml:space="preserve">
+    <value>Enter the dividend rate as a decimal fraction (e.g. 0.03 for 3 %):</value>
+  </data>
+  <data name="InvalidDividendRate" xml:space="preserve">
+    <value>Please enter a valid dividend rate such as 0.03.</value>
+  </data>
+  <data name="SelectClosedFiscalYearForDividends" xml:space="preserve">
+    <value>Please select a closed fiscal year before calculating dividends.</value>
+  </data>
 </root>
