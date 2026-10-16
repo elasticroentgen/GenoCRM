@@ -1774,4 +1774,16 @@
   <data name="DocumentUpdateFailed" xml:space="preserve">
     <value>The document could not be updated.</value>
   </data>
+  <data name="FilteredByMember" xml:space="preserve">
+    <value>Showing entries for one member only.</value>
+  </data>
+  <data name="ShowAll" xml:space="preserve">
+    <value>Show all</value>
+  </data>
+  <data name="CannotOffboardMember" xml:space="preserve">
+    <value>This member cannot be offboarded yet: a termination notice must be on file and the two-year notice period must have ended at a fiscal year end.</value>
+  </data>
+  <data name="MemberOffboardedSuccessfully" xml:space="preserve">
+    <value>Member marked for offboarding.</value>
+  </data>
 </root>

@@ -300,7 +300,9 @@ public class MemberService : IMemberService
                 .Where(m => m.FirstName.ToLower().Contains(lowerSearchTerm) ||
                            m.LastName.ToLower().Contains(lowerSearchTerm) ||
                            m.MemberNumber.ToLower().Contains(lowerSearchTerm) ||
-                           m.Email.ToLower().Contains(lowerSearchTerm))
+                           m.Email.ToLower().Contains(lowerSearchTerm) ||
+                           (m.CompanyName != null && m.CompanyName.ToLower().Contains(lowerSearchTerm)) ||
+                           (m.ContactPerson != null && m.ContactPerson.ToLower().Contains(lowerSearchTerm)))
                 .OrderBy(m => m.MemberNumber)
                 .ToListAsync();
         }

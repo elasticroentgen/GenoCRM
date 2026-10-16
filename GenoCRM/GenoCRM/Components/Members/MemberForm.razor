@@ -74,6 +74,7 @@ else
 {
 <EditForm Model="@_member" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
     
     <div class="row">
         <div class="col-md-6">
@@ -93,7 +94,7 @@ else
                     
                     <div class="mb-3">
                         <label class="form-label">@SharedLocalizer["MemberType"]</label>
-                        <InputSelect @bind-Value="_member.MemberType" class="form-select" @onchange="OnMemberTypeChanged">
+                        <InputSelect @bind-Value="_member.MemberType" @bind-Value:after="OnMemberTypeChanged" class="form-select">
                             <option value="@MemberType.Individual">@SharedLocalizer["Individual"]</option>
                             <option value="@MemberType.Company">@SharedLocalizer["Company"]</option>
                         </InputSelect>
@@ -367,24 +368,19 @@ else
         Navigation.NavigateTo("/members");
     }
 
-    private void OnMemberTypeChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    private void OnMemberTypeChanged()
     {
-        if (Enum.TryParse<MemberType>(e.Value?.ToString(), out var memberType))
+        // Clear type-specific fields when switching so stale names are neither saved nor searchable
+        if (_member.MemberType == MemberType.Individual)
         {
-            _member.MemberType = memberType;
-            
-            // Clear type-specific fields when switching
-            if (memberType == MemberType.Individual)
-            {
-                _member.CompanyName = string.Empty;
-                _member.ContactPerson = null;
-            }
-            else
-            {
-                _member.FirstName = string.Empty;
-                _member.LastName = string.Empty;
-                _member.Prefix = null;
-            }
+            _member.CompanyName = string.Empty;
+            _member.ContactPerson = null;
+        }
+        else
+        {
+            _member.FirstName = string.Empty;
+            _member.LastName = string.Empty;
+            _member.Prefix = null;
         }
     }
 

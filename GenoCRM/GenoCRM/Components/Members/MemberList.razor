@@ -73,7 +73,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="@MembersLocalizer["SearchMembers"]" @bind="_searchTerm" @onkeydown="OnSearchKeyPress" />
+            <input type="text" class="form-control" placeholder="@MembersLocalizer["SearchMembers"]" @bind="_searchTerm" @bind:event="oninput" @onkeydown="OnSearchKeyPress" />
             <button class="btn btn-outline-secondary" @onclick="SearchMembers">
                 <i class="fas fa-search"></i>
             </button>
@@ -219,48 +219,30 @@ else
         }
     }
 
-    private async Task SearchMembers()
-    {
-        if (string.IsNullOrWhiteSpace(_searchTerm))
-        {
-            await LoadMembers();
-            return;
-        }
+    private async Task SearchMembers() => await ApplyFiltersAsync();
 
+    private async Task FilterByStatus() => await ApplyFiltersAsync();
+
+    /// <summary>Search text and status filter are combined instead of overwriting each other.</summary>
+    private async Task ApplyFiltersAsync()
+    {
         try
         {
             _isLoading = true;
-            _members = await MemberService.SearchMembersAsync(_searchTerm);
-        }
-        catch (Exception ex)
-        {
-            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error searching members: {ex.Message}");
-        }
-        finally
-        {
-            _isLoading = false;
-        }
-    }
+            IEnumerable<Member> members = string.IsNullOrWhiteSpace(_searchTerm)
+                ? await MemberService.GetAllMembersAsync()
+                : await MemberService.SearchMembersAsync(_searchTerm.Trim());
 
-    private async Task FilterByStatus()
-    {
-        if (string.IsNullOrWhiteSpace(_selectedStatus))
-        {
-            await LoadMembers();
-            return;
-        }
-
-        try
-        {
-            _isLoading = true;
             if (Enum.TryParse<MemberStatus>(_selectedStatus, out var status))
             {
-                _members = await MemberService.GetMembersByStatusAsync(status);
+                members = members.Where(m => m.Status == status).ToList();
             }
+
+            _members = members;
         }
         catch (Exception ex)
         {
-            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error filtering members: {ex.Message}");
+            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], $"Error loading members: {ex.Message}");
         }
         finally
         {
@@ -319,7 +301,7 @@ else
         var canOffboard = await MemberService.CanOffboardMemberAsync(memberId);
         if (!canOffboard)
         {
-            await ModalService.ShowAlertAsync(SharedLocalizer["Warning"], "This member cannot be offboarded at this time. Offboarding is not allowed in the last month of the fiscal year.");
+            await ModalService.ShowAlertAsync(SharedLocalizer["Warning"], SharedLocalizer["CannotOffboardMember"]);
             return;
         }
 
@@ -330,7 +312,7 @@ else
             {
                 await MemberService.OffboardMemberAsync(memberId);
                 await LoadMembers();
-                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], "Member marked for offboarding successfully");
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["MemberOffboardedSuccessfully"]);
             }
             catch (Exception ex)
             {

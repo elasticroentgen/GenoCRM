@@ -212,7 +212,7 @@ else
 
 @code {
     [Parameter] public int? MemberId { get; set; }
-    [SupplyParameterFromQuery] public int? memberIdQuery { get; set; }
+    [SupplyParameterFromQuery(Name = "memberId")] public int? memberIdQuery { get; set; }
 
     private ShareCreateModel _shareModel = new();
     private IEnumerable<Member>? _members;

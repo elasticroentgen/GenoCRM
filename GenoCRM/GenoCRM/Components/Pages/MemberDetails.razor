@@ -88,9 +88,12 @@ else
             </AuthorizeView>
             <AuthorizeView Policy="DeleteMembers">
                 <Authorized>
-                    <button class="btn btn-danger" @onclick="DeleteMember">
-                        <i class="fas fa-trash"></i> @SharedLocalizer["Delete"]
-                    </button>
+                    @if (_member.Status == MemberStatus.Active)
+                    {
+                        <button class="btn btn-outline-warning" @onclick="OffboardMember">
+                            <i class="fas fa-sign-out-alt"></i> @SharedLocalizer["OffboardMember"]
+                        </button>
+                    }
                 </Authorized>
             </AuthorizeView>
             </CascadingAuthenticationState>
@@ -294,7 +297,8 @@ else
                 </div>
             </div>
         </div>
-        
+    }
+
         <!-- Loan Subscriptions Section -->
         <MemberLoanSubscriptions Subscriptions="@_loanSubscriptions" />
 
@@ -311,7 +315,6 @@ else
                 </div>
             </Authorized>
         </AuthorizeView>
-    }
 }
 
 @code {
@@ -383,16 +386,23 @@ else
         Navigation.NavigateTo($"/members/{MemberId}/edit");
     }
 
-    private async Task DeleteMember()
+    private async Task OffboardMember()
     {
-        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], MembersLocalizer["DeleteConfirmation"]);
+        // Same path as the member list: termination notice, notice period and fiscal-year rules apply
+        if (!await MemberService.CanOffboardMemberAsync(MemberId))
+        {
+            await ModalService.ShowAlertAsync(SharedLocalizer["Warning"], SharedLocalizer["CannotOffboardMember"]);
+            return;
+        }
+
+        var confirmed = await ModalService.ShowConfirmationAsync(SharedLocalizer["Warning"], SharedLocalizer["OffboardConfirmation"]);
         if (confirmed)
         {
             try
             {
-                await MemberService.DeleteMemberAsync(MemberId);
-                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], MembersLocalizer["MemberDeletedSuccessfully"]);
-                Navigation.NavigateTo("/members");
+                await MemberService.OffboardMemberAsync(MemberId);
+                await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["MemberOffboardedSuccessfully"]);
+                await LoadMemberDetails();
             }
             catch (Exception ex)
             {

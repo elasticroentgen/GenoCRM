@@ -13,6 +13,7 @@ public class MemberValidationAttribute : ValidationAttribute
         }
 
         var errors = new List<string>();
+        var fields = new List<string>();
 
         // Validate individual-specific fields
         if (member.MemberType == MemberType.Individual)
@@ -20,11 +21,13 @@ public class MemberValidationAttribute : ValidationAttribute
             if (string.IsNullOrWhiteSpace(member.FirstName))
             {
                 errors.Add("First name is required for individuals.");
+                fields.Add(nameof(Member.FirstName));
             }
             
             if (string.IsNullOrWhiteSpace(member.LastName))
             {
                 errors.Add("Last name is required for individuals.");
+                fields.Add(nameof(Member.LastName));
             }
         }
         // Validate company-specific fields
@@ -33,12 +36,14 @@ public class MemberValidationAttribute : ValidationAttribute
             if (string.IsNullOrWhiteSpace(member.CompanyName))
             {
                 errors.Add("Company name is required for companies.");
+                fields.Add(nameof(Member.CompanyName));
             }
         }
 
         if (errors.Any())
         {
-            return new ValidationResult(string.Join(" ", errors));
+            // Name the fields so the form can show the message next to the input, not only in the summary
+            return new ValidationResult(string.Join(" ", errors), fields);
         }
 
         return ValidationResult.Success;

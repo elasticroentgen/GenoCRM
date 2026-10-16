@@ -1774,4 +1774,16 @@
   <data name="DocumentUpdateFailed" xml:space="preserve">
     <value>Das Dokument konnte nicht aktualisiert werden.</value>
   </data>
+  <data name="FilteredByMember" xml:space="preserve">
+    <value>Es werden nur Einträge eines Mitglieds angezeigt.</value>
+  </data>
+  <data name="ShowAll" xml:space="preserve">
+    <value>Alle anzeigen</value>
+  </data>
+  <data name="CannotOffboardMember" xml:space="preserve">
+    <value>Dieses Mitglied kann noch nicht ausscheiden: Es muss eine Kündigung vorliegen und die zweijährige Kündigungsfrist muss zum Ende eines Geschäftsjahres abgelaufen sein.</value>
+  </data>
+  <data name="MemberOffboardedSuccessfully" xml:space="preserve">
+    <value>Mitglied wurde zum Ausscheiden vorgemerkt.</value>
+  </data>
 </root>
