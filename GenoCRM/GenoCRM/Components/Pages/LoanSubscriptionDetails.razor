@@ -23,7 +23,16 @@
 
 <PageTitle>@L["SubscriptionDetails"]</PageTitle>
 
-@if (_subscription == null)
+@if (_loadError != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @_loadError
+    </div>
+    <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/loan-projects"))">
+        <i class="fas fa-arrow-left"></i> @L["BackToProjects"]
+    </button>
+}
+else if (_subscription == null)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -318,6 +327,7 @@ else
 
     private LoanSubscription? _subscription;
     private bool _canManage;
+    private string? _loadError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -333,14 +343,12 @@ else
             _subscription = await SubscriptionService.GetSubscriptionByIdAsync(SubscriptionId);
             if (_subscription == null)
             {
-                await ModalService.ShowErrorAsync(L["Error"], "Subscription not found");
-                Navigation.NavigateTo("/loan-projects");
+                _loadError = L["SubscriptionNotFound"];
             }
         }
         catch (Exception ex)
         {
-            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
-            Navigation.NavigateTo("/loan-projects");
+            _loadError = ex.Message;
         }
     }
 

@@ -18,7 +18,16 @@
 
 <PageTitle>@L["ProjectDetails"]</PageTitle>
 
-@if (_project == null)
+@if (_loadError != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @_loadError
+    </div>
+    <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/loan-projects"))">
+        <i class="fas fa-arrow-left"></i> @L["BackToProjects"]
+    </button>
+}
+else if (_project == null)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -191,6 +200,7 @@ else
 
     private LoanProject? _project;
     private bool _canManage;
+    private string? _loadError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -201,14 +211,12 @@ else
             _project = await ProjectService.GetProjectByIdAsync(ProjectId);
             if (_project == null)
             {
-                await ModalService.ShowErrorAsync(L["Error"], "Project not found");
-                Navigation.NavigateTo("/loan-projects");
+                _loadError = L["ProjectNotFound"];
             }
         }
         catch (Exception ex)
         {
-            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
-            Navigation.NavigateTo("/loan-projects");
+            _loadError = ex.Message;
         }
     }
 

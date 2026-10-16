@@ -18,7 +18,16 @@
 
 <PageTitle>@L["OfferDetails"]</PageTitle>
 
-@if (_offer == null)
+@if (_loadError != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @_loadError
+    </div>
+    <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/loan-projects"))">
+        <i class="fas fa-arrow-left"></i> @L["BackToProjects"]
+    </button>
+}
+else if (_offer == null)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -237,6 +246,7 @@ else
 
     private LoanOffer? _offer;
     private bool _canManage;
+    private string? _loadError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -247,14 +257,12 @@ else
             _offer = await OfferService.GetOfferByIdAsync(OfferId);
             if (_offer == null)
             {
-                await ModalService.ShowErrorAsync(L["Error"], "Offer not found");
-                Navigation.NavigateTo("/loan-projects");
+                _loadError = L["OfferNotFound"];
             }
         }
         catch (Exception ex)
         {
-            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
-            Navigation.NavigateTo("/loan-projects");
+            _loadError = ex.Message;
         }
     }
 

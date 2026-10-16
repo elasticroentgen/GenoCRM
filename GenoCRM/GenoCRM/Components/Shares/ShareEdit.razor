@@ -24,6 +24,15 @@
             </div>
         </div>
     }
+    else if (_loadError != null)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> @_loadError
+        </div>
+        <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/shares"))">
+            <i class="fas fa-arrow-left"></i> @SharedLocalizer["BackToShares"]
+        </button>
+    }
     else if (_share != null)
     {
         <div class="row mb-3">
@@ -202,6 +211,7 @@
     private CooperativeShare? _share;
     private ShareEditModel _editModel = new();
     private bool _isLoading = true;
+    private string? _loadError;
     private bool _isSaving = false;
 
     private class ShareEditModel
@@ -227,17 +237,18 @@
             _isLoading = true;
             _share = await ShareService.GetShareByIdAsync(ShareId);
             
-            if (_share != null)
+            if (_share == null)
             {
-                // Check if share can be edited
-                if (!CanEdit(_share))
-                {
-                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
-                        SharedLocalizer["ShareCannotBeEdited"]);
-                    Navigation.NavigateTo($"/shares/{ShareId}");
-                    return;
-                }
-                
+                _loadError = SharedLocalizer["ShareNotFound"];
+            }
+            else if (!CanEdit(_share))
+            {
+                // Render the message inline: a modal awaited during prerendering can never be closed
+                _loadError = SharedLocalizer["ShareCannotBeEdited"];
+                _share = null;
+            }
+            else
+            {
                 // Initialize edit model
                 _editModel.Status = _share.Status;
                 _editModel.CancellationDate = _share.CancellationDate;
@@ -246,8 +257,7 @@
         }
         catch (Exception ex)
         {
-            await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
-                string.Format(SharedLocalizer["ErrorLoadingShare"], ex.Message));
+            _loadError = string.Format(SharedLocalizer["ErrorLoadingShare"], ex.Message);
         }
         finally
         {

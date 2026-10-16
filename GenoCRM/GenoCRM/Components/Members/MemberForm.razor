@@ -61,6 +61,17 @@
     </button>
 </div>
 
+@if (_loadError != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @_loadError
+    </div>
+    <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/members"))">
+        <i class="fas fa-arrow-left"></i> @SharedLocalizer["BackToMembers"]
+    </button>
+}
+else
+{
 <EditForm Model="@_member" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
     
@@ -266,11 +277,13 @@
         </div>
     </div>
 </EditForm>
+}
 
 @code {
     [Parameter] public int? MemberId { get; set; }
     
     private Member _member = new();
+    private string? _loadError;
     private bool _isSubmitting = false;
     private int _initialShareQuantity = 1;
     private decimal _shareDenomination = 250.00m;
@@ -301,8 +314,7 @@
             }
             else
             {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], "Member not found");
-                Navigation.NavigateTo("/members");
+                _loadError = SharedLocalizer["MemberNotFound"];
             }
         }
         else

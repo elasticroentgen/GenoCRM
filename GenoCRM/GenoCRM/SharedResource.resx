@@ -1756,4 +1756,22 @@
   <data name="SelectClosedFiscalYearForDividends" xml:space="preserve">
     <value>Please select a closed fiscal year before calculating dividends.</value>
   </data>
+  <data name="ProjectNotFound" xml:space="preserve">
+    <value>Loan project not found.</value>
+  </data>
+  <data name="OfferNotFound" xml:space="preserve">
+    <value>Loan offer not found.</value>
+  </data>
+  <data name="SubscriptionNotFound" xml:space="preserve">
+    <value>Loan subscription not found.</value>
+  </data>
+  <data name="BackToMembers" xml:space="preserve">
+    <value>Back to members</value>
+  </data>
+  <data name="BackToShares" xml:space="preserve">
+    <value>Back to shares</value>
+  </data>
+  <data name="DocumentUpdateFailed" xml:space="preserve">
+    <value>The document could not be updated.</value>
+  </data>
 </root>

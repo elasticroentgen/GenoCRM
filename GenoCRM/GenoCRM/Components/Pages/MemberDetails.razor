@@ -53,7 +53,16 @@
     </HelpContent>
 </PageDocumentation>
 
-@if (_member == null)
+@if (_loadError != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> @_loadError
+    </div>
+    <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/members"))">
+        <i class="fas fa-arrow-left"></i> @SharedLocalizer["BackToMembers"]
+    </button>
+}
+else if (_member == null)
 {
     <div class="text-center">
         <div class="spinner-border" role="status">
@@ -316,6 +325,7 @@ else
     private decimal _totalShareValue;
     private bool _canConsolidate;
     private bool _canManageDocuments;
+    private string? _loadError;
     private ShareConsolidationModal _consolidationModal = null!;
 
     [Inject] private ILoanSubscriptionService LoanSubscriptionService { get; set; } = default!;
@@ -338,8 +348,7 @@ else
             _member = await MemberService.GetMemberByIdAsync(MemberId);
             if (_member == null)
             {
-                await ModalService.ShowErrorAsync(SharedLocalizer["Error"], MembersLocalizer["MemberNotFound"]);
-                Navigation.NavigateTo("/members");
+                _loadError = MembersLocalizer["MemberNotFound"];
             }
         }
         catch (Exception ex)

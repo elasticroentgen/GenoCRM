@@ -99,11 +99,12 @@ public class ModalService : IModalService
 
     public void Close(ModalResult result)
     {
-        if (_currentModalReference != null)
-        {
-            _currentModalReference.TaskCompletionSource.SetResult(result);
-            _currentModalReference = null;
-        }
+        // Clear the current modal and notify the container BEFORE completing the task:
+        // the awaiting caller may open the next modal in its continuation, and that modal
+        // must not be wiped out by this close.
+        var closing = _currentModalReference;
+        _currentModalReference = null;
         OnClose?.Invoke();
+        closing?.TaskCompletionSource.TrySetResult(result);
     }
 }

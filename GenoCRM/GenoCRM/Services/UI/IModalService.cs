@@ -24,7 +24,7 @@ public class ModalReference
     public Type ComponentType { get; set; } = typeof(object);
     public string Title { get; set; } = string.Empty;
     public Dictionary<string, object> Parameters { get; set; } = new();
-    public TaskCompletionSource<ModalResult> TaskCompletionSource { get; set; } = new();
+    public TaskCompletionSource<ModalResult> TaskCompletionSource { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 }
 
 public class ModalResult

@@ -1756,4 +1756,22 @@
   <data name="SelectClosedFiscalYearForDividends" xml:space="preserve">
     <value>Bitte zuerst ein abgeschlossenes Geschäftsjahr auswählen, bevor Dividenden berechnet werden.</value>
   </data>
+  <data name="ProjectNotFound" xml:space="preserve">
+    <value>Darlehensprojekt nicht gefunden.</value>
+  </data>
+  <data name="OfferNotFound" xml:space="preserve">
+    <value>Darlehensangebot nicht gefunden.</value>
+  </data>
+  <data name="SubscriptionNotFound" xml:space="preserve">
+    <value>Darlehenszeichnung nicht gefunden.</value>
+  </data>
+  <data name="BackToMembers" xml:space="preserve">
+    <value>Zurück zu den Mitgliedern</value>
+  </data>
+  <data name="BackToShares" xml:space="preserve">
+    <value>Zurück zu den Anteilen</value>
+  </data>
+  <data name="DocumentUpdateFailed" xml:space="preserve">
+    <value>Das Dokument konnte nicht aktualisiert werden.</value>
+  </data>
 </root>
