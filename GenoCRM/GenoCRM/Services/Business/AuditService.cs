@@ -1,12 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using GenoCRM.Data;
 using GenoCRM.Models.Domain;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace GenoCRM.Services.Business;
 
 public class AuditService : IAuditService
 {
+    // Keep umlauts, '+' and similar readable in stored audit JSON instead of \uXXXX escapes
+    private static readonly JsonSerializerOptions ChangesJsonOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
     private readonly GenoDbContext _context;
     private readonly ILogger<AuditService> _logger;
 
@@ -39,7 +47,7 @@ public class AuditService : IAuditService
                 EntityId = entityId,
                 EntityDescription = entityDescription,
                 Permission = permission,
-                Changes = changes != null ? JsonSerializer.Serialize(changes, new JsonSerializerOptions { WriteIndented = true }) : null,
+                Changes = changes != null ? JsonSerializer.Serialize(changes, ChangesJsonOptions) : null,
                 Timestamp = DateTime.UtcNow,
                 IpAddress = ipAddress,
                 UserAgent = userAgent

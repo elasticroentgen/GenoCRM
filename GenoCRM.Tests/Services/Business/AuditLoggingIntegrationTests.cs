@@ -132,7 +132,7 @@ public class AuditLoggingIntegrationTests : IDisposable
         auditLog.EntityId.Should().Be(result.Id.ToString());
         auditLog.EntityDescription.Should().Contain("John Doe");
         auditLog.EntityDescription.Should().Contain(result.MemberNumber);
-        auditLog.Permission.Should().Be("CreateMembers");
+        auditLog.Permission.Should().Be(Permissions.CreateMembers);
         auditLog.Changes.Should().NotBeNull();
         auditLog.Changes.Should().Contain("John Doe");
         auditLog.Changes.Should().Contain(initialShareQuantity.ToString());
@@ -171,7 +171,7 @@ public class AuditLoggingIntegrationTests : IDisposable
         auditLog.EntityType.Should().Be("Member");
         auditLog.EntityId.Should().Be(member.Id.ToString());
         auditLog.EntityDescription.Should().Contain("Jane Smith");
-        auditLog.Permission.Should().Be("UpdateMembers");
+        auditLog.Permission.Should().Be(Permissions.EditMembers);
         auditLog.Changes.Should().NotBeNull();
         auditLog.Changes.Should().Contain("jane.smith.updated@example.com");
         auditLog.Changes.Should().Contain("+9876543210");
@@ -208,6 +208,12 @@ public class AuditLoggingIntegrationTests : IDisposable
         };
         
         _context.CooperativeShares.AddRange(share1, share2);
+        await _context.SaveChangesAsync();
+
+        // Only fully paid shares can be consolidated
+        _context.Payments.AddRange(
+            new Payment { MemberId = member.Id, ShareId = share1.Id, PaymentNumber = "PAY-C002", Amount = 1250m, PaymentDate = DateTime.UtcNow, Status = PaymentStatus.Completed },
+            new Payment { MemberId = member.Id, ShareId = share2.Id, PaymentNumber = "PAY-C003", Amount = 750m, PaymentDate = DateTime.UtcNow, Status = PaymentStatus.Completed });
         await _context.SaveChangesAsync();
         
         // Clear existing audit logs
