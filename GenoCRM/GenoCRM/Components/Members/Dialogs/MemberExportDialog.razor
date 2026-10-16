@@ -106,19 +106,6 @@
     </div>
 </div>
 
-<script>
-    if (!window.downloadFile) {
-        window.downloadFile = function(filename, base64Data) {
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = 'data:application/octet-stream;base64,' + base64Data;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-    }
-</script>
-
 @code {
     [Parameter, EditorRequired] public IReadOnlyCollection<Member> Members { get; set; } = Array.Empty<Member>();
     [Parameter] public EventCallback OnCancel { get; set; }
