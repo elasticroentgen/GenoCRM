@@ -8,6 +8,11 @@ namespace GenoCRM.Services.Business;
 
 public class AuditService : IAuditService
 {
+    private const int MaxEntityDescriptionLength = 200;
+
+    private static string Truncate(string value, int maxLength) =>
+        value.Length <= maxLength ? value : value[..maxLength];
+
     // Keep umlauts, '+' and similar readable in stored audit JSON instead of \uXXXX escapes
     private static readonly JsonSerializerOptions ChangesJsonOptions = new()
     {
@@ -45,7 +50,7 @@ public class AuditService : IAuditService
                 Action = action.ToString(),
                 EntityType = entityType,
                 EntityId = entityId,
-                EntityDescription = entityDescription,
+                EntityDescription = Truncate(entityDescription, MaxEntityDescriptionLength),
                 Permission = permission,
                 Changes = changes != null ? JsonSerializer.Serialize(changes, ChangesJsonOptions) : null,
                 Timestamp = DateTime.UtcNow,
@@ -54,7 +59,16 @@ public class AuditService : IAuditService
             };
 
             _context.AuditLogs.Add(auditLog);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                // Detach the failed row, otherwise every later SaveChangesAsync on this (scoped) context retries it and fails too
+                _context.Entry(auditLog).State = EntityState.Detached;
+                throw;
+            }
 
             _logger.LogInformation("Audit log created: {Action} on {EntityType} {EntityId} by {UserName}", 
                 action, entityType, entityId, userName);
@@ -97,7 +111,9 @@ public class AuditService : IAuditService
 
             if (toDate.HasValue)
             {
-                query = query.Where(a => a.Timestamp <= toDate.Value);
+                // toDate is a calendar day: include everything up to the end of that day
+                var toExclusive = toDate.Value.Date.AddDays(1);
+                query = query.Where(a => a.Timestamp < toExclusive);
             }
 
             return await query
@@ -140,7 +156,9 @@ public class AuditService : IAuditService
 
             if (toDate.HasValue)
             {
-                query = query.Where(a => a.Timestamp <= toDate.Value);
+                // toDate is a calendar day: include everything up to the end of that day
+                var toExclusive = toDate.Value.Date.AddDays(1);
+                query = query.Where(a => a.Timestamp < toExclusive);
             }
 
             return await query.CountAsync();
