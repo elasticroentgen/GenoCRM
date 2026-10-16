@@ -577,8 +577,9 @@ public class MemberService : IMemberService
                 return false;
             }
 
-            // Mark member as offboarding
+            // Mark member as offboarding and record the legal end of membership (fiscal year end after notice period)
             member.Status = MemberStatus.Offboarding;
+            member.LeaveDate = await GetEarliestTerminationDateAsync(id) ?? DateTime.UtcNow;
             member.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -639,13 +640,7 @@ public class MemberService : IMemberService
     {
         try
         {
-            var canProcessOffboarding = _fiscalYearService.CanProcessOffboarding();
-            if (!canProcessOffboarding)
-            {
-                return Enumerable.Empty<Member>();
-            }
-
-            // Get members who have been in offboarding status and fiscal year has ended
+            // Members in offboarding whose membership-end fiscal year has closed
             var members = await _context.Members
                 .Where(m => m.Status == MemberStatus.Offboarding)
                 .Include(m => m.Shares)
@@ -653,7 +648,9 @@ public class MemberService : IMemberService
                 .Include(m => m.Dividends)
                 .ToListAsync();
 
-            return members;
+            return members
+                .Where(m => _fiscalYearService.CanProcessOffboarding(GetMembershipEndDate(m)))
+                .ToList();
         }
         catch (Exception ex)
         {
@@ -677,8 +674,8 @@ public class MemberService : IMemberService
                 return false;
             }
 
-            // Can only delete members in offboarding status after fiscal year end
-            if (member.Status != MemberStatus.Offboarding || !_fiscalYearService.CanProcessOffboarding())
+            // Can only delete members in offboarding status once the fiscal year of their membership end has closed
+            if (member.Status != MemberStatus.Offboarding || !_fiscalYearService.CanProcessOffboarding(GetMembershipEndDate(member)))
             {
                 return false;
             }
@@ -691,17 +688,19 @@ public class MemberService : IMemberService
                 return false;
             }
 
-            // Check if all dividends have been paid
-            var unpaidDividends = member.Dividends.Where(d => d.Status != DividendStatus.Paid).ToList();
+            // Check if all dividends have been paid (cancelled ones are not owed)
+            var unpaidDividends = member.Dividends
+                .Where(d => d.Status != DividendStatus.Paid && d.Status != DividendStatus.Cancelled)
+                .ToList();
             if (unpaidDividends.Any())
             {
                 _logger.LogWarning("Cannot delete member {MemberId} - still has unpaid dividends", id);
                 return false;
             }
 
-            // Mark as terminated instead of hard delete to preserve audit trail
+            // Mark as terminated instead of hard delete to preserve audit trail; keep the recorded membership end
             member.Status = MemberStatus.Terminated;
-            member.LeaveDate = DateTime.UtcNow;
+            member.LeaveDate ??= DateTime.UtcNow;
             member.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -716,6 +715,9 @@ public class MemberService : IMemberService
             throw;
         }
     }
+
+    /// <summary>The date the membership legally ended; falls back to the offboarding timestamp for legacy rows.</summary>
+    private static DateTime GetMembershipEndDate(Member member) => member.LeaveDate ?? member.UpdatedAt;
 
     public async Task<int> ProcessOffboardingMembersAsync()
     {

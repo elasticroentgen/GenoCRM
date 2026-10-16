@@ -82,13 +82,13 @@ public class FiscalYearService : IFiscalYearService
         return date >= currentFiscalYearStart && date <= currentFiscalYearEnd;
     }
 
-    public bool CanProcessOffboarding()
+    public bool CanProcessOffboarding(DateTime membershipEndDate)
     {
-        var now = DateTime.Now;
-        var currentFiscalYearEnd = GetCurrentFiscalYearEnd();
-        
-        // Can process offboarding after the fiscal year has ended
-        return now > currentFiscalYearEnd;
+        // Offboarding can be finalised once the fiscal year containing the membership end has closed.
+        // GetFiscalYearEnd is the inclusive last day, so "closed" means today is past that day.
+        var fiscalYear = GetFiscalYearForDate(membershipEndDate);
+        var fiscalYearEnd = GetFiscalYearEnd(fiscalYear);
+        return DateTime.Today > fiscalYearEnd.Date;
     }
 
     public DateTime GetOffboardingProcessingDate()

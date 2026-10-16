@@ -11,6 +11,7 @@ public interface IFiscalYearService
     int GetCurrentFiscalYear();
     int GetFiscalYearForDate(DateTime date);
     bool IsDateInCurrentFiscalYear(DateTime date);
-    bool CanProcessOffboarding();
+    /// <summary>True once the fiscal year in which the membership ended has closed.</summary>
+    bool CanProcessOffboarding(DateTime membershipEndDate);
     DateTime GetOffboardingProcessingDate();
 }

@@ -157,7 +157,7 @@ else if (_members?.Any() == true)
                                                     <i class="fas fa-sign-out-alt"></i>
                                                 </button>
                                             }
-                                            else if (member.Status == MemberStatus.Offboarding && FiscalYearService.CanProcessOffboarding())
+                                            else if (member.Status == MemberStatus.Offboarding && FiscalYearService.CanProcessOffboarding(member.LeaveDate ?? member.UpdatedAt))
                                             {
                                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => FinallyDeleteMember(member.Id)" title="@SharedLocalizer["Delete"]">
                                                     <i class="fas fa-trash"></i>
