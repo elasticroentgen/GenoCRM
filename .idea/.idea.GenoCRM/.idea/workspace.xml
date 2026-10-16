@@ -18,8 +18,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bbd2aeea-22ea-4722-b4e2-7774c4dc3b7e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GenoCRM/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Components/Shares/ShareList.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GenoCRM/GenoCRM/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,7 +223,7 @@
       <workItem from="1772740595554" duration="16904000" />
       <workItem from="1775075838018" duration="12496000" />
       <workItem from="1777307044426" duration="14048000" />
-      <workItem from="1778737462704" duration="4132000" />
+      <workItem from="1778737462704" duration="10260000" />
     </task>
     <task id="LOCAL-00001" summary="add loan system">
       <option name="closed" value="true" />
@@ -291,7 +289,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778740834093</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="share movement export">
+      <option name="closed" value="true" />
+      <created>1778742041957</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1778742041957</updated>
+    </task>
+    <task id="LOCAL-00010" summary="fix export dates for payments">
+      <option name="closed" value="true" />
+      <created>1778746938581</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1778746938581</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -316,7 +330,9 @@
     <MESSAGE value="fix prediction" />
     <MESSAGE value="fix member data structure" />
     <MESSAGE value="add member export feature" />
-    <option name="LAST_COMMIT_MESSAGE" value="add member export feature" />
+    <MESSAGE value="share movement export" />
+    <MESSAGE value="fix export dates for payments" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix export dates for payments" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
