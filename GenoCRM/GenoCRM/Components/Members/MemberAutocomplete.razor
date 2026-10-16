@@ -1,6 +1,5 @@
 @using GenoCRM.Models.Domain
 @using GenoCRM.Services.Business
-@using System.Timers
 @implements IDisposable
 @inject IMemberService MemberService
 @inject IStringLocalizer<GenoCRM.SharedResource> L
@@ -24,7 +23,7 @@
                 <li class="list-group-item list-group-item-action"
                     style="cursor: pointer;"
                     @onmousedown="() => Select(member)">
-                    <strong>@member.FirstName @member.LastName</strong>
+                    <strong>@member.FullName</strong>
                     <small class="text-muted ms-2">(@member.MemberNumber)</small>
                 </li>
             }
@@ -46,7 +45,7 @@
     private List<Member> _results = new();
     private bool _showDropdown;
     private bool _searching;
-    private Timer? _debounce;
+    private CancellationTokenSource? _debounceCts;
     private int _lastSelectedId;
 
     protected override async Task OnParametersSetAsync()
@@ -56,7 +55,7 @@
             var member = await MemberService.GetMemberByIdAsync(MemberId);
             if (member != null)
             {
-                _inputValue = $"{member.FirstName} {member.LastName} ({member.MemberNumber})";
+                _inputValue = $"{member.FullName} ({member.MemberNumber})";
                 _lastSelectedId = MemberId;
             }
         }
@@ -67,7 +66,7 @@
         }
     }
 
-    private void OnInput(ChangeEventArgs e)
+    private async Task OnInput(ChangeEventArgs e)
     {
         _inputValue = e.Value?.ToString() ?? string.Empty;
         _showDropdown = true;
@@ -76,36 +75,56 @@
         {
             MemberId = 0;
             _lastSelectedId = 0;
-            _ = MemberIdChanged.InvokeAsync(0);
+            await MemberIdChanged.InvokeAsync(0);
         }
 
-        _debounce?.Stop();
-        _debounce?.Dispose();
+        // Cancel any pending search; a newer keystroke supersedes it
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = null;
 
         if (_inputValue.Length < 2)
         {
             _results.Clear();
-            StateHasChanged();
             return;
         }
 
-        _debounce = new Timer(300) { AutoReset = false };
-        _debounce.Elapsed += async (_, _) => await RunSearch(_inputValue);
-        _debounce.Start();
+        // Debounce on the renderer's own synchronization context. Unlike a System.Timers.Timer
+        // callback this never touches the circuit-scoped DbContext from a thread-pool thread, and
+        // an exception here cannot escape as an unobserved async-void crash.
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+        try
+        {
+            await Task.Delay(300, token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        await RunSearch(_inputValue, token);
     }
 
-    private async Task RunSearch(string term)
+    private async Task RunSearch(string term, CancellationToken token)
     {
         _searching = true;
         try
         {
             var matches = await MemberService.SearchMembersAsync(term);
-            _results = matches.Take(10).ToList();
+            if (!token.IsCancellationRequested)
+            {
+                _results = matches.Take(10).ToList();
+            }
+        }
+        catch (Exception)
+        {
+            // A failed lookup must not take the circuit down; show "no results" instead
+            _results.Clear();
         }
         finally
         {
             _searching = false;
-            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -126,7 +145,7 @@
 
     private async Task Select(Member member)
     {
-        _inputValue = $"{member.FirstName} {member.LastName} ({member.MemberNumber})";
+        _inputValue = $"{member.FullName} ({member.MemberNumber})";
         MemberId = member.Id;
         _lastSelectedId = member.Id;
         _showDropdown = false;
@@ -136,7 +155,7 @@
 
     public void Dispose()
     {
-        _debounce?.Stop();
-        _debounce?.Dispose();
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
     }
 }
