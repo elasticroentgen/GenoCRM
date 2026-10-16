@@ -156,12 +156,15 @@ else
                                     <i class="fas fa-times"></i> @SharedLocalizer["Reject"]
                                 </button>
                             }
-                            <button class="btn btn-warning" @onclick="CancelTransfer">
-                                <i class="fas fa-ban"></i> @SharedLocalizer["Cancel"]
-                            </button>
+                            @if (_canApprove)
+                            {
+                                <button class="btn btn-warning" @onclick="CancelTransfer">
+                                    <i class="fas fa-ban"></i> @SharedLocalizer["Cancel"]
+                                </button>
+                            }
                         </div>
                     }
-                    else if (_transfer.Status == ShareTransferStatus.Approved)
+                    else if (_transfer.Status == ShareTransferStatus.Approved && _canApprove)
                     {
                         <div class="d-grid gap-2">
                             <button class="btn btn-info" @onclick="CompleteTransfer">

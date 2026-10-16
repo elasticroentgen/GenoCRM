@@ -75,6 +75,7 @@ public static class AuthorizationPolicies
     public const string ApproveShareTransfers = "ApproveShareTransfers";
     public const string RejectShareTransfers = "RejectShareTransfers";
     public const string ConsolidateShares = "ConsolidateShares";
+    public const string TransferShares = "TransferShares";
     
     public const string ViewDividends = "ViewDividends";
     public const string CalculateDividends = "CalculateDividends";
@@ -89,6 +90,7 @@ public static class AuthorizationPolicies
     
     public const string Administration = "Administration";
     public const string ViewReports = "ViewReports";
+    public const string ExportData = "ExportData";
     
     public const string ViewMessages = "ViewMessages";
     public const string SendMessages = "SendMessages";
@@ -138,6 +140,9 @@ public static class AuthorizationPolicies
         options.AddPolicy(ConsolidateShares, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ConsolidateShares)));
 
+        options.AddPolicy(TransferShares, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.TransferShares)));
+
         options.AddPolicy(ViewDividends, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewDividends)));
         
@@ -167,6 +172,9 @@ public static class AuthorizationPolicies
         
         options.AddPolicy(ViewReports, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewReports)));
+
+        options.AddPolicy(ExportData, policy => 
+            policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ExportData)));
 
         options.AddPolicy(ViewMessages, policy => 
             policy.Requirements.Add(new PermissionRequirement(Models.Domain.Permissions.ViewMessages)));

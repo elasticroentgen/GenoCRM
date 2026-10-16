@@ -18,6 +18,9 @@
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
 @inject IShareConsolidationService ConsolidationService
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
 @rendermode InteractiveServer
 
 <PageTitle>@MembersLocalizer["MemberDetails"]</PageTitle>
@@ -287,14 +290,18 @@ else
         <MemberLoanSubscriptions Subscriptions="@_loanSubscriptions" />
 
         <!-- Documents Section -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5><i class="fas fa-file-alt"></i> @SharedLocalizer["Documents"]</h5>
-            </div>
-            <div class="card-body">
-                <DocumentManager MemberId="@MemberId" CanEdit="true" />
-            </div>
-        </div>
+        <AuthorizeView Policy="ViewDocuments">
+            <Authorized Context="docContext">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-file-alt"></i> @SharedLocalizer["Documents"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <DocumentManager MemberId="@MemberId" CanEdit="_canManageDocuments" />
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     }
 }
 
@@ -308,12 +315,16 @@ else
     private int _activeShares;
     private decimal _totalShareValue;
     private bool _canConsolidate;
+    private bool _canManageDocuments;
     private ShareConsolidationModal _consolidationModal = null!;
 
     [Inject] private ILoanSubscriptionService LoanSubscriptionService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManageDocuments = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ManageDocuments)).Succeeded;
+
         await LoadMemberDetails();
         await LoadMemberShares();
         await LoadLoanSubscriptions();

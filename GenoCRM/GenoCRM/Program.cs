@@ -290,18 +290,26 @@ builder.Services.AddAuthentication(options =>
             var authService = context.HttpContext.RequestServices.GetRequiredService<INextcloudAuthService>();
             
             var nextcloudUser = await authService.GetUserInfoAsync(context.AccessToken!);
-            if (nextcloudUser != null)
+            if (nextcloudUser == null)
             {
-                var groups = await authService.GetUserGroupsAsync(context.AccessToken!, nextcloudUser.Id);
-                var user = await authService.SyncUserAsync(nextcloudUser, groups);
-                
-                // Create claims principal
-                var principal = authService.CreateClaimsPrincipal(user);
-                context.Principal = principal;
-                
-                // Sign in the user with the cookie scheme
-                await context.HttpContext.SignInAsync("Cookies", principal);
+                // Never sign in an empty identity: abort the login instead
+                throw new AuthenticationFailureException("Could not retrieve user information from Nextcloud");
             }
+
+            var groups = await authService.GetUserGroupsAsync(context.AccessToken!, nextcloudUser.Id);
+            var user = await authService.SyncUserAsync(nextcloudUser, groups);
+
+            // Replace the handler's empty identity with our claims principal.
+            // The OAuth handler signs this principal into the cookie scheme itself.
+            context.Principal = authService.CreateClaimsPrincipal(user);
+        },
+        OnRemoteFailure = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Auth");
+            logger.LogWarning(context.Failure, "Nextcloud login failed");
+            context.Response.Redirect("/access-denied");
+            context.HandleResponse();
+            return Task.CompletedTask;
         }
     };
 });

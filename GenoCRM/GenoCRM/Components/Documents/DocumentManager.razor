@@ -9,9 +9,12 @@
 <div class="document-manager">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>@SharedLocalizer["Documents"]</h4>
-        <button class="btn btn-primary" @onclick="ShowUploadDialog">
-            <i class="fas fa-plus"></i> @SharedLocalizer["UploadDocument"]
-        </button>
+        @if (CanEdit)
+        {
+            <button class="btn btn-primary" @onclick="ShowUploadDialog">
+                <i class="fas fa-plus"></i> @SharedLocalizer["UploadDocument"]
+            </button>
+        }
     </div>
 
     @if (ShowUpload)

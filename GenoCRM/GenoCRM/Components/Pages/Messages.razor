@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
-@attribute [Authorize(Policy = "AdminGroup")]
+@attribute [Authorize(Policy = "ViewMessages")]
 @inject IMessagingService MessagingService
 @inject IMemberService MemberService
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer

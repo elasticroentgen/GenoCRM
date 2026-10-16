@@ -17,14 +17,17 @@ public class AuthController : Controller
     [HttpGet("login")]
     public IActionResult Login(string? returnUrl = null)
     {
+        // Only allow local return URLs to prevent open redirects
+        var target = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
+
         if (User.Identity?.IsAuthenticated == true)
         {
-            return Redirect(returnUrl ?? "/");
+            return LocalRedirect(target);
         }
 
         var props = new AuthenticationProperties
         {
-            RedirectUri = returnUrl ?? "/"
+            RedirectUri = target
         };
 
         return Challenge(props, "Nextcloud");
@@ -32,6 +35,7 @@ public class AuthController : Controller
 
     [HttpPost("logout")]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync("Cookies");

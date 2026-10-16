@@ -4,7 +4,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ViewLoans")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject ILoanProjectService ProjectService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
@@ -16,9 +20,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@L["LoanProjects"]</h1>
-    <button class="btn btn-primary" @onclick="CreateProject">
-        <i class="fas fa-plus"></i> @L["CreateProject"]
-    </button>
+    @if (_canManage)
+    {
+        <button class="btn btn-primary" @onclick="CreateProject">
+            <i class="fas fa-plus"></i> @L["CreateProject"]
+        </button>
+    }
 </div>
 
 @if (_projects == null)
@@ -89,9 +96,12 @@ else
 
 @code {
     private IEnumerable<LoanProject>? _projects;
+    private bool _canManage;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManage = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ManageLoans)).Succeeded;
         try
         {
             _projects = await ProjectService.GetAllProjectsAsync();

@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ManageLoans")]
 @inject ILoanOfferService OfferService
 @inject ILoanProjectService ProjectService
 @inject NavigationManager Navigation

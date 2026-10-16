@@ -5,7 +5,7 @@
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @using GenoCRM.Components.Members
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ManageLoans")]
 @inject ILoanSubscriptionService SubscriptionService
 @inject ILoanOfferService OfferService
 @inject IMemberService MemberService

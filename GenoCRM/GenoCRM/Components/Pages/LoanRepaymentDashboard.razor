@@ -4,7 +4,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ViewLoans")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject ILoanPaymentPlanService PaymentPlanService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
@@ -65,7 +69,7 @@ else if (_entries != null)
                 </div>
             </div>
         </div>
-        @if (_entries.Count > 0)
+        @if (_entries.Count > 0 && _canManage)
         {
             <div class="col-md-3 d-flex align-items-center">
                 <button class="btn btn-success" @onclick="MarkAllAsPaid" disabled="@_processing">
@@ -127,10 +131,13 @@ else if (_entries != null)
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(entry.Id)" disabled="@_processing"
-                                        title="@L["MarkAsPaid"]">
-                                    <i class="fas fa-check"></i>
-                                </button>
+                                @if (_canManage)
+                                {
+                                    <button class="btn btn-sm btn-outline-success" @onclick="() => MarkAsPaid(entry.Id)" disabled="@_processing"
+                                            title="@L["MarkAsPaid"]">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
@@ -154,9 +161,12 @@ else if (_entries != null)
     private List<LoanPaymentPlanEntry>? _entries;
     private bool _loading;
     private bool _processing;
+    private bool _canManage;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManage = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ManageLoans)).Succeeded;
         await LoadEntries();
     }
 

@@ -47,7 +47,7 @@
                             @if (OnMarkAsPaid.HasDelegate)
                             {
                                 <td>
-                                    @if (entry.Status != PaymentPlanEntryStatus.Paid)
+                                    @if (CanMarkAsPaid && entry.Status != PaymentPlanEntryStatus.Paid)
                                     {
                                         <button class="btn btn-sm btn-outline-success"
                                                 @onclick="() => OnMarkAsPaid.InvokeAsync(entry.Id)">
@@ -76,6 +76,7 @@
 @code {
     [Parameter] public List<LoanPaymentPlanEntry> Entries { get; set; } = new();
     [Parameter] public EventCallback<int> OnMarkAsPaid { get; set; }
+    [Parameter] public bool CanMarkAsPaid { get; set; } = true;
 
     private static string GetEntryStatusColor(PaymentPlanEntryStatus status) => status switch
     {

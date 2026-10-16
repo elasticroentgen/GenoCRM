@@ -4,7 +4,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ViewLoans")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject ILoanOfferService OfferService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> L
@@ -30,9 +34,12 @@ else
             <button class="btn btn-outline-secondary me-2" @onclick="GoBack">
                 <i class="fas fa-arrow-left"></i> @L["BackToProject"]
             </button>
-            <button class="btn btn-primary me-2" @onclick="EditOffer">
-                <i class="fas fa-edit"></i> @L["Edit"]
-            </button>
+            @if (_canManage)
+            {
+                <button class="btn btn-primary me-2" @onclick="EditOffer">
+                    <i class="fas fa-edit"></i> @L["Edit"]
+                </button>
+            }
         </div>
     </div>
 
@@ -150,9 +157,12 @@ else
             {
                 <div class="card">
                     <div class="card-body">
-                        <button class="btn btn-success w-100" @onclick="CreateSubscription">
-                            <i class="fas fa-plus"></i> @L["CreateSubscription"]
-                        </button>
+                        @if (_canManage)
+                        {
+                            <button class="btn btn-success w-100" @onclick="CreateSubscription">
+                                <i class="fas fa-plus"></i> @L["CreateSubscription"]
+                            </button>
+                        }
                     </div>
                 </div>
             }
@@ -226,9 +236,12 @@ else
     [Parameter] public int OfferId { get; set; }
 
     private LoanOffer? _offer;
+    private bool _canManage;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManage = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ManageLoans)).Succeeded;
         try
         {
             _offer = await OfferService.GetOfferByIdAsync(OfferId);

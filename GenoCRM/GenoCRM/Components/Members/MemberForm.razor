@@ -6,7 +6,11 @@
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
 @using GenoCRM.Resources.Pages
-@attribute [Authorize(Policy = "CreateMembers")]
+@attribute [Authorize]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IMemberService MemberService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
@@ -275,6 +279,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Create and edit share this page but require different permissions
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var requiredPolicy = IsEdit ? AuthorizationPolicies.EditMembers : AuthorizationPolicies.CreateMembers;
+        if (!(await AuthorizationService.AuthorizeAsync(authState.User, requiredPolicy)).Succeeded)
+        {
+            Navigation.NavigateTo("/access-denied");
+            return;
+        }
+
         // Load countries and share denomination
         _countries = CountryService.GetCountries();
         _shareDenomination = await MemberService.GetCurrentShareDenominationAsync();

@@ -4,6 +4,10 @@
 @using GenoCRM.Services.UI
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Policy = "ViewDividends")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IDividendService DividendService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
@@ -50,9 +54,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>@SharedLocalizer["Dividends"]</h1>
-    <button class="btn btn-success" @onclick="CalculateAllDividends">
-        <i class="fas fa-calculator"></i> @SharedLocalizer["CalculateDividends"]
-    </button>
+    @if (_canCalculate)
+    {
+        <button class="btn btn-success" @onclick="CalculateAllDividends">
+            <i class="fas fa-calculator"></i> @SharedLocalizer["CalculateDividends"]
+        </button>
+    }
 </div>
 
 <div class="row mb-3">
@@ -132,13 +139,13 @@ else if (_dividends?.Any() == true)
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                @if (dividend.Status == DividendStatus.Declared)
+                                @if (_canApprove && dividend.Status == DividendStatus.Declared)
                                 {
                                     <button class="btn btn-sm btn-outline-success" @onclick="() => ApproveDividend(dividend.Id)">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 }
-                                @if (dividend.Status == DividendStatus.Approved)
+                                @if (_canPay && dividend.Status == DividendStatus.Approved)
                                 {
                                     <button class="btn btn-sm btn-outline-primary" @onclick="() => PayDividend(dividend.Id)">
                                         <i class="fas fa-money-bill"></i>
@@ -149,7 +156,7 @@ else if (_dividends?.Any() == true)
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 *@
-                                @if (dividend.Status != DividendStatus.Paid)
+                                @if (_canPay && dividend.Status != DividendStatus.Paid)
                                 {
                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDividend(dividend.Id)">
                                         <i class="fas fa-trash"></i>
@@ -176,9 +183,16 @@ else
     private string _selectedStatus = string.Empty;
     private bool _isLoading = true;
     private decimal _totalDividends;
+    private bool _canCalculate;
+    private bool _canApprove;
+    private bool _canPay;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canCalculate = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.CalculateDividends)).Succeeded;
+        _canApprove = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ApproveDividends)).Succeeded;
+        _canPay = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.PayDividends)).Succeeded;
         await LoadDividends();
         await LoadTotalDividends();
     }

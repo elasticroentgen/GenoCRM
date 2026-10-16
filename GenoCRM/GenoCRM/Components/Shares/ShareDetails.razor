@@ -6,6 +6,10 @@
 @using GenoCRM.Services.UI
 @using GenoCRM.Components.Documents
 @attribute [Authorize(Policy = "ViewShares")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IShareService ShareService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
@@ -318,9 +322,12 @@
     private CooperativeShare? _share;
     private bool _isLoading = true;
     private PaymentForm? _paymentForm;
+    private bool _canEdit;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canEdit = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.EditShares)).Succeeded;
         await LoadShare();
     }
 
@@ -356,7 +363,7 @@
         if (_share == null) return false;
         
         // Can only record payments for active shares that are not fully paid
-        return _share.Status == ShareStatus.Active && !_share.IsFullyPaid;
+        return _canEdit && _share.Status == ShareStatus.Active && !_share.IsFullyPaid;
     }
 
     private async Task ShowPaymentForm()

@@ -107,13 +107,13 @@ else if (_transfers?.Any() == true)
                                         </button>
                                     }
                                 }
-                                @if (transfer.Status == ShareTransferStatus.Approved)
+                                @if (_canApprove && transfer.Status == ShareTransferStatus.Approved)
                                 {
                                     <button class="btn btn-sm btn-outline-info" @onclick="() => CompleteTransfer(transfer.Id)" title="@SharedLocalizer["Complete"]">
                                         <i class="fas fa-check-double"></i>
                                     </button>
                                 }
-                                @if (transfer.Status == ShareTransferStatus.Pending || transfer.Status == ShareTransferStatus.Approved)
+                                @if (_canApprove && (transfer.Status == ShareTransferStatus.Pending || transfer.Status == ShareTransferStatus.Approved))
                                 {
                                     <button class="btn btn-sm btn-outline-warning" @onclick="() => CancelTransfer(transfer.Id)" title="@SharedLocalizer["Cancel"]">
                                         <i class="fas fa-ban"></i>

@@ -8,6 +8,10 @@
 @using GenoCRM.Services.UI
 @using GenoCRM.Components.Shares.Dialogs
 @attribute [Authorize(Policy = "ViewShares")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IShareService ShareService
 @inject IPaymentService PaymentService
 @inject IShareMovementExportService MovementExportService
@@ -174,21 +178,24 @@ else if (!string.IsNullOrEmpty(_selectedStatus))
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
                                     }
-                                    @if (share.Status == ShareStatus.Active && !share.IsFullyPaid)
+                                    @if (_canEdit && share.Status == ShareStatus.Active && !share.IsFullyPaid)
                                     {
                                         <button class="btn btn-sm btn-outline-success" @onclick="() => ShowPaymentDialog(share.Id)" title="@SharedLocalizer["RecordPayment"]">
                                             <i class="fas fa-credit-card"></i>
                                         </button>
                                     }
-                                    @if (share.Status == ShareStatus.Active)
+                                    @if (_canEdit && share.Status == ShareStatus.Active)
                                     {
                                         <button class="btn btn-sm btn-outline-dark" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
                                             <i class="fas fa-sliders-h"></i>
                                         </button>
                                     }
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
+                                    @if (_canCancel)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -266,18 +273,24 @@ else
                                                             <i class="fas fa-exchange-alt"></i>
                                                         </button>
                                                     }
-                                                    @if (!share.IsFullyPaid)
+                                                    @if (_canEdit && !share.IsFullyPaid)
                                                     {
                                                         <button class="btn btn-sm btn-outline-success" @onclick="() => ShowPaymentDialog(share.Id)" title="@SharedLocalizer["RecordPayment"]">
                                                             <i class="fas fa-credit-card"></i>
                                                         </button>
                                                     }
-                                                    <button class="btn btn-sm btn-outline-dark" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
-                                                        <i class="fas fa-sliders-h"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
-                                                        <i class="fas fa-ban"></i>
-                                                    </button>
+                                                    @if (_canEdit)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-dark" @onclick="() => ShowAdjustmentDialog(share.Id)" title="@SharedLocalizer["AdjustShares"]">
+                                                            <i class="fas fa-sliders-h"></i>
+                                                        </button>
+                                                    }
+                                                    @if (_canCancel)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                                            <i class="fas fa-ban"></i>
+                                                        </button>
+                                                    }
                                                 </div>
                                             </td>
                                         </tr>
@@ -354,9 +367,12 @@ else
                                                     <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditShare(share.Id)">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
-                                                        <i class="fas fa-ban"></i>
-                                                    </button>
+                                                    @if (_canCancel)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelShare(share.Id)">
+                                                            <i class="fas fa-ban"></i>
+                                                        </button>
+                                                    }
                                                 </div>
                                             </td>
                                         </tr>
@@ -407,9 +423,14 @@ else
     private decimal _unpaidShareCapital;
     private decimal _activeShareCapital;
     private decimal _offboardingSharesValue;
+    private bool _canEdit;
+    private bool _canCancel;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canEdit = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.EditShares)).Succeeded;
+        _canCancel = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.CancelShares)).Succeeded;
         await LoadShares();
         await LoadTotalCapital();
         await LoadActiveCapital();

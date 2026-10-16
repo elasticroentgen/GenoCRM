@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GenoCRM.Services.Authorization;
 using GenoCRM.Models.Domain;
 using GenoCRM.Services.Business;
 
@@ -6,6 +8,7 @@ namespace GenoCRM.Controllers.Api;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = AuthorizationPolicies.ViewMembers)]
 public class MembersController : ControllerBase
 {
     private readonly IMemberService _memberService;
@@ -96,6 +99,7 @@ public class MembersController : ControllerBase
     /// Create new member
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = AuthorizationPolicies.CreateMembers)]
     public async Task<ActionResult<MemberDto>> CreateMember(CreateMemberDto createMemberDto)
     {
         try

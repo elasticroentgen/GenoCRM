@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -25,7 +27,9 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
             return;
         }
 
-        if (!apiKey.Equals(extractedApiKey))
+        var expected = Encoding.UTF8.GetBytes(apiKey);
+        var provided = Encoding.UTF8.GetBytes(extractedApiKey.ToString());
+        if (!CryptographicOperations.FixedTimeEquals(expected, provided))
         {
             context.Result = new UnauthorizedObjectResult("Invalid API Key");
             return;

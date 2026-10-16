@@ -6,7 +6,11 @@
 @using GenoCRM.Services.UI
 @using GenoCRM.Components.Loans
 @using GenoCRM.Components.Shared
-@attribute [Authorize]
+@attribute [Authorize(Policy = "ViewLoans")]
+@inject IAuthorizationService AuthorizationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using GenoCRM.Services.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject ILoanSubscriptionService SubscriptionService
 @inject ILoanOfferService OfferService
 @inject ILoanPaymentPlanService PaymentPlanService
@@ -32,7 +36,7 @@ else
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>@L["LoanSubscription"] @_subscription.SubscriptionNumber</h1>
         <div>
-            @if (!_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+            @if (_canManage && !_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
             {
                 <button class="btn btn-outline-danger me-2" @onclick="CancelSubscription">
                     <i class="fas fa-times"></i> @L["CancelSubscription"]
@@ -49,7 +53,7 @@ else
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-info-circle"></i> @L["SubscriptionDetails"]</h5>
-                    @if (!_editingSubscription && !_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+                    @if (_canManage && !_editingSubscription && !_subscription.PaidInDate.HasValue && _subscription.Status != LoanSubscriptionStatus.Cancelled)
                     {
                         <button class="btn btn-sm btn-outline-primary" @onclick="StartEditSubscription">
                             <i class="fas fa-edit"></i> @L["Edit"]
@@ -102,9 +106,12 @@ else
                                     else
                                     {
                                         <span class="badge bg-warning text-dark">@L["Pending"]</span>
-                                        <button class="btn btn-sm btn-outline-success ms-2" @onclick="MarkAsPaidIn">
-                                            <i class="fas fa-check"></i> @L["MarkAsPaidIn"]
-                                        </button>
+                                        @if (_canManage)
+                                        {
+                                            <button class="btn btn-sm btn-outline-success ms-2" @onclick="MarkAsPaidIn">
+                                                <i class="fas fa-check"></i> @L["MarkAsPaidIn"]
+                                            </button>
+                                        }
                                     }
                                 </p>
                             </div>
@@ -150,7 +157,7 @@ else
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-university"></i> @L["BankDetails"]</h5>
-                    @if (!_editingBankDetails && _subscription.Status != LoanSubscriptionStatus.Cancelled)
+                    @if (_canManage && !_editingBankDetails && _subscription.Status != LoanSubscriptionStatus.Cancelled)
                     {
                         <button class="btn btn-sm btn-outline-primary" @onclick="StartEditBankDetails">
                             <i class="fas fa-edit"></i> @L["Edit"]
@@ -301,6 +308,7 @@ else
     @if (_subscription.PaymentPlan != null)
     {
         <PaymentPlanTable Entries="_subscription.PaymentPlan.Entries.OrderBy(e => e.PeriodNumber).ToList()"
+                          CanMarkAsPaid="_canManage"
                           OnMarkAsPaid="MarkEntryAsPaid" />
     }
 }
@@ -309,9 +317,12 @@ else
     [Parameter] public int SubscriptionId { get; set; }
 
     private LoanSubscription? _subscription;
+    private bool _canManage;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canManage = (await AuthorizationService.AuthorizeAsync(authState.User, AuthorizationPolicies.ManageLoans)).Succeeded;
         await LoadSubscription();
     }
 

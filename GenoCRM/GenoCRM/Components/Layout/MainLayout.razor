@@ -15,6 +15,7 @@
                     <div class="d-flex align-items-center">
                         <span class="me-3">@Localizer["Welcome"], @context.User.FindFirst(ClaimTypes.GivenName)?.Value!</span>
                         <form method="post" action="/logout">
+                            <AntiforgeryToken />
                             <button type="submit" class="btn btn-outline-secondary btn-sm">@Localizer["Logout"]</button>
                         </form>
                     </div>
