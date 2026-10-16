@@ -8,12 +8,14 @@
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
 
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+@if (_visible)
+{
+<div class="modal fade show d-block" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" style="background: rgba(0,0,0,0.5)">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="paymentModalLabel">@SharedLocalizer["RecordPayment"]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" @onclick="Hide" aria-label="Close"></button>
             </div>
             <EditForm Model="_paymentModel" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
@@ -105,7 +107,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" @onclick="Hide">
                         @SharedLocalizer["Cancel"]
                     </button>
                     <button type="submit" class="btn btn-primary" disabled="@_isProcessing">
@@ -120,6 +122,7 @@
         </div>
     </div>
 </div>
+}
 
 @code {
     [Parameter] public CooperativeShare? Share { get; set; }
@@ -128,6 +131,7 @@
     private PaymentFormModel _paymentModel = new();
     private CooperativeShare? _shareInfo;
     private bool _isProcessing = false;
+    private bool _visible = false;
 
     private class PaymentFormModel
     {
@@ -179,7 +183,13 @@
             _paymentModel.Amount = _shareInfo.OutstandingAmount;
         }
 
+        _visible = true;
         await InvokeAsync(StateHasChanged);
+    }
+
+    private void Hide()
+    {
+        _visible = false;
     }
 
     private async Task HandleValidSubmit()
@@ -204,9 +214,12 @@
                 _paymentModel.Amount,
                 _paymentModel.Method,
                 _paymentModel.Reference,
-                _paymentModel.PaymentDate
+                _paymentModel.PaymentDate,
+                _paymentModel.Notes,
+                _paymentModel.MarkAsCompleted
             );
 
+            _visible = false;
             await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], 
                 SharedLocalizer["PaymentRecordedSuccessfully"]);
 

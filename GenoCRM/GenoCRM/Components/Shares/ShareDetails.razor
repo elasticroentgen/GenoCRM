@@ -51,7 +51,7 @@
                 }
                 @if (CanRecordPayment())
                 {
-                    <button class="btn btn-success" @onclick="ShowPaymentForm" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                    <button class="btn btn-success" @onclick="ShowPaymentForm">
                         <i class="fas fa-credit-card"></i> @SharedLocalizer["RecordPayment"]
                     </button>
                 }

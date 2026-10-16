@@ -332,25 +332,31 @@
             if (!await ValidateStatusChange())
                 return;
             
+            var changingToCancelled = _share.Status != ShareStatus.Cancelled && _editModel.Status == ShareStatus.Cancelled;
+
             // Update share model
             _share.Status = _editModel.Status;
             _share.Notes = _editModel.Notes;
             
-            // Handle cancellation date
+            // Handle cancellation date: the two-year notice (§5) is checked only when the share is
+            // being cancelled now; editing notes on an already cancelled share must not re-validate it
             if (_editModel.Status == ShareStatus.Cancelled)
             {
-                if (!_editModel.CancellationDate.HasValue)
+                if (changingToCancelled)
                 {
-                    // Set default cancellation date (2 years from now as per §5)
-                    _editModel.CancellationDate = DateTime.UtcNow.AddYears(2);
+                    var earliest = DateTime.Today.AddYears(2);
+                    if (!_editModel.CancellationDate.HasValue)
+                    {
+                        _editModel.CancellationDate = earliest;
+                    }
+                    else if (_editModel.CancellationDate.Value.Date < earliest)
+                    {
+                        await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
+                            SharedLocalizer["CancellationDateMustBeTwoYears"]);
+                        return;
+                    }
                 }
-                else if (_editModel.CancellationDate.Value < DateTime.UtcNow.AddYears(2))
-                {
-                    await ModalService.ShowErrorAsync(SharedLocalizer["Error"], 
-                        SharedLocalizer["CancellationDateMustBeTwoYears"]);
-                    return;
-                }
-                _share.CancellationDate = _editModel.CancellationDate;
+                _share.CancellationDate = _editModel.CancellationDate ?? _share.CancellationDate;
             }
             else
             {

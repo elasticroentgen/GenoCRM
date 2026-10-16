@@ -6,6 +6,7 @@
 @inject IShareService ShareService
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
 @inject IFormattingService FormattingService
+@inject IConfiguration Configuration
 
 <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5)">
     <div class="modal-dialog modal-lg" role="document">
@@ -79,7 +80,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="form-label">@SharedLocalizer["NewQuantity"]</label>
-                                    <InputNumber class="form-control" @bind-Value="_adjustmentModel.NewQuantity" @onchange="RecalculateValues" min="0" max="@_maxAllowedShares" />
+                                    <InputNumber class="form-control" @bind-Value="_adjustmentModel.NewQuantity" @bind-Value:after="RecalculateValues" min="0" max="@_maxAllowedShares" />
                                     <small class="form-text text-muted">
                                         @SharedLocalizer["MaximumAllowed"]: @_maxAllowedShares
                                     </small>
@@ -103,12 +104,6 @@
                             <div class="alert alert-warning">
                                 <h6>@SharedLocalizer["RefundRequired"]</h6>
                                 <p>@string.Format(SharedLocalizer["RefundRequiredNote"], FormattingService.FormatCurrency(Math.Abs(_newOutstandingAmount)))</p>
-                                <div class="form-check">
-                                    <InputCheckbox class="form-check-input" @bind-Value="_adjustmentModel.ProcessRefund" id="processRefund" />
-                                    <label class="form-check-label" for="processRefund">
-                                        @SharedLocalizer["ProcessRefundAutomatically"]
-                                    </label>
-                                </div>
                             </div>
                         }
 
@@ -182,8 +177,13 @@
                     AdjustmentDate = DateTime.Today,
                     Reason = $""
                 };
-                // TODO: Get max shares from configuration or member service
-                _maxAllowedShares = 100 - _share.Quantity + _share.Quantity; // Placeholder logic
+                // Statutory maximum minus what the member holds in other active certificates
+                var maxPerMember = Configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+                if (maxPerMember <= 0) maxPerMember = 100;
+                var otherActiveShares = (await ShareService.GetSharesByMemberIdAsync(_share.MemberId))
+                    .Where(s => s.Id != _share.Id && s.Status == ShareStatus.Active)
+                    .Sum(s => s.Quantity);
+                _maxAllowedShares = Math.Max(0, maxPerMember - otherActiveShares);
             }
         }
         catch (Exception)
@@ -237,13 +237,6 @@
 
             await ShareService.UpdateShareAsync(adjustedShare);
 
-            // TODO: If refund is required and requested, create refund payment
-            if (_newOutstandingAmount < 0 && _adjustmentModel.ProcessRefund)
-            {
-                // This would require extending PaymentService to handle refunds
-                // For now, we'll just note it in the share notes
-            }
-
             await OnComplete.InvokeAsync(true);
         }
         catch (Exception)
@@ -267,8 +260,6 @@
 
         [Required]
         public string Reason { get; set; } = string.Empty;
-
-        public bool ProcessRefund { get; set; } = false;
 
         [Required]
         [Range(typeof(bool), "true", "true", ErrorMessage = "You must confirm the adjustment")]

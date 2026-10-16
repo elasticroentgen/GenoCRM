@@ -168,6 +168,25 @@ public class ShareService : IShareService
                 }
             }
 
+            if (share.Quantity < 0)
+            {
+                throw new InvalidOperationException("Share quantity cannot be negative");
+            }
+
+            // The statutory maximum applies to all of the member's active shares together
+            if (share.Status == ShareStatus.Active)
+            {
+                var otherActiveShares = await _context.CooperativeShares
+                    .Where(s => s.MemberId == existingShare.MemberId && s.Status == ShareStatus.Active && s.Id != existingShare.Id)
+                    .SumAsync(s => s.Quantity);
+                var maxSharesPerMember = _configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+                if (maxSharesPerMember <= 0) maxSharesPerMember = 100;
+                if (otherActiveShares + share.Quantity > maxSharesPerMember)
+                {
+                    throw new InvalidOperationException($"Setting this certificate to {share.Quantity} shares would exceed the maximum allowed shares per member ({maxSharesPerMember}). Member holds {otherActiveShares} other active shares.");
+                }
+            }
+
             // Update properties
             existingShare.CertificateNumber = share.CertificateNumber;
             existingShare.Quantity = share.Quantity;

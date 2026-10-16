@@ -96,6 +96,13 @@
         </div>
     </div>
     <div class="col-md-3">
+        @if (MemberIdFilter.HasValue)
+        {
+            <div class="alert alert-info py-2 mb-2 d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-filter"></i> @SharedLocalizer["FilteredByMember"]</span>
+                <a href="/shares" class="btn btn-sm btn-outline-secondary">@SharedLocalizer["ShowAll"]</a>
+            </div>
+        }
         <div class="form-group">
             <label for="statusFilter" class="form-label">@SharedLocalizer["FilterByStatus"]</label>
             <select id="statusFilter" class="form-select" @bind="_selectedStatus" @bind:after="FilterByStatus">
@@ -418,6 +425,7 @@ else
     private IEnumerable<CooperativeShare>? _activeShares;
     private IEnumerable<CooperativeShare>? _nonActiveShares;
     private string _selectedStatus = string.Empty;
+    [SupplyParameterFromQuery(Name = "memberId")] public int? MemberIdFilter { get; set; }
     private bool _isLoading = true;
     private decimal _totalShareCapital;
     private decimal _unpaidShareCapital;
@@ -446,6 +454,7 @@ else
             _shares = await ShareService.GetAllSharesAsync();
             _activeShares = await ShareService.GetActiveSharesAsync();
             _nonActiveShares = await ShareService.GetNonActiveSharesAsync();
+            ApplyMemberFilter();
         }
         catch (Exception ex)
         {
@@ -519,6 +528,7 @@ else
             if (Enum.TryParse<ShareStatus>(_selectedStatus, out var status))
             {
                 _shares = await ShareService.GetSharesByStatusAsync(status);
+                ApplyMemberFilter();
             }
         }
         catch (Exception ex)
@@ -529,6 +539,37 @@ else
         {
             _isLoading = false;
         }
+    }
+
+    private void ApplyMemberFilter()
+    {
+        if (!MemberIdFilter.HasValue) return;
+        var id = MemberIdFilter.Value;
+        _shares = _shares?.Where(s => s.MemberId == id).ToList();
+        _activeShares = _activeShares?.Where(s => s.MemberId == id).ToList();
+        _nonActiveShares = _nonActiveShares?.Where(s => s.MemberId == id).ToList();
+    }
+
+    /// <summary>Reload the share lists while keeping the selected status filter.</summary>
+    private async Task ReloadSharesAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedStatus))
+        {
+            await LoadShares();
+        }
+        else
+        {
+            await FilterByStatus();
+        }
+    }
+
+    private async Task ReloadAfterChangeAsync()
+    {
+        await ReloadSharesAsync();
+        await LoadTotalCapital();
+        await LoadActiveCapital();
+        await LoadUnpaidCapital();
+        await LoadOffboardingValue();
     }
 
     private void CreateShare()
@@ -559,10 +600,7 @@ else
             try
             {
                 await ShareService.CancelShareAsync(shareId);
-                await LoadShares();
-                await LoadTotalCapital();
-                await LoadActiveCapital();
-                await LoadOffboardingValue();
+                await ReloadAfterChangeAsync();
                 await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["ShareCancelledSuccessfully"]);
             }
             catch (Exception ex)
@@ -640,9 +678,7 @@ else
 
         if (success)
         {
-            await LoadShares();
-            await LoadActiveCapital();
-            await LoadUnpaidCapital();
+            await ReloadAfterChangeAsync();
             await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["PaymentRecordedSuccessfully"]);
         }
         else
@@ -657,11 +693,7 @@ else
 
         if (success)
         {
-            await LoadShares();
-            await LoadActiveCapital();
-            await LoadUnpaidCapital();
-            await LoadTotalCapital();
-            await LoadOffboardingValue();
+            await ReloadAfterChangeAsync();
             await ModalService.ShowSuccessAsync(SharedLocalizer["Success"], SharedLocalizer["SharesAdjustedSuccessfully"]);
         }
         else

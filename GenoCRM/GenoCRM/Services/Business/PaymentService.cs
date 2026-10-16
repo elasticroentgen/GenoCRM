@@ -16,7 +16,7 @@ public interface IPaymentService
     Task<bool> PaymentNumberExistsAsync(string paymentNumber);
     Task<decimal> GetTotalPaymentsForShareAsync(int shareId);
     Task<decimal> GetTotalPaymentsForMemberAsync(int memberId);
-    Task<Payment> RecordSharePaymentAsync(int shareId, decimal amount, PaymentMethod method, string? reference = null, DateTime? paymentDate = null);
+    Task<Payment> RecordSharePaymentAsync(int shareId, decimal amount, PaymentMethod method, string? reference = null, DateTime? paymentDate = null, string? notes = null, bool markAsCompleted = true);
 }
 
 public class PaymentService : IPaymentService
@@ -294,7 +294,7 @@ public class PaymentService : IPaymentService
         }
     }
 
-    public async Task<Payment> RecordSharePaymentAsync(int shareId, decimal amount, PaymentMethod method, string? reference = null, DateTime? paymentDate = null)
+    public async Task<Payment> RecordSharePaymentAsync(int shareId, decimal amount, PaymentMethod method, string? reference = null, DateTime? paymentDate = null, string? notes = null, bool markAsCompleted = true)
     {
         try
         {
@@ -314,10 +314,10 @@ public class PaymentService : IPaymentService
                 Type = PaymentType.ShareCapital,
                 Method = method,
                 PaymentDate = paymentDate ?? DateTime.UtcNow,
-                Status = PaymentStatus.Completed,
-                ProcessedDate = paymentDate ?? DateTime.UtcNow,
+                Status = markAsCompleted ? PaymentStatus.Completed : PaymentStatus.Pending,
+                ProcessedDate = markAsCompleted ? (paymentDate ?? DateTime.UtcNow) : null,
                 Reference = reference,
-                Notes = $"Payment for share {share.CertificateNumber}"
+                Notes = string.IsNullOrWhiteSpace(notes) ? $"Payment for share {share.CertificateNumber}" : notes
             };
 
             return await CreatePaymentAsync(payment);

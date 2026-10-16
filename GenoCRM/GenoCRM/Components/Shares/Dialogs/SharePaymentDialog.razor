@@ -58,10 +58,13 @@
                         <ValidationSummary class="alert alert-danger" />
 
                         <div class="form-group mb-3">
-                            <label class="form-label">@SharedLocalizer["SharesPaid"]</label>
-                            <InputNumber class="form-control" @bind-Value="_paymentModel.SharesPaid" min="1" max="@_unpaidShares" />
+                            <label class="form-label">@SharedLocalizer["PaymentAmount"]</label>
+                            <div class="input-group">
+                                <span class="input-group-text">€</span>
+                                <InputNumber class="form-control" @bind-Value="_paymentModel.Amount" min="0.01" max="@_share.OutstandingAmount" step="0.01" />
+                            </div>
                             <small class="form-text text-muted">
-                                @SharedLocalizer["UnpaidShares"]: @_unpaidShares | @SharedLocalizer["PaymentAmount"]: @FormattingService.FormatCurrency(_paymentModel.SharesPaid * _share.Value)
+                                @SharedLocalizer["OutstandingAmount"]: @FormattingService.FormatCurrency(_share.OutstandingAmount)
                             </small>
                         </div>
 
@@ -101,7 +104,6 @@
 
     private CooperativeShare? _share;
     private PaymentModel _paymentModel = new();
-    private int _unpaidShares;
     private bool _isProcessing = false;
 
     protected override async Task OnInitializedAsync()
@@ -116,10 +118,9 @@
             _share = await ShareService.GetShareByIdAsync(ShareId);
             if (_share != null)
             {
-                _unpaidShares = (int)(_share.OutstandingAmount / _share.Value);
                 _paymentModel = new PaymentModel
                 {
-                    SharesPaid = _unpaidShares
+                    Amount = _share.OutstandingAmount
                 };
             }
         }
@@ -137,10 +138,15 @@
         {
             _isProcessing = true;
 
-            var paymentAmount = _paymentModel.SharesPaid * _share.Value;
+            if (_paymentModel.Amount <= 0 || _paymentModel.Amount > _share.OutstandingAmount)
+            {
+                await OnComplete.InvokeAsync(false);
+                return;
+            }
+
             await PaymentService.RecordSharePaymentAsync(
                 ShareId,
-                paymentAmount,
+                _paymentModel.Amount,
                 PaymentMethod.BankTransfer,
                 null,
                 DateTime.Today);
@@ -160,7 +166,7 @@
     private class PaymentModel
     {
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Number of shares must be greater than 0")]
-        public int SharesPaid { get; set; } = 1;
+        [Range(0.01, 999999.99, ErrorMessage = "Amount must be greater than 0")]
+        public decimal Amount { get; set; }
     }
 }
