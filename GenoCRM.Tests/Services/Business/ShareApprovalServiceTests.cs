@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using GenoCRM.Data;
@@ -29,7 +30,70 @@ public class ShareApprovalServiceTests : IDisposable
         _mockShareService.Setup(s => s.GenerateNextCertificateNumberAsync())
             .ReturnsAsync("CERT001");
 
-        _shareApprovalService = new ShareApprovalService(_context, _mockLogger.Object, _mockShareService.Object);
+        _shareApprovalService = new ShareApprovalService(_context, _mockLogger.Object, _mockShareService.Object, BuildConfiguration(250.00m, 100));
+    }
+
+    private static IConfiguration BuildConfiguration(decimal denomination, int maxShares) =>
+        new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                {"CooperativeSettings:ShareDenomination", denomination.ToString(System.Globalization.CultureInfo.InvariantCulture)},
+                {"CooperativeSettings:MaxSharesPerMember", maxShares.ToString()}
+            })
+            .Build();
+
+    private async Task SeedActiveMemberWithPaidSharesAsync(int quantity, decimal denomination = 250.00m)
+    {
+        var member = new Member { Id = 1, MemberNumber = "M001", FirstName = "John", LastName = "Doe", Status = MemberStatus.Active };
+        var share = new CooperativeShare
+        {
+            Id = 1, MemberId = 1, CertificateNumber = "C001", Quantity = quantity,
+            NominalValue = denomination, Value = denomination, Status = ShareStatus.Active, IssueDate = DateTime.UtcNow.AddYears(-1)
+        };
+        var payment = new Payment { Id = 1, MemberId = 1, ShareId = 1, Amount = quantity * denomination, Status = PaymentStatus.Completed, PaymentDate = DateTime.UtcNow };
+        _context.Members.Add(member);
+        _context.CooperativeShares.Add(share);
+        _context.Payments.Add(payment);
+        await _context.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task CreateShareApprovalRequestAsync_UsesConfiguredShareDenomination()
+    {
+        await SeedActiveMemberWithPaidSharesAsync(1, 300.00m);
+        var service = new ShareApprovalService(_context, _mockLogger.Object, _mockShareService.Object, BuildConfiguration(300.00m, 100));
+
+        var result = await service.CreateShareApprovalRequestAsync(1, 3);
+
+        Assert.Equal(900.00m, result.TotalValue);
+    }
+
+    [Fact]
+    public async Task CanRequestAdditionalSharesAsync_RefusesWhenExceedingMaxSharesPerMember()
+    {
+        await SeedActiveMemberWithPaidSharesAsync(4);
+        var service = new ShareApprovalService(_context, _mockLogger.Object, _mockShareService.Object, BuildConfiguration(250.00m, 5));
+
+        Assert.True(await service.CanRequestAdditionalSharesAsync(1, 1));
+        Assert.False(await service.CanRequestAdditionalSharesAsync(1, 2));
+    }
+
+    [Fact]
+    public async Task CompleteShareApprovalAsync_IssuesSharesAtConfiguredDenomination()
+    {
+        await SeedActiveMemberWithPaidSharesAsync(1, 300.00m);
+        var service = new ShareApprovalService(_context, _mockLogger.Object, _mockShareService.Object, BuildConfiguration(300.00m, 100));
+        _mockShareService.Setup(s => s.GenerateNextCertificateNumberAsync()).ReturnsAsync("CERT002");
+        var approval = await service.CreateShareApprovalRequestAsync(1, 2);
+        await service.ApproveShareRequestAsync(approval.Id, "board");
+
+        var completed = await service.CompleteShareApprovalAsync(approval.Id);
+
+        Assert.True(completed);
+        var issued = await _context.CooperativeShares.SingleAsync(s => s.CertificateNumber == "CERT002");
+        Assert.Equal(300.00m, issued.NominalValue);
+        Assert.Equal(300.00m, issued.Value);
+        Assert.Equal(2, issued.Quantity);
     }
 
     [Fact]

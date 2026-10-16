@@ -405,7 +405,7 @@ public class MemberServiceEdgeCasesTests : IDisposable
     #region Boundary Value Tests
 
     [Fact]
-    public async Task CreateMemberAsync_WithZeroInitialShares_ShouldSucceed()
+    public async Task CreateMemberAsync_WithZeroInitialShares_ShouldThrow()
     {
         // Arrange
         var member = new Member
@@ -417,16 +417,9 @@ public class MemberServiceEdgeCasesTests : IDisposable
             Status = MemberStatus.Active
         };
 
-        // Act
-        var result = await _memberService.CreateMemberAsync(member, 0);
-
-        // Assert
-        result.Should().NotBeNull();
-        
-        // Should create a share with quantity 0
-        var shares = await _context.CooperativeShares.Where(s => s.MemberId == result.Id).ToListAsync();
-        shares.Should().HaveCount(1);
-        shares[0].Quantity.Should().Be(0);
+        // Act & Assert: a member must hold at least one share
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _memberService.CreateMemberAsync(member, 0));
+        (await _context.Members.CountAsync()).Should().Be(0);
     }
 
     [Fact]
@@ -601,7 +594,7 @@ public class MemberServiceEdgeCasesTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateMemberAsync_WithNegativeInitialShares_ShouldHandleGracefully()
+    public async Task CreateMemberAsync_WithNegativeInitialShares_ShouldThrow()
     {
         // Arrange
         var member = new Member
@@ -613,14 +606,9 @@ public class MemberServiceEdgeCasesTests : IDisposable
             Status = MemberStatus.Active
         };
 
-        // Act
-        var result = await _memberService.CreateMemberAsync(member, -1);
-
-        // Assert - Should create share with negative quantity (business logic may allow this)
-        result.Should().NotBeNull();
-        var shares = await _context.CooperativeShares.Where(s => s.MemberId == result.Id).ToListAsync();
-        shares.Should().HaveCount(1);
-        shares[0].Quantity.Should().Be(-1);
+        // Act & Assert: negative share quantities would create negative capital
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _memberService.CreateMemberAsync(member, -1));
+        (await _context.CooperativeShares.CountAsync()).Should().Be(0);
     }
 
     #endregion

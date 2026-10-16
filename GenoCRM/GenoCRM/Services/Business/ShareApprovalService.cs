@@ -9,12 +9,14 @@ public class ShareApprovalService : IShareApprovalService
     private readonly GenoDbContext _context;
     private readonly ILogger<ShareApprovalService> _logger;
     private readonly IShareService _shareService;
+    private readonly IConfiguration _configuration;
 
-    public ShareApprovalService(GenoDbContext context, ILogger<ShareApprovalService> logger, IShareService shareService)
+    public ShareApprovalService(GenoDbContext context, ILogger<ShareApprovalService> logger, IShareService shareService, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
         _shareService = shareService;
+        _configuration = configuration;
     }
 
     public async Task<ShareApproval> CreateShareApprovalRequestAsync(int memberId, int requestedQuantity)
@@ -26,7 +28,7 @@ public class ShareApprovalService : IShareApprovalService
                 throw new InvalidOperationException("Additional shares request is not allowed");
             }
 
-            var shareDenomination = 250.00m; // Fixed denomination as per Satzung
+            var shareDenomination = GetShareDenomination();
             var totalValue = requestedQuantity * shareDenomination;
 
             var approval = new ShareApproval
@@ -139,13 +141,14 @@ public class ShareApprovalService : IShareApprovalService
 
                 // Create the new shares
                 var newCertificateNumber = await _shareService.GenerateNextCertificateNumberAsync();
+                var shareDenomination = GetShareDenomination();
                 var newShare = new CooperativeShare
                 {
                     MemberId = approval.MemberId,
                     CertificateNumber = newCertificateNumber,
                     Quantity = approval.RequestedQuantity,
-                    NominalValue = 250.00m, // Fixed denomination as per Satzung
-                    Value = 250.00m, // Fixed denomination as per Satzung
+                    NominalValue = shareDenomination,
+                    Value = shareDenomination,
                     IssueDate = DateTime.UtcNow,
                     Status = ShareStatus.Active
                 };
@@ -274,6 +277,15 @@ public class ShareApprovalService : IShareApprovalService
                 return false;
             }
 
+            // Respect the statutory maximum number of shares per member
+            var currentActiveShares = await _context.CooperativeShares
+                .Where(s => s.MemberId == memberId && s.Status == ShareStatus.Active)
+                .SumAsync(s => s.Quantity);
+            if (currentActiveShares + requestedQuantity > GetMaxSharesPerMember())
+            {
+                return false;
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -283,13 +295,28 @@ public class ShareApprovalService : IShareApprovalService
         }
     }
 
+    private decimal GetShareDenomination()
+    {
+        var value = _configuration.GetValue<decimal>("CooperativeSettings:ShareDenomination");
+        return value > 0 ? value : 250.00m;
+    }
+
+    private int GetMaxSharesPerMember()
+    {
+        var value = _configuration.GetValue<int>("CooperativeSettings:MaxSharesPerMember");
+        return value > 0 ? value : 100;
+    }
+
     public async Task<bool> HasMemberCompletedInitialShareAsync(int memberId)
     {
         try
         {
+            // The initial share is the earliest issued one, not whichever row the database returns first
             var initialShare = await _context.CooperativeShares
                 .Include(s => s.Payments)
                 .Where(s => s.MemberId == memberId && s.Status == ShareStatus.Active)
+                .OrderBy(s => s.IssueDate)
+                .ThenBy(s => s.Id)
                 .FirstOrDefaultAsync();
 
             return initialShare != null && initialShare.IsFullyPaid;

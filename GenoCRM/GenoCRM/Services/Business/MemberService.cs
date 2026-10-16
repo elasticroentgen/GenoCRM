@@ -114,6 +114,12 @@ public class MemberService : IMemberService
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // A member must hold at least one share; negative quantities would create negative capital
+            if (initialShareQuantity < 1)
+            {
+                throw new InvalidOperationException($"Initial share quantity must be at least 1 (was {initialShareQuantity})");
+            }
+
             // Validate initial share quantity against max shares per member
             var maxSharesPerMember = await GetMaxSharesPerMemberAsync();
             if (initialShareQuantity > maxSharesPerMember)

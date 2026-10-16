@@ -94,6 +94,11 @@ public class ShareService : IShareService
     {
         try
         {
+            if (share.Quantity < 1)
+            {
+                throw new InvalidOperationException($"Share quantity must be at least 1 (was {share.Quantity})");
+            }
+
             if (await CertificateNumberExistsAsync(share.CertificateNumber))
             {
                 throw new InvalidOperationException($"Certificate number {share.CertificateNumber} already exists");
