@@ -31,6 +31,28 @@ public class ShareMovementExportService : IShareMovementExportService
 
     public async Task<ExportResult> ExportAsync(ShareMovementExportRequest request)
     {
+        var ordered = await LoadRowsAsync(request);
+
+        return request.Format switch
+        {
+            ShareMovementExportFormat.Csv => WriteCsv(ordered),
+            ShareMovementExportFormat.Xlsx => WriteXlsx(ordered),
+            _ => throw new ArgumentOutOfRangeException(nameof(request.Format))
+        };
+    }
+
+    public async Task<ShareMovementPreview> PreviewAsync(ShareMovementExportRequest request)
+    {
+        var rows = await LoadRowsAsync(request);
+        var (headers, data) = BuildTable(rows);
+        var countsByType = rows
+            .GroupBy(r => r.Type)
+            .ToDictionary(g => g.Key, g => g.Count());
+        return new ShareMovementPreview(headers, data, countsByType);
+    }
+
+    private async Task<List<ShareMovementRow>> LoadRowsAsync(ShareMovementExportRequest request)
+    {
         var fromUtc = DateTime.SpecifyKind(request.From.Date, DateTimeKind.Utc);
         var toExclusiveUtc = DateTime.SpecifyKind(request.To.Date.AddDays(1), DateTimeKind.Utc);
 
@@ -114,17 +136,10 @@ public class ShareMovementExportService : IShareMovementExportService
                 .Select(BuildTransferRow));
         }
 
-        var ordered = rows
+        return rows
             .OrderBy(r => r.Date)
             .ThenBy(r => r.MemberNumber, StringComparer.OrdinalIgnoreCase)
             .ToList();
-
-        return request.Format switch
-        {
-            ShareMovementExportFormat.Csv => WriteCsv(ordered),
-            ShareMovementExportFormat.Xlsx => WriteXlsx(ordered),
-            _ => throw new ArgumentOutOfRangeException(nameof(request.Format))
-        };
     }
 
     private static DateTime? GetFullyPaidDate(CooperativeShare share)

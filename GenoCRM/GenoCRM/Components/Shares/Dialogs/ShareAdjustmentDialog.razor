@@ -98,6 +98,20 @@
                             <InputTextArea class="form-control" @bind-Value="_adjustmentModel.Reason" rows="3" placeholder="@SharedLocalizer["AdjustmentReason"]" />
                         </div>
 
+                        @if (_isIncrease)
+                        {
+                            <div class="alert alert-danger border-danger border-2 d-flex align-items-start" role="alert">
+                                <i class="fas fa-exclamation-triangle fa-2x me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="alert-heading fw-bold mb-1">@SharedLocalizer["ShareIncreaseWarningTitle"]</h6>
+                                    <p class="mb-2">@SharedLocalizer["ShareIncreaseWarningBody"]</p>
+                                    <a class="btn btn-sm btn-outline-danger" href="@($"/shares/create?memberId={_share.MemberId}")">
+                                        <i class="fas fa-certificate me-1"></i>@SharedLocalizer["ShareIncreaseUseAddShare"]
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
                         @if (_newOutstandingAmount < 0)
                         {
                             <div class="alert alert-warning">
@@ -125,7 +139,7 @@
                             <button type="button" class="btn btn-secondary me-2" @onclick="OnCancel">
                                 @SharedLocalizer["Cancel"]
                             </button>
-                            <button type="submit" class="btn btn-primary" disabled="@(_isProcessing || !_adjustmentModel.ConfirmAdjustment)">
+                            <button type="submit" class="btn @(_isIncrease ? "btn-danger" : "btn-primary")" disabled="@(_isProcessing || !_adjustmentModel.ConfirmAdjustment)">
                                 @if (_isProcessing)
                                 {
                                     <span class="spinner-border spinner-border-sm me-2"></span>
@@ -148,6 +162,38 @@
     </div>
 </div>
 
+@if (_showIncreaseConfirmation && _share != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5); z-index: 1065;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-danger border-2">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>@SharedLocalizer["ShareIncreaseConfirmTitle"]
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CancelIncrease"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold">@string.Format(SharedLocalizer["ShareIncreaseConfirmBody"], _share.CertificateNumber, _share.Quantity, _adjustmentModel.NewQuantity)</p>
+                    <p class="mb-0">@SharedLocalizer["ShareIncreaseWarningBody"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelIncrease">
+                        @SharedLocalizer["Cancel"]
+                    </button>
+                    <button type="button" class="btn btn-danger" disabled="@_isProcessing" @onclick="ConfirmIncrease">
+                        @if (_isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        @SharedLocalizer["ShareIncreaseConfirmButton"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int ShareId { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
@@ -157,6 +203,9 @@
     private ShareAdjustmentModel _adjustmentModel = new();
     private int _maxAllowedShares = 100;
     private bool _isProcessing = false;
+    private bool _showIncreaseConfirmation;
+
+    private bool _isIncrease => _share != null && _adjustmentModel.NewQuantity > _share.Quantity;
 
     // Calculated values
     private decimal _newTotalValue => _adjustmentModel.NewQuantity * (_share?.Value ?? 0);
@@ -212,9 +261,36 @@
     {
         if (_share == null) return;
 
+        // Increases are only meant to correct wrong data entry; subsequent subscriptions must
+        // be created as a new certificate. Require an explicit second confirmation.
+        if (_isIncrease)
+        {
+            _showIncreaseConfirmation = true;
+            return;
+        }
+
+        await SaveAdjustment();
+    }
+
+    private void CancelIncrease() => _showIncreaseConfirmation = false;
+
+    private async Task ConfirmIncrease()
+    {
+        await SaveAdjustment();
+        _showIncreaseConfirmation = false;
+    }
+
+    private async Task SaveAdjustment()
+    {
+        if (_share == null) return;
+
         try
         {
             _isProcessing = true;
+
+            var reason = _isIncrease
+                ? $"{SharedLocalizer["ShareIncreaseNotePrefix"]} {_adjustmentModel.Reason}"
+                : _adjustmentModel.Reason;
 
             // Create a copy of the share with adjusted quantity
             var adjustedShare = new CooperativeShare
@@ -228,8 +304,8 @@
                 IssueDate = _share.IssueDate,
                 Status = _share.Status,
                 Notes = string.IsNullOrEmpty(_share.Notes)
-                    ? _adjustmentModel.Reason
-                    : $"{_share.Notes}\n\n[{_adjustmentModel.AdjustmentDate:yyyy-MM-dd}] {_adjustmentModel.Reason}",
+                    ? reason
+                    : $"{_share.Notes}\n\n[{_adjustmentModel.AdjustmentDate:yyyy-MM-dd}] {reason}",
                 CreatedAt = _share.CreatedAt,
                 UpdatedAt = DateTime.UtcNow,
                 CancellationDate = _share.CancellationDate

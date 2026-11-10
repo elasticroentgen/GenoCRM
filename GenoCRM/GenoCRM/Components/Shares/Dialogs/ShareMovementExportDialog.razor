@@ -5,9 +5,10 @@
 @inject IStringLocalizer<GenoCRM.SharedResource> SharedLocalizer
 @inject IStringLocalizer<Shares> SharesLocalizer
 @inject IFiscalYearService FiscalYearService
+@inject IShareMovementExportService MovementExportService
 
 <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5)">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog @(_preview is null ? "modal-lg" : "modal-xl") modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -97,6 +98,67 @@
                     </div>
                 </div>
 
+                <div class="mb-4">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            disabled="@(!IsValid() || _isLoadingPreview)"
+                            @onclick="LoadPreview">
+                        @if (_isLoadingPreview)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="fas fa-eye me-1"></i>@(_preview is null ? SharesLocalizer["ExportPreview"] : SharesLocalizer["ExportPreviewRefresh"])
+                    </button>
+
+                    @if (_previewError is not null)
+                    {
+                        <div class="alert alert-danger mt-2 mb-0">@_previewError</div>
+                    }
+
+                    @if (_preview is not null)
+                    {
+                        <div class="mt-3">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <strong>@string.Format(SharesLocalizer["ExportPreviewCount"], _preview.Rows.Length)</strong>
+                                @foreach (var (type, count) in _preview.CountsByType.OrderBy(kv => kv.Key))
+                                {
+                                    <span class="badge bg-secondary">@SharesLocalizer[$"ShareMovement_{type}"]: @count</span>
+                                }
+                            </div>
+
+                            @if (_preview.Rows.Length == 0)
+                            {
+                                <div class="alert alert-secondary mb-0">@SharesLocalizer["ExportPreviewEmpty"]</div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive border rounded" style="max-height: 400px;">
+                                    <table class="table table-sm table-striped table-hover mb-0 small text-nowrap">
+                                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                            <tr>
+                                                @foreach (var h in _preview.Headers)
+                                                {
+                                                    <th>@h</th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var row in _preview.Rows)
+                                            {
+                                                <tr>
+                                                    @foreach (var cell in row)
+                                                    {
+                                                        <td>@cell</td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
                 <div class="alert alert-info d-flex align-items-start mb-2" role="alert">
                     <i class="fas fa-info-circle fa-lg me-2 mt-1"></i>
                     <div>
@@ -154,6 +216,9 @@
     private DateTime _to;
     private HashSet<ShareMovementType> _selected = new(Enum.GetValues<ShareMovementType>());
     private bool _isExporting;
+    private bool _isLoadingPreview;
+    private ShareMovementPreview? _preview;
+    private string? _previewError;
 
     protected override void OnInitialized()
     {
@@ -162,6 +227,7 @@
 
     private void ApplyPreset()
     {
+        ResetPreview();
         switch (_periodPreset)
         {
             case "LastFiscalYear":
@@ -180,17 +246,20 @@
     private void OnFromChanged(ChangeEventArgs e)
     {
         if (DateTime.TryParse(e.Value?.ToString(), out var d)) _from = d.Date;
+        ResetPreview();
     }
 
     private void OnToChanged(ChangeEventArgs e)
     {
         if (DateTime.TryParse(e.Value?.ToString(), out var d)) _to = d.Date;
+        ResetPreview();
     }
 
     private void ToggleType(ShareMovementType type, bool isChecked)
     {
         if (isChecked) _selected.Add(type);
         else _selected.Remove(type);
+        ResetPreview();
     }
 
     private void ToggleAll(bool isChecked)
@@ -203,6 +272,36 @@
         {
             _selected.Clear();
         }
+        ResetPreview();
+    }
+
+    private void ResetPreview()
+    {
+        _preview = null;
+        _previewError = null;
+    }
+
+    private ShareMovementExportRequest BuildRequest() =>
+        new(_from.Date, _to.Date, new HashSet<ShareMovementType>(_selected), _format);
+
+    private async Task LoadPreview()
+    {
+        if (!IsValid()) return;
+        _isLoadingPreview = true;
+        _previewError = null;
+        try
+        {
+            _preview = await MovementExportService.PreviewAsync(BuildRequest());
+        }
+        catch (Exception ex)
+        {
+            _preview = null;
+            _previewError = ex.Message;
+        }
+        finally
+        {
+            _isLoadingPreview = false;
+        }
     }
 
     private bool IsValid() =>
@@ -214,12 +313,7 @@
         _isExporting = true;
         try
         {
-            var request = new ShareMovementExportRequest(
-                _from.Date,
-                _to.Date,
-                new HashSet<ShareMovementType>(_selected),
-                _format);
-            await OnConfirm.InvokeAsync(request);
+            await OnConfirm.InvokeAsync(BuildRequest());
         }
         finally
         {

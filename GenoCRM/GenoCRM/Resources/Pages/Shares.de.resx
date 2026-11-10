@@ -147,4 +147,16 @@
   <data name="ShareMovement_ShareTransfer" xml:space="preserve">
     <value>Anteilsübertragung</value>
   </data>
+  <data name="ExportPreview" xml:space="preserve">
+    <value>Vorschau</value>
+  </data>
+  <data name="ExportPreviewRefresh" xml:space="preserve">
+    <value>Vorschau aktualisieren</value>
+  </data>
+  <data name="ExportPreviewCount" xml:space="preserve">
+    <value>{0} Bewegung(en)</value>
+  </data>
+  <data name="ExportPreviewEmpty" xml:space="preserve">
+    <value>Für den gewählten Zeitraum und die gewählten Bewegungsarten wurden keine Bewegungen gefunden.</value>
+  </data>
 </root>

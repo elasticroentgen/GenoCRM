@@ -1849,4 +1849,25 @@
   <data name="ExportedAt" xml:space="preserve">
     <value>Exportiert am</value>
   </data>
+  <data name="ShareIncreaseWarningTitle" xml:space="preserve">
+    <value>Achtung: Erhöhung nur zur Korrektur falscher Dateneingaben!</value>
+  </data>
+  <data name="ShareIncreaseWarningBody" xml:space="preserve">
+    <value>Eine Nachzeichnung von Anteilen muss über „Anteil hinzufügen“ als eigenes Zertifikat erfasst werden. Andernfalls stimmen Ausgabedaten und die Bewegungsliste für die Prüfung (§30 GenG) nicht.</value>
+  </data>
+  <data name="ShareIncreaseUseAddShare" xml:space="preserve">
+    <value>Stattdessen Anteil hinzufügen</value>
+  </data>
+  <data name="ShareIncreaseConfirmTitle" xml:space="preserve">
+    <value>Erhöhung bestätigen</value>
+  </data>
+  <data name="ShareIncreaseConfirmBody" xml:space="preserve">
+    <value>Soll Zertifikat {0} wirklich als Korrektur einer falschen Dateneingabe von {1} auf {2} Anteile erhöht werden?</value>
+  </data>
+  <data name="ShareIncreaseConfirmButton" xml:space="preserve">
+    <value>Ja, Korrektur speichern</value>
+  </data>
+  <data name="ShareIncreaseNotePrefix" xml:space="preserve">
+    <value>[Korrektur Dateneingabe]</value>
+  </data>
 </root>

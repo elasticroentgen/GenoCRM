@@ -1849,4 +1849,25 @@
   <data name="ExportedAt" xml:space="preserve">
     <value>Exported</value>
   </data>
+  <data name="ShareIncreaseWarningTitle" xml:space="preserve">
+    <value>Warning: increase only to correct wrong data entry!</value>
+  </data>
+  <data name="ShareIncreaseWarningBody" xml:space="preserve">
+    <value>Subsequent share subscriptions must be recorded as a separate certificate via "Add share". Otherwise issue dates and the movement list for the cooperative audit (§30 GenG) will be wrong.</value>
+  </data>
+  <data name="ShareIncreaseUseAddShare" xml:space="preserve">
+    <value>Add share instead</value>
+  </data>
+  <data name="ShareIncreaseConfirmTitle" xml:space="preserve">
+    <value>Confirm increase</value>
+  </data>
+  <data name="ShareIncreaseConfirmBody" xml:space="preserve">
+    <value>Do you really want to increase certificate {0} from {1} to {2} shares as a correction of wrong data entry?</value>
+  </data>
+  <data name="ShareIncreaseConfirmButton" xml:space="preserve">
+    <value>Yes, save correction</value>
+  </data>
+  <data name="ShareIncreaseNotePrefix" xml:space="preserve">
+    <value>[Data entry correction]</value>
+  </data>
 </root>
