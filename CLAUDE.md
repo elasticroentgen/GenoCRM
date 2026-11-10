@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Architecture
 
-GenoCRM is a .NET 9.0 Blazor application using a hybrid Server/WebAssembly architecture. The solution consists of two main projects:
+GenoCRM is a .NET 10 Blazor application using a hybrid Server/WebAssembly architecture. The solution consists of two main projects:
 
 - **GenoCRM** (Server): The main ASP.NET Core server application that hosts the Blazor Server components and serves the WebAssembly client
 - **GenoCRM.Client** (WebAssembly): The Blazor WebAssembly client application that runs in the browser
@@ -41,6 +41,16 @@ dotnet build GenoCRM/GenoCRM.Client/GenoCRM.Client.csproj
 
 # Publish for deployment
 dotnet publish GenoCRM/GenoCRM/GenoCRM.csproj -c Release
+```
+
+### Local database (PostgreSQL in a container)
+```bash
+# Start / stop the dev database (see DEVELOPMENT.md for the full setup)
+docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml down
+
+# Import the production database into the local one
+scripts/import-prod-db.sh --host user@production-host
 ```
 
 ### Docker

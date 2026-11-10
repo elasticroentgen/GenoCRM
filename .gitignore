@@ -16,3 +16,8 @@ logs/
 # IDE workspace files
 .idea/**/workspace.xml
 launchSettings.json
+.env
+dumps/
+.idea/
+!.idea/.gitignore
+.local/

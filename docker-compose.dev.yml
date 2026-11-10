@@ -1,0 +1,33 @@
+# Local development stack: only the infrastructure the app needs (PostgreSQL).
+# The app itself runs from Rider / `dotnet run` on the host and connects via
+# localhost:5432 using the connection string in appsettings.json.
+#
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml down        # keep data
+#   docker compose -f docker-compose.dev.yml down -v     # wipe data
+#
+# Works with Docker or rootless Podman (podman.socket + docker-compose v2).
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: genocrm-dev-postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      # Must match ConnectionStrings:DefaultConnection in GenoCRM/GenoCRM/appsettings.json
+      POSTGRES_DB: genocrm
+      POSTGRES_USER: genocrm
+      POSTGRES_PASSWORD: genocrm123
+    volumes:
+      - genocrm_dev_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genocrm -d genocrm"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  genocrm_dev_pgdata:
