@@ -48,9 +48,25 @@ public class LoanPaymentPlanEntry
     [Column(TypeName = "decimal(18,2)")]
     public decimal RemainingBalance { get; set; }
 
+    /// <summary>First day of the interest period covered by this entry (inclusive).</summary>
+    public DateTime? InterestPeriodStart { get; set; }
+
+    /// <summary>End of the interest period covered by this entry (exclusive).</summary>
+    public DateTime? InterestPeriodEnd { get; set; }
+
+    /// <summary>Number of interest days (act/365) covered by this entry.</summary>
+    public int? InterestDays { get; set; }
+
     public PaymentPlanEntryStatus Status { get; set; } = PaymentPlanEntryStatus.Pending;
 
     public DateTime? PaidDate { get; set; }
+
+    /// <summary>When this payment was last exported to a SEPA credit transfer file.</summary>
+    public DateTime? ExportedAt { get; set; }
+
+    /// <summary>SEPA message id (MsgId) of the last export containing this payment.</summary>
+    [StringLength(35)]
+    public string? ExportReference { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

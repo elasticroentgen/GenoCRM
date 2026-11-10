@@ -17,7 +17,7 @@ namespace GenoCRM.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -438,8 +438,24 @@ namespace GenoCRM.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("ExportReference")
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
+
+                    b.Property<DateTime?>("ExportedAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<decimal>("InterestAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("InterestDays")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("InterestPeriodEnd")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("InterestPeriodStart")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("LoanPaymentPlanId")
                         .HasColumnType("integer");

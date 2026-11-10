@@ -1676,7 +1676,7 @@
     <value>Are you sure you want to cancel this subscription? This will also remove the payment plan.</value>
   </data>
   <data name="RepaymentDashboard" xml:space="preserve">
-    <value>Repayment Dashboard</value>
+    <value>Interest &amp; repayments</value>
   </data>
   <data name="IBAN" xml:space="preserve">
     <value>IBAN</value>
@@ -1712,7 +1712,7 @@
     <value>Mark All as Paid</value>
   </data>
   <data name="MarkAllAsPaidConfirm" xml:space="preserve">
-    <value>Are you sure you want to mark all entries for this month as paid?</value>
+    <value>Do you really want to mark all open payments of this year as paid?</value>
   </data>
   <data name="ExpectedYield" xml:space="preserve">
     <value>Expected Yield</value>
@@ -1743,5 +1743,110 @@
   </data>
   <data name="NoMembersFound" xml:space="preserve">
     <value>No members found</value>
+  </data>
+  <data name="OpenAmount" xml:space="preserve">
+    <value>Open amount</value>
+  </data>
+  <data name="NoEntriesForYear" xml:space="preserve">
+    <value>No interest or repayment payments for this year.</value>
+  </data>
+  <data name="PaymentType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="ShowDetails" xml:space="preserve">
+    <value>Show details</value>
+  </data>
+  <data name="PrincipalAndInterest" xml:space="preserve">
+    <value>Repayment + interest</value>
+  </data>
+  <data name="PrincipalOnly" xml:space="preserve">
+    <value>Repayment</value>
+  </data>
+  <data name="InterestOnly" xml:space="preserve">
+    <value>Interest</value>
+  </data>
+  <data name="Principal" xml:space="preserve">
+    <value>Repayment</value>
+  </data>
+  <data name="Interest" xml:space="preserve">
+    <value>Interest</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="TotalInterest" xml:space="preserve">
+    <value>Total interest</value>
+  </data>
+  <data name="TotalPrincipal" xml:space="preserve">
+    <value>Total repayment</value>
+  </data>
+  <data name="InterestPeriod" xml:space="preserve">
+    <value>Interest period</value>
+  </data>
+  <data name="RegeneratePaymentPlans" xml:space="preserve">
+    <value>Recalculate payment plans</value>
+  </data>
+  <data name="RegeneratePaymentPlansHint" xml:space="preserve">
+    <value>Recalculates the payment plans of all paid-in subscriptions without paid entries</value>
+  </data>
+  <data name="RegeneratePaymentPlansConfirm" xml:space="preserve">
+    <value>Recalculate the payment plans of all paid-in subscriptions? Plans that already contain paid entries are left unchanged.</value>
+  </data>
+  <data name="RegeneratePaymentPlansDone" xml:space="preserve">
+    <value>{0} payment plans recalculated.</value>
+  </data>
+  <data name="NavInterestAndRepayments" xml:space="preserve">
+    <value>Interest &amp; repayment</value>
+  </data>
+  <data name="SepaExport" xml:space="preserve">
+    <value>SEPA export</value>
+  </data>
+  <data name="SepaExportTitle" xml:space="preserve">
+    <value>SEPA credit transfer file for</value>
+  </data>
+  <data name="SepaDebtorNotConfigured" xml:space="preserve">
+    <value>The paying account is not configured. Set SEPA_DEBTOR_NAME, SEPA_DEBTOR_IBAN and optionally SEPA_DEBTOR_BIC.</value>
+  </data>
+  <data name="SepaDebtorAccount" xml:space="preserve">
+    <value>Paying account</value>
+  </data>
+  <data name="SepaExecutionDate" xml:space="preserve">
+    <value>Execution date</value>
+  </data>
+  <data name="SepaExecutionDateDue" xml:space="preserve">
+    <value>Due date of each payment (today if already due)</value>
+  </data>
+  <data name="SepaExecutionDateFixed" xml:space="preserve">
+    <value>Same date for all payments</value>
+  </data>
+  <data name="SepaExecutionDateInPast" xml:space="preserve">
+    <value>The execution date must not be in the past.</value>
+  </data>
+  <data name="SepaIncludeExported" xml:space="preserve">
+    <value>Include payments that were already exported</value>
+  </data>
+  <data name="Payments" xml:space="preserve">
+    <value>payments</value>
+  </data>
+  <data name="SepaCreateFile" xml:space="preserve">
+    <value>Create SEPA file</value>
+  </data>
+  <data name="SepaExportHint" xml:space="preserve">
+    <value>Exports all open payments of the selected year as a SEPA credit transfer (pain.001.001.09). Upload the file in online banking and release it with a TAN. Payments are only marked as paid once you confirm them here.</value>
+  </data>
+  <data name="SepaReexportConfirm" xml:space="preserve">
+    <value>Some of these payments have already been exported. Make sure the earlier file was not executed, otherwise they will be paid twice. Continue?</value>
+  </data>
+  <data name="SepaExportDone" xml:space="preserve">
+    <value>{0} payments totalling {1} exported (reference {2}).</value>
+  </data>
+  <data name="SepaExportSkipped" xml:space="preserve">
+    <value>{0} payments were skipped because the IBAN is missing.</value>
+  </data>
+  <data name="ExportedAt" xml:space="preserve">
+    <value>Exported</value>
   </data>
 </root>

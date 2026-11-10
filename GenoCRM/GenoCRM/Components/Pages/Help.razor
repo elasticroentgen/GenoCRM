@@ -334,7 +334,7 @@
                         <p>Eine etwaige tilgungsfreie Zeit verschiebt das Startdatum der ersten Rate entsprechend.</p>
 
                         <h6>Schritt 5 – Rückzahlungen verfolgen</h6>
-                        <p>Die fälligen Rückzahlungen werden im Rückzahlungs-Dashboard angezeigt. Einzelne Raten können dort als „bezahlt" markiert werden (siehe nächster Abschnitt).</p>
+                        <p>Die fälligen Zins- und Tilgungszahlungen werden auf der Seite „Zins- &amp; Tilgungszahlungen" angezeigt. Einzelne Zahlungen können dort als „bezahlt" markiert werden (siehe nächster Abschnitt).</p>
                     </div>
 
                     <div class="help-tip mt-3">
@@ -349,13 +349,13 @@
         }
     </div>
 
-    @* === Rückzahlungs-Dashboard === *@
+    @* === Zins- &amp; Tilgungszahlungen === *@
     @{ var repaymentsOpen = _openSection == "repayments"; }
     <div class="accordion-item">
         <h2 class="accordion-header">
             <button class="accordion-button @(repaymentsOpen ? "" : "collapsed")" type="button" @onclick='() => Toggle("repayments")'>
                 <i class="bi bi-calendar-check me-2 text-primary"></i>
-                <strong>Rückzahlungs-Dashboard</strong>
+                <strong>Zins- &amp; Tilgungszahlungen</strong>
             </button>
         </h2>
         @if (repaymentsOpen)
@@ -367,7 +367,7 @@
                     <div class="process-flow">
                         <div class="process-step">
                             <div class="step-number">1</div>
-                            <div class="step-label">Monat wählen</div>
+                            <div class="step-label">Jahr wählen</div>
                         </div>
                         <div class="step-arrow"></div>
                         <div class="process-step">
@@ -382,23 +382,42 @@
                     </div>
 
                     <div class="step-details">
-                        <h6>Schritt 1 – Monat und Jahr wählen</h6>
-                        <p>Wählen Sie über die Dropdown-Felder den gewünschten <strong>Monat</strong> und das <strong>Jahr</strong> aus. Das Dashboard lädt automatisch alle fälligen Rückzahlungen für den gewählten Zeitraum.</p>
+                        <h6>Schritt 1 – Jahr wählen</h6>
+                        <p>Wählen Sie das gewünschte <strong>Jahr</strong> aus. Das Dashboard zeigt alle Zins- und Tilgungszahlungen, die in diesem Jahr fällig sind, auch bereits bezahlte.</p>
+
+                        <h6>So werden Zinsen berechnet</h6>
+                        <ul>
+                            <li>Zinsen werden <strong>jährlich zum 31.12.</strong> ausgeschüttet.</li>
+                            <li>Der Zinslauf beginnt am <strong>Tag der Gutschrift</strong> auf dem Genossenschaftskonto. Für unterjährige Zeiträume werden die Zinsen <strong>taggenau (act/365)</strong> berechnet, volle Kalenderjahre erhalten den vollen Jahreszins.</li>
+                            <li>Die <strong>Tilgung</strong> ist am Gutschriftstag plus Laufzeit fällig. Die Zinsen vom 01.01. bis zu diesem Tag werden zusammen mit der Tilgung in <strong>einer Zahlung</strong> überwiesen.</li>
+                        </ul>
 
                         <h6>Schritt 2 – Zahlungen prüfen</h6>
-                        <p>Die Übersicht zeigt alle fälligen Raten als Tabelle mit folgenden Informationen:</p>
+                        <p>Die Übersicht zeigt alle Zahlungen des Jahres als Tabelle mit folgenden Informationen:</p>
                         <ul>
-                            <li><strong>Mitglied</strong> – Name des Darlehensnehmers</li>
-                            <li><strong>Zeichnungsnummer</strong> – Zuordnung zur Zeichnung</li>
-                            <li><strong>Bankverbindung</strong> – IBAN, BIC und Kontoinhaber für die Überweisung</li>
-                            <li><strong>Verwendungszweck</strong> – Automatisch generiert (z.B. „Tilgung ZN-001 – Projekt A – Periode 3")</li>
-                            <li><strong>Betrag</strong> – Gesamtrate der Periode</li>
-                            <li><strong>Status</strong> – Ausstehend, Fällig, Bezahlt oder Überfällig</li>
+                            <li><strong>Fälligkeit</strong> – 31.12. bei Zinszahlungen, Laufzeitende bei Tilgungen</li>
+                            <li><strong>Mitglied</strong> und <strong>Zeichnungsnummer</strong> – Zuordnung zur Einlage</li>
+                            <li><strong>Bankverbindung</strong> – Kontoinhaber, IBAN und BIC für die Überweisung</li>
+                            <li><strong>Verwendungszweck</strong> – Automatisch generiert (z.B. „Zinsen 2026 LS0008 - Stausee Oberwald")</li>
+                            <li><strong>Art</strong> – Zinsen oder Tilgung + Zinsen</li>
+                            <li><strong>Betrag</strong> und <strong>Status</strong></li>
                         </ul>
-                        <p>Oben werden Statistiken angezeigt: <strong>Gesamtbetrag</strong> des Monats und <strong>Anzahl der Zahlungen</strong>.</p>
+                        <p>Kombinierte Zahlungen (Tilgung + Zinsen) lassen sich über den Pfeil links <strong>aufklappen</strong>. Dann werden Tilgung und Zinsen (mit Zinszeitraum und Tagen) einzeln angezeigt.</p>
+                        <p>Oben werden Statistiken angezeigt: <strong>Gesamtbetrag</strong>, Summe <strong>Zinsen</strong>, Summe <strong>Tilgung</strong>, <strong>Anzahl der Zahlungen</strong> und der noch <strong>offene Betrag</strong>.</p>
+                        <p>Über <strong>„Zahlungspläne neu berechnen"</strong> werden die Pläne aller eingezahlten Einlagen nach diesen Regeln neu erstellt. Pläne mit bereits bezahlten Einträgen bleiben unverändert.</p>
+
+                        <h6>SEPA-Export fürs Online-Banking</h6>
+                        <p>Über <strong>„SEPA-Export"</strong> erzeugen Sie eine SEPA-Überweisungsdatei (pain.001.001.09) mit allen offenen, noch nicht exportierten Zahlungen des gewählten Jahres:</p>
+                        <ol>
+                            <li>Ausführungsdatum wählen: die Fälligkeit jeder Zahlung (bereits fällige Zahlungen heute) oder ein einheitliches Datum.</li>
+                            <li>„SEPA-Datei erzeugen" klicken. Die XML-Datei wird heruntergeladen, die Zahlungen werden mit <strong>„Exportiert am"</strong> markiert.</li>
+                            <li>Die Datei im Online-Banking der Volksbank hochladen (Datei-Upload / SEPA-Datei) und den Sammelauftrag mit einer TAN freigeben.</li>
+                            <li>Nach der Ausführung die Zahlungen hier als bezahlt markieren.</li>
+                        </ol>
+                        <p>Bereits exportierte Zahlungen werden beim nächsten Export nicht erneut aufgenommen, damit nichts doppelt überwiesen wird. Ist ein erneuter Export nötig (z.B. weil die Datei nicht ausgeführt wurde), aktivieren Sie „Bereits exportierte Zahlungen erneut einschließen". Umlaute werden in der Datei umgeschrieben (ü → ue), da das SEPA-Format nur einen eingeschränkten Zeichensatz erlaubt.</p>
 
                         <h6>Schritt 3 – Als bezahlt markieren</h6>
-                        <p>Jede einzelne Rate kann über den Button „Als bezahlt markieren" bestätigt werden. Alternativ können Sie mit <strong>„Alle als bezahlt markieren"</strong> sämtliche Zahlungen des Monats auf einmal abschließen (nach Bestätigung). Das Zahlungsdatum wird automatisch erfasst.</p>
+                        <p>Jede einzelne Rate kann über den Button „Als bezahlt markieren" bestätigt werden. Alternativ können Sie mit <strong>„Alle als bezahlt markieren"</strong> sämtliche offenen Zahlungen des Jahres auf einmal abschließen (nach Bestätigung). Das Zahlungsdatum wird automatisch erfasst.</p>
                     </div>
 
                     <div class="help-tip mt-3">
@@ -406,7 +425,7 @@
                     </div>
 
                     <a href="loan-repayments" class="btn btn-outline-primary btn-sm mt-3">
-                        <i class="bi bi-arrow-right me-1"></i>Zum Rückzahlungs-Dashboard
+                        <i class="bi bi-arrow-right me-1"></i>Zu den Zins- &amp; Tilgungszahlungen
                     </a>
                 </div>
             </div>

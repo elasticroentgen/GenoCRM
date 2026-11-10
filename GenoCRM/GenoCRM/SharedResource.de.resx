@@ -1676,7 +1676,7 @@
     <value>Möchten Sie diese Zeichnung wirklich stornieren? Der Tilgungsplan wird ebenfalls entfernt.</value>
   </data>
   <data name="RepaymentDashboard" xml:space="preserve">
-    <value>Rückzahlungsübersicht</value>
+    <value>Zins- &amp; Tilgungszahlungen</value>
   </data>
   <data name="IBAN" xml:space="preserve">
     <value>IBAN</value>
@@ -1712,7 +1712,7 @@
     <value>Alle als bezahlt markieren</value>
   </data>
   <data name="MarkAllAsPaidConfirm" xml:space="preserve">
-    <value>Möchten Sie wirklich alle Einträge für diesen Monat als bezahlt markieren?</value>
+    <value>Möchten Sie wirklich alle offenen Zahlungen dieses Jahres als bezahlt markieren?</value>
   </data>
   <data name="ExpectedYield" xml:space="preserve">
     <value>Erwartete Rendite</value>
@@ -1743,5 +1743,110 @@
   </data>
   <data name="NoMembersFound" xml:space="preserve">
     <value>Keine Mitglieder gefunden</value>
+  </data>
+  <data name="OpenAmount" xml:space="preserve">
+    <value>Offener Betrag</value>
+  </data>
+  <data name="NoEntriesForYear" xml:space="preserve">
+    <value>Keine Zins- oder Tilgungszahlungen in diesem Jahr.</value>
+  </data>
+  <data name="PaymentType" xml:space="preserve">
+    <value>Art</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Betrag</value>
+  </data>
+  <data name="ShowDetails" xml:space="preserve">
+    <value>Details anzeigen</value>
+  </data>
+  <data name="PrincipalAndInterest" xml:space="preserve">
+    <value>Tilgung + Zinsen</value>
+  </data>
+  <data name="PrincipalOnly" xml:space="preserve">
+    <value>Tilgung</value>
+  </data>
+  <data name="InterestOnly" xml:space="preserve">
+    <value>Zinsen</value>
+  </data>
+  <data name="Principal" xml:space="preserve">
+    <value>Tilgung</value>
+  </data>
+  <data name="Interest" xml:space="preserve">
+    <value>Zinsen</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>Tage</value>
+  </data>
+  <data name="TotalInterest" xml:space="preserve">
+    <value>Summe Zinsen</value>
+  </data>
+  <data name="TotalPrincipal" xml:space="preserve">
+    <value>Summe Tilgung</value>
+  </data>
+  <data name="InterestPeriod" xml:space="preserve">
+    <value>Zinszeitraum</value>
+  </data>
+  <data name="RegeneratePaymentPlans" xml:space="preserve">
+    <value>Zahlungspläne neu berechnen</value>
+  </data>
+  <data name="RegeneratePaymentPlansHint" xml:space="preserve">
+    <value>Berechnet die Zahlungspläne aller eingezahlten Einlagen ohne bereits bezahlte Einträge neu</value>
+  </data>
+  <data name="RegeneratePaymentPlansConfirm" xml:space="preserve">
+    <value>Zahlungspläne aller eingezahlten Einlagen neu berechnen? Pläne mit bereits bezahlten Einträgen bleiben unverändert.</value>
+  </data>
+  <data name="RegeneratePaymentPlansDone" xml:space="preserve">
+    <value>{0} Zahlungspläne neu berechnet.</value>
+  </data>
+  <data name="NavInterestAndRepayments" xml:space="preserve">
+    <value>Zinsen &amp; Tilgung</value>
+  </data>
+  <data name="SepaExport" xml:space="preserve">
+    <value>SEPA-Export</value>
+  </data>
+  <data name="SepaExportTitle" xml:space="preserve">
+    <value>SEPA-Überweisungsdatei für</value>
+  </data>
+  <data name="SepaDebtorNotConfigured" xml:space="preserve">
+    <value>Das Auftraggeberkonto ist nicht konfiguriert. Bitte SEPA_DEBTOR_NAME, SEPA_DEBTOR_IBAN und optional SEPA_DEBTOR_BIC setzen.</value>
+  </data>
+  <data name="SepaDebtorAccount" xml:space="preserve">
+    <value>Auftraggeberkonto</value>
+  </data>
+  <data name="SepaExecutionDate" xml:space="preserve">
+    <value>Ausführungsdatum</value>
+  </data>
+  <data name="SepaExecutionDateDue" xml:space="preserve">
+    <value>Fälligkeit der jeweiligen Zahlung (heute, falls bereits fällig)</value>
+  </data>
+  <data name="SepaExecutionDateFixed" xml:space="preserve">
+    <value>Einheitliches Datum für alle Zahlungen</value>
+  </data>
+  <data name="SepaExecutionDateInPast" xml:space="preserve">
+    <value>Das Ausführungsdatum darf nicht in der Vergangenheit liegen.</value>
+  </data>
+  <data name="SepaIncludeExported" xml:space="preserve">
+    <value>Bereits exportierte Zahlungen erneut einschließen</value>
+  </data>
+  <data name="Payments" xml:space="preserve">
+    <value>Zahlungen</value>
+  </data>
+  <data name="SepaCreateFile" xml:space="preserve">
+    <value>SEPA-Datei erzeugen</value>
+  </data>
+  <data name="SepaExportHint" xml:space="preserve">
+    <value>Exportiert alle offenen Zahlungen des gewählten Jahres als SEPA-Sammelüberweisung (pain.001.001.09). Laden Sie die Datei im Online-Banking hoch und geben Sie sie mit einer TAN frei. Als bezahlt gelten die Zahlungen erst, wenn Sie sie hier bestätigen.</value>
+  </data>
+  <data name="SepaReexportConfirm" xml:space="preserve">
+    <value>Einige dieser Zahlungen wurden bereits exportiert. Stellen Sie sicher, dass die frühere Datei nicht ausgeführt wurde – sonst wird doppelt überwiesen. Fortfahren?</value>
+  </data>
+  <data name="SepaExportDone" xml:space="preserve">
+    <value>{0} Zahlungen über insgesamt {1} exportiert (Referenz {2}).</value>
+  </data>
+  <data name="SepaExportSkipped" xml:space="preserve">
+    <value>{0} Zahlungen wurden übersprungen, weil die IBAN fehlt.</value>
+  </data>
+  <data name="ExportedAt" xml:space="preserve">
+    <value>Exportiert am</value>
   </data>
 </root>

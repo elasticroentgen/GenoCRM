@@ -14,6 +14,10 @@
                     <tr>
                         <th>@L["Period"]</th>
                         <th>@L["DueDate"]</th>
+                        @if (_hasInterestPeriods)
+                        {
+                            <th>@L["InterestPeriod"]</th>
+                        }
                         <th class="text-end">@L["PrincipalAmount"]</th>
                         <th class="text-end">@L["InterestAmount"]</th>
                         <th class="text-end">@L["TotalAmount"]</th>
@@ -31,6 +35,16 @@
                         <tr class="@GetRowClass(entry.Status)">
                             <td>@entry.PeriodNumber</td>
                             <td>@FormattingService.FormatDate(entry.DueDate)</td>
+                            @if (_hasInterestPeriods)
+                            {
+                                <td>
+                                    @if (entry.InterestPeriodStart.HasValue && entry.InterestPeriodEnd.HasValue)
+                                    {
+                                        <span>@FormattingService.FormatDate(entry.InterestPeriodStart) – @FormattingService.FormatDate(entry.InterestPeriodEnd.Value.AddDays(-1))</span>
+                                        <br /><small class="text-muted">@entry.InterestDays @L["Days"]</small>
+                                    }
+                                </td>
+                            }
                             <td class="text-end">@FormattingService.FormatCurrency(entry.PrincipalAmount)</td>
                             <td class="text-end">@FormattingService.FormatCurrency(entry.InterestAmount)</td>
                             <td class="text-end fw-bold">@FormattingService.FormatCurrency(entry.TotalAmount)</td>
@@ -61,7 +75,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="fw-bold">
-                        <td colspan="2">@L["TotalAmount"]</td>
+                        <td colspan="@(_hasInterestPeriods ? "3" : "2")">@L["TotalAmount"]</td>
                         <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.PrincipalAmount))</td>
                         <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.InterestAmount))</td>
                         <td class="text-end">@FormattingService.FormatCurrency(Entries.Sum(e => e.TotalAmount))</td>
@@ -76,6 +90,8 @@
 @code {
     [Parameter] public List<LoanPaymentPlanEntry> Entries { get; set; } = new();
     [Parameter] public EventCallback<int> OnMarkAsPaid { get; set; }
+
+    private bool _hasInterestPeriods => Entries.Any(e => e.InterestPeriodStart.HasValue);
 
     private static string GetEntryStatusColor(PaymentPlanEntryStatus status) => status switch
     {

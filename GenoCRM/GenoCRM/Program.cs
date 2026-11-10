@@ -106,6 +106,14 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_CONNECTIO
     Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"));
 
 // Listmonk Integration
+// SEPA export: account the loan interest/repayment transfers are paid from
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SEPA_DEBTOR_NAME")))
+    Environment.SetEnvironmentVariable("SepaDebtor__Name", Environment.GetEnvironmentVariable("SEPA_DEBTOR_NAME"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SEPA_DEBTOR_IBAN")))
+    Environment.SetEnvironmentVariable("SepaDebtor__Iban", Environment.GetEnvironmentVariable("SEPA_DEBTOR_IBAN"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SEPA_DEBTOR_BIC")))
+    Environment.SetEnvironmentVariable("SepaDebtor__Bic", Environment.GetEnvironmentVariable("SEPA_DEBTOR_BIC"));
+
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_ENABLED")))
     Environment.SetEnvironmentVariable("Listmonk__Enabled", Environment.GetEnvironmentVariable("LISTMONK_ENABLED"));
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_BASE_URL")))
@@ -210,6 +218,7 @@ builder.Services.AddScoped<ILoanProjectService, LoanProjectService>();
 builder.Services.AddScoped<ILoanOfferService, LoanOfferService>();
 builder.Services.AddScoped<ILoanSubscriptionService, LoanSubscriptionService>();
 builder.Services.AddScoped<ILoanPaymentPlanService, LoanPaymentPlanService>();
+builder.Services.AddScoped<ISepaExportService, SepaExportService>();
 builder.Services.AddSingleton<IIbanBicLookupService, IbanBicLookupService>();
 
 // Messaging providers

@@ -10,7 +10,9 @@ public interface ILoanPaymentPlanService
     Task<LoanPaymentPlan?> GetPaymentPlanBySubscriptionIdAsync(int subscriptionId);
     Task MarkEntryAsPaidAsync(int entryId, DateTime? paidDate = null);
     Task MarkOverdueEntriesAsync();
-    Task<List<LoanPaymentPlanEntry>> GetEntriesByMonthAsync(int year, int month);
+    Task<List<LoanPaymentPlanEntry>> GetEntriesByYearAsync(int year);
+    Task<(int MinYear, int MaxYear)?> GetPaymentYearRangeAsync();
+    Task<int> RegeneratePaymentPlansAsync();
 }
 
 public class LoanPaymentPlanService : ILoanPaymentPlanService
@@ -74,10 +76,18 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
             // pay-in is confirmed, so PaidInDate should always be set when this runs.
             decimal remainingBalance = principal;
             var basisDate = subscription.PaidInDate ?? subscription.SubscriptionDate;
-            var startDate = basisDate.AddMonths(offer.GracePeriodMonths);
+            var startDate = basisDate.Date.AddMonths(offer.GracePeriodMonths);
             var entries = new List<LoanPaymentPlanEntry>();
 
-            if (offer.RepaymentType == RepaymentType.BulletLoan)
+            if (offer.RepaymentType == RepaymentType.BulletLoan && offer.PaymentInterval == PaymentInterval.Annual)
+            {
+                // Annual bullet loan: interest paid out every 31.12. (pro rata act/365 for partial years),
+                // principal + remaining interest paid together at maturity.
+                entries.AddRange(CalculateAnnualBulletEntries(principal, offer.InterestRate, startDate, offer.TermMonths));
+                foreach (var e in entries) e.LoanPaymentPlanId = plan.Id;
+                totalPeriods = entries.Count;
+            }
+            else if (offer.RepaymentType == RepaymentType.BulletLoan)
             {
                 // Bullet loan: interest-only payments, full principal repaid at end
                 for (int i = 1; i <= totalPeriods; i++)
@@ -251,10 +261,12 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
         }
     }
 
-    public async Task<List<LoanPaymentPlanEntry>> GetEntriesByMonthAsync(int year, int month)
+    public async Task<List<LoanPaymentPlanEntry>> GetEntriesByYearAsync(int year)
     {
         try
         {
+            var from = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var to = from.AddYears(1);
             return await _context.LoanPaymentPlanEntries
                 .Include(e => e.LoanPaymentPlan)
                     .ThenInclude(p => p.LoanSubscription)
@@ -263,20 +275,110 @@ public class LoanPaymentPlanService : ILoanPaymentPlanService
                     .ThenInclude(p => p.LoanSubscription)
                         .ThenInclude(s => s.LoanOffer)
                             .ThenInclude(o => o.LoanProject)
-                .Where(e => e.DueDate.Year == year && e.DueDate.Month == month
-                    && e.LoanPaymentPlan.LoanSubscription.Status == LoanSubscriptionStatus.Active
-                    && e.LoanPaymentPlan.LoanSubscription.PaidInDate.HasValue
-                    && e.Status != PaymentPlanEntryStatus.Paid)
-                .OrderBy(e => e.LoanPaymentPlan.LoanSubscription.Member.LastName)
+                .Where(e => e.DueDate >= from && e.DueDate < to
+                    && e.LoanPaymentPlan.LoanSubscription.Status != LoanSubscriptionStatus.Cancelled
+                    && e.LoanPaymentPlan.LoanSubscription.PaidInDate.HasValue)
+                .OrderBy(e => e.DueDate)
+                    .ThenBy(e => e.LoanPaymentPlan.LoanSubscription.Member.LastName)
                     .ThenBy(e => e.LoanPaymentPlan.LoanSubscription.Member.FirstName)
-                    .ThenBy(e => e.DueDate)
+                    .ThenBy(e => e.LoanPaymentPlan.LoanSubscription.SubscriptionNumber)
                 .ToListAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving payment plan entries for {Year}-{Month}", year, month);
+            _logger.LogError(ex, "Error retrieving payment plan entries for {Year}", year);
             throw;
         }
+    }
+
+    public async Task<(int MinYear, int MaxYear)?> GetPaymentYearRangeAsync()
+    {
+        var query = _context.LoanPaymentPlanEntries
+            .Where(e => e.LoanPaymentPlan.LoanSubscription.Status != LoanSubscriptionStatus.Cancelled
+                && e.LoanPaymentPlan.LoanSubscription.PaidInDate.HasValue);
+        if (!await query.AnyAsync()) return null;
+        var min = await query.MinAsync(e => e.DueDate);
+        var max = await query.MaxAsync(e => e.DueDate);
+        return (min.Year, max.Year);
+    }
+
+    public async Task<int> RegeneratePaymentPlansAsync()
+    {
+        try
+        {
+            var subscriptionIds = await _context.LoanSubscriptions
+                .Where(s => s.Status == LoanSubscriptionStatus.Active
+                    && s.PaidInDate.HasValue
+                    && (s.PaymentPlan == null || !s.PaymentPlan.Entries.Any(e => e.Status == PaymentPlanEntryStatus.Paid)))
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            foreach (var id in subscriptionIds)
+            {
+                await GeneratePaymentPlanAsync(id);
+            }
+
+            _logger.LogInformation("Regenerated {Count} payment plans", subscriptionIds.Count);
+            return subscriptionIds.Count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error regenerating payment plans");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Annual bullet loan schedule: interest is paid out each 31.12. — pro rata (act/365) for partial
+    /// calendar years, the full annual rate for complete calendar years. Principal is repaid at
+    /// <paramref name="start"/> + <paramref name="termMonths"/>, together with the interest accrued
+    /// since the last 31.12. in a single entry.
+    /// </summary>
+    public static List<LoanPaymentPlanEntry> CalculateAnnualBulletEntries(
+        decimal principal, decimal annualRate, DateTime start, int termMonths)
+    {
+        start = start.Date;
+        var maturity = start.AddMonths(termMonths);
+        var entries = new List<LoanPaymentPlanEntry>();
+        var period = 0;
+        var now = DateTime.UtcNow;
+
+        for (var year = start.Year; year <= maturity.Year; year++)
+        {
+            var yearStart = new DateTime(year, 1, 1);
+            var yearEnd = yearStart.AddYears(1);
+            var from = start > yearStart ? start : yearStart;
+            var to = maturity < yearEnd ? maturity : yearEnd;
+            var isFinal = year == maturity.Year;
+
+            var days = Math.Max(0, (to - from).Days);
+            var isFullYear = from == yearStart && to == yearEnd;
+            var interest = isFullYear
+                ? Math.Round(principal * annualRate, 2)
+                : Math.Round(principal * annualRate * days / 365m, 2);
+            var principalPayment = isFinal ? principal : 0m;
+
+            if (interest == 0 && principalPayment == 0) continue;
+
+            var dueDate = isFinal ? maturity : new DateTime(year, 12, 31);
+            entries.Add(new LoanPaymentPlanEntry
+            {
+                PeriodNumber = ++period,
+                DueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc),
+                InterestPeriodStart = days > 0 ? DateTime.SpecifyKind(from, DateTimeKind.Utc) : null,
+                InterestPeriodEnd = days > 0 ? DateTime.SpecifyKind(to, DateTimeKind.Utc) : null,
+                InterestDays = days > 0 ? days : null,
+                PrincipalAmount = principalPayment,
+                InterestAmount = interest,
+                TotalAmount = principalPayment + interest,
+                RemainingBalance = isFinal ? 0 : principal,
+                Status = PaymentPlanEntryStatus.Pending,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        return entries;
     }
 
     private static int GetPeriodsPerYear(PaymentInterval interval)

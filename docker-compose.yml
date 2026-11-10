@@ -35,6 +35,10 @@ services:
       - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
       - Smtp__FromEmail=${SMTP_FROM_EMAIL}
       - Smtp__FromName=${SMTP_FROM_NAME}
+      # SEPA export (account loan interest/repayments are paid from)
+      - SepaDebtor__Name=${SEPA_DEBTOR_NAME:-}
+      - SepaDebtor__Iban=${SEPA_DEBTOR_IBAN:-}
+      - SepaDebtor__Bic=${SEPA_DEBTOR_BIC:-}
       # Optional: WhatsApp Business API
       - WhatsApp__AccessToken=${WHATSAPP_ACCESS_TOKEN:-}
       - WhatsApp__ApiUrl=${WHATSAPP_API_URL:-}
