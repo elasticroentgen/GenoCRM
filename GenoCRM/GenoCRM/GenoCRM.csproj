@@ -10,15 +10,15 @@
     <ItemGroup>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
         <ProjectReference Include="..\GenoCRM.Client\GenoCRM.Client.csproj" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.14" />
         
         <!-- Entity Framework Core -->
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.13" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.13" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14" />
         
         <!-- Authentication -->
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.14" />
         
         <!-- PDF Generation -->
         <PackageReference Include="QuestPDF" Version="2026.9.1" />
