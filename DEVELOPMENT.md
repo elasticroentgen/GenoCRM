@@ -42,6 +42,17 @@ To add a migration:
 dotnet ef migrations add <Name> --project GenoCRM/GenoCRM/GenoCRM.csproj
 ```
 
+## Mail (Mailpit)
+
+`docker-compose.dev.yml` also starts Mailpit (container `genocrm-dev-mailpit`),
+which catches every mail the app sends; nothing is delivered to real recipients.
+In the Development environment `appsettings.Development.json` points SMTP at it
+(`localhost:1025`, no TLS). View caught mails at http://localhost:8025.
+
+This matters especially after importing the production database: member
+addresses are real, so never point a dev instance at a real SMTP server.
+Setting `SMTP_*` variables (launch profile or `.env`) overrides the Mailpit default.
+
 ## Running the app
 
 ```bash
@@ -53,7 +64,7 @@ In Rider: open `GenoCRM.sln`, select the `GenoCRM: https` run configuration.
 Rider's Docker plugin: Settings → Build, Execution, Deployment → Docker → add a
 connection with "Unix socket" `/run/user/1000/podman/podman.sock`.
 
-The `https` launch profile sets the Nextcloud/SMTP test environment variables.
+The `https` launch profile sets the Nextcloud test environment variables.
 Alternatively copy `.env.example` to `.env`; `Program.cs` loads it on start.
 
 ## Importing the production database

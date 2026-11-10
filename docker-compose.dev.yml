@@ -1,4 +1,4 @@
-# Local development stack: only the infrastructure the app needs (PostgreSQL).
+# Local development stack: only the infrastructure the app needs (PostgreSQL) and a mail catcher (Mailpit).
 # The app itself runs from Rider / `dotnet run` on the host and connects via
 # localhost:5432 using the connection string in appsettings.json.
 #
@@ -28,6 +28,22 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
+
+  # Catches all outgoing mail in development; nothing is delivered.
+  # SMTP on localhost:1025 (see Smtp in appsettings.Development.json),
+  # web UI at http://localhost:8025
+  mailpit:
+    image: docker.io/axllent/mailpit:latest
+    container_name: genocrm-dev-mailpit
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    environment:
+      # Accept any credentials over plain SMTP so the app's Username/Password are harmless
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      MP_MAX_MESSAGES: "5000"
+    restart: unless-stopped
 
 volumes:
   genocrm_dev_pgdata:
