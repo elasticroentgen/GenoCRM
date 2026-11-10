@@ -114,6 +114,16 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SEPA_DEBTOR_IBAN")
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SEPA_DEBTOR_BIC")))
     Environment.SetEnvironmentVariable("SepaDebtor__Bic", Environment.GetEnvironmentVariable("SEPA_DEBTOR_BIC"));
 
+// Payout notification mail sent with the SEPA export
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAYOUT_NOTICE_ORGANIZATION_NAME")))
+    Environment.SetEnvironmentVariable("LoanPayoutNotification__OrganizationName", Environment.GetEnvironmentVariable("PAYOUT_NOTICE_ORGANIZATION_NAME"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAYOUT_NOTICE_CONTACT_EMAIL")))
+    Environment.SetEnvironmentVariable("LoanPayoutNotification__ContactEmail", Environment.GetEnvironmentVariable("PAYOUT_NOTICE_CONTACT_EMAIL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAYOUT_NOTICE_PRIVACY_POLICY_URL")))
+    Environment.SetEnvironmentVariable("LoanPayoutNotification__PrivacyPolicyUrl", Environment.GetEnvironmentVariable("PAYOUT_NOTICE_PRIVACY_POLICY_URL"));
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAYOUT_NOTICE_TAX_NOTICE")))
+    Environment.SetEnvironmentVariable("LoanPayoutNotification__TaxNotice", Environment.GetEnvironmentVariable("PAYOUT_NOTICE_TAX_NOTICE"));
+
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_ENABLED")))
     Environment.SetEnvironmentVariable("Listmonk__Enabled", Environment.GetEnvironmentVariable("LISTMONK_ENABLED"));
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LISTMONK_BASE_URL")))
@@ -219,6 +229,7 @@ builder.Services.AddScoped<ILoanOfferService, LoanOfferService>();
 builder.Services.AddScoped<ILoanSubscriptionService, LoanSubscriptionService>();
 builder.Services.AddScoped<ILoanPaymentPlanService, LoanPaymentPlanService>();
 builder.Services.AddScoped<ISepaExportService, SepaExportService>();
+builder.Services.AddScoped<ILoanPayoutNotificationService, LoanPayoutNotificationService>();
 builder.Services.AddSingleton<IIbanBicLookupService, IbanBicLookupService>();
 
 // Messaging providers

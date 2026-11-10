@@ -182,7 +182,8 @@ public enum MessageType
     AnnualReportDistribution,
     GeneralBroadcast,
     SystemNotification,
-    Other
+    Other,
+    LoanPayoutNotification // appended: enum is stored as int
 }
 
 public enum MessageChannel

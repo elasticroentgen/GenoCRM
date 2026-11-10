@@ -1826,19 +1826,13 @@
     <value>The execution date must not be in the past.</value>
   </data>
   <data name="SepaIncludeExported" xml:space="preserve">
-    <value>Include payments that were already exported</value>
+    <value>Include payments that were already exported (marked again and notified again)</value>
   </data>
   <data name="Payments" xml:space="preserve">
     <value>payments</value>
   </data>
-  <data name="SepaCreateFile" xml:space="preserve">
-    <value>Create SEPA file</value>
-  </data>
   <data name="SepaExportHint" xml:space="preserve">
     <value>Exports all open payments of the selected year as a SEPA credit transfer (pain.001.001.09). Upload the file in online banking and release it with a TAN. Payments are only marked as paid once you confirm them here.</value>
-  </data>
-  <data name="SepaReexportConfirm" xml:space="preserve">
-    <value>Some of these payments have already been exported. Make sure the earlier file was not executed, otherwise they will be paid twice. Continue?</value>
   </data>
   <data name="SepaExportDone" xml:space="preserve">
     <value>{0} payments totalling {1} exported (reference {2}).</value>
@@ -1869,5 +1863,74 @@
   </data>
   <data name="ShareIncreaseNotePrefix" xml:space="preserve">
     <value>[Data entry correction]</value>
+  </data>
+  <data name="SepaModeExport" xml:space="preserve">
+    <value>New export with payout notification</value>
+  </data>
+  <data name="SepaModeExportHint" xml:space="preserve">
+    <value>Creates the SEPA file, marks the payments as exported and e-mails a payout notification to every member involved.</value>
+  </data>
+  <data name="SepaModeRedownload" xml:space="preserve">
+    <value>Re-download file only</value>
+  </data>
+  <data name="SepaModeRedownloadHint" xml:space="preserve">
+    <value>Rebuilds the file of an earlier export with the same reference. No payments are marked and no e-mails are sent.</value>
+  </data>
+  <data name="SepaRedownloadSelect" xml:space="preserve">
+    <value>Earlier export</value>
+  </data>
+  <data name="SepaNoPreviousExports" xml:space="preserve">
+    <value>There is no export in the selected year yet.</value>
+  </data>
+  <data name="SepaRedownloadButton" xml:space="preserve">
+    <value>Download file</value>
+  </data>
+  <data name="SepaRedownloadDone" xml:space="preserve">
+    <value>File for export {0} rebuilt ({1} payments, {2}). No payments were marked and no e-mails were sent. Note: if the original file was already submitted to the bank, do not upload this file again.</value>
+  </data>
+  <data name="SepaConfirmTitle" xml:space="preserve">
+    <value>Confirm SEPA export and e-mail delivery</value>
+  </data>
+  <data name="SepaConfirmMailWarning" xml:space="preserve">
+    <value>This export immediately sends {0} payout notification e-mails to the members listed below.</value>
+  </data>
+  <data name="SepaConfirmMailWarningDetail" xml:space="preserve">
+    <value>Each notification contains loan number, project, interest, principal, remaining balance, execution date and the masked IBAN. The payments are also marked as exported. Sending cannot be undone.</value>
+  </data>
+  <data name="SepaConfirmReexportWarning" xml:space="preserve">
+    <value>{0} of these payments were already exported. Make sure the earlier file was not executed, otherwise they will be paid twice. The members involved will be notified again.</value>
+  </data>
+  <data name="SepaConfirmNoEmail" xml:space="preserve">
+    <value>no e-mail address</value>
+  </data>
+  <data name="SepaConfirmWithoutEmail" xml:space="preserve">
+    <value>{0} members have no e-mail address and will not be notified; their payments are exported anyway.</value>
+  </data>
+  <data name="SepaConfirmPreview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="SepaConfirmButton" xml:space="preserve">
+    <value>Export &amp; send {0} e-mails</value>
+  </data>
+  <data name="SepaSendingMails" xml:space="preserve">
+    <value>Sending {0} e-mails …</value>
+  </data>
+  <data name="SepaMailsSent" xml:space="preserve">
+    <value>{0} payout notifications sent.</value>
+  </data>
+  <data name="SepaMailsWithoutEmail" xml:space="preserve">
+    <value>Without e-mail address: {0}.</value>
+  </data>
+  <data name="SepaMailsOptedOut" xml:space="preserve">
+    <value>Opted out: {0}.</value>
+  </data>
+  <data name="SepaMailsFailed" xml:space="preserve">
+    <value>Sending failed: {0}. The SEPA file was created anyway and the payments are marked as exported.</value>
+  </data>
+  <data name="LoanPayoutNotification" xml:space="preserve">
+    <value>Loan payout notification</value>
+  </data>
+  <data name="SepaConfirmCheckbox" xml:space="preserve">
+    <value>I have checked that {0} payments will be exported and {1} e-mails will be sent to members.</value>
   </data>
 </root>

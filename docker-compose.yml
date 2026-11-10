@@ -39,6 +39,10 @@ services:
       - SepaDebtor__Name=${SEPA_DEBTOR_NAME:-}
       - SepaDebtor__Iban=${SEPA_DEBTOR_IBAN:-}
       - SepaDebtor__Bic=${SEPA_DEBTOR_BIC:-}
+      # Payout notification mail sent with the SEPA export
+      - LoanPayoutNotification__OrganizationName=${PAYOUT_NOTICE_ORGANIZATION_NAME:-}
+      - LoanPayoutNotification__ContactEmail=${PAYOUT_NOTICE_CONTACT_EMAIL:-}
+      - LoanPayoutNotification__PrivacyPolicyUrl=${PAYOUT_NOTICE_PRIVACY_POLICY_URL:-}
       # Optional: WhatsApp Business API
       - WhatsApp__AccessToken=${WHATSAPP_ACCESS_TOKEN:-}
       - WhatsApp__ApiUrl=${WHATSAPP_API_URL:-}

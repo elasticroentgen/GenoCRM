@@ -113,6 +113,39 @@ public class SepaExportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Rebuild_ReproducesEarlierExportWithoutChangingEntries()
+    {
+        var a = await CreateEntryAsync("A", new DateTime(2099, 12, 31), 0, 10m);
+        var b = await CreateEntryAsync("B", new DateTime(2099, 12, 31), 0, 20m);
+        var other = await CreateEntryAsync("C", new DateTime(2099, 12, 31), 0, 30m);
+        var original = await _service.ExportLoanPaymentsAsync(new[] { a.Id, b.Id }, new SepaExportOptions());
+        Assert.Equal(2, original.Exported.Count);
+        b.Status = PaymentPlanEntryStatus.Paid; // paid after the export - still part of the original file
+        await _context.SaveChangesAsync();
+        var exportedAt = (await _context.LoanPaymentPlanEntries.FindAsync(a.Id))!.ExportedAt;
+
+        var copy = await _service.RebuildExportAsync(original.MessageId, new SepaExportOptions());
+
+        Assert.Equal(original.MessageId, copy.MessageId);
+        Assert.Equal(2, copy.TransactionCount);
+        Assert.Equal(30m, copy.ControlSum);
+        Assert.EndsWith("-Kopie.xml", copy.FileName);
+        var doc = XDocument.Load(new MemoryStream(copy.Content));
+        Assert.Equal(original.MessageId, doc.Root!.Descendants(Ns + "MsgId").Single().Value);
+
+        _context.ChangeTracker.Clear();
+        Assert.Equal(exportedAt, (await _context.LoanPaymentPlanEntries.FindAsync(a.Id))!.ExportedAt);
+        Assert.Null((await _context.LoanPaymentPlanEntries.FindAsync(other.Id))!.ExportedAt);
+    }
+
+    [Fact]
+    public async Task Rebuild_UnknownReference_Throws()
+    {
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _service.RebuildExportAsync("GENO-unknown", new SepaExportOptions()));
+    }
+
+    [Fact]
     public void BuildPain001_PastDueDate_UsesToday()
     {
         var entry = BuildDetachedEntry(new DateTime(2020, 12, 31));

@@ -4,13 +4,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using GenoCRM.Services.Localization
 @using GenoCRM.Services.UI
+@using GenoCRM.Components.Loans.Dialogs
 @attribute [Authorize]
 @inject ILoanPaymentPlanService PaymentPlanService
 @inject IStringLocalizer<GenoCRM.SharedResource> L
 @inject IFormattingService FormattingService
 @inject IModalService ModalService
-@inject ISepaExportService SepaExportService
-@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>@L["RepaymentDashboard"]</PageTitle>
@@ -18,7 +17,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">@L["RepaymentDashboard"]</h1>
     <div class="d-flex gap-2">
-        <button class="btn btn-primary" @onclick="() => _showExport = !_showExport" disabled="@_processing">
+        <button class="btn btn-primary" @onclick="() => _showExportDialog = true" disabled="@(_processing || _entries == null)">
             <i class="fas fa-file-export"></i> @L["SepaExport"]
         </button>
         <button class="btn btn-outline-secondary" @onclick="RegeneratePlans" disabled="@_processing"
@@ -51,74 +50,6 @@
 else if (_entries != null)
 {
     var openEntries = _entries.Where(e => e.Status != PaymentPlanEntryStatus.Paid).ToList();
-    var exportCandidates = GetExportCandidates();
-
-    @if (_showExport)
-    {
-        <div class="card mb-4 border-primary">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-university"></i> @L["SepaExportTitle"] @_selectedYear
-            </div>
-            <div class="card-body">
-                @if (!SepaExportService.Debtor.IsConfigured)
-                {
-                    <div class="alert alert-warning mb-0">
-                        <i class="fas fa-exclamation-triangle"></i> @L["SepaDebtorNotConfigured"]
-                    </div>
-                }
-                else
-                {
-                    <p class="mb-3">
-                        <strong>@L["SepaDebtorAccount"]:</strong>
-                        @SepaExportService.Debtor.Name · @SepaExportService.Debtor.Iban
-                        @if (!string.IsNullOrWhiteSpace(SepaExportService.Debtor.Bic))
-                        {
-                            <span> · @SepaExportService.Debtor.Bic</span>
-                        }
-                    </p>
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label">@L["SepaExecutionDate"]</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="execDue" name="execMode"
-                                       checked="@(!_useFixedExecutionDate)" @onchange="() => _useFixedExecutionDate = false" />
-                                <label class="form-check-label" for="execDue">@L["SepaExecutionDateDue"]</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="execFixed" name="execMode"
-                                       checked="@_useFixedExecutionDate" @onchange="() => _useFixedExecutionDate = true" />
-                                <label class="form-check-label" for="execFixed">@L["SepaExecutionDateFixed"]</label>
-                            </div>
-                            @if (_useFixedExecutionDate)
-                            {
-                                <input type="date" class="form-control mt-1" @bind="_fixedExecutionDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                            }
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="includeExported" @bind="_includeExported" />
-                                <label class="form-check-label" for="includeExported">@L["SepaIncludeExported"]</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-md-end">
-                            <div class="mb-2">
-                                <strong>@exportCandidates.Count</strong> @L["Payments"] ·
-                                <strong>@FormattingService.FormatCurrency(exportCandidates.Sum(e => e.TotalAmount))</strong>
-                            </div>
-                            <button class="btn btn-primary" @onclick="ExportSepa" disabled="@(_processing || exportCandidates.Count == 0)">
-                                @if (_processing)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-1"></span>
-                                }
-                                <i class="fas fa-download"></i> @L["SepaCreateFile"]
-                            </button>
-                        </div>
-                    </div>
-                    <small class="text-muted d-block mt-3">@L["SepaExportHint"]</small>
-                }
-            </div>
-        </div>
-    }
 
     <div class="row mb-4 g-3">
         <div class="col-md">
@@ -331,6 +262,14 @@ else if (_entries != null)
     }
 }
 
+@if (_showExportDialog && _entries != null)
+{
+    <SepaExportDialog Year="_selectedYear"
+                      Entries="_entries"
+                      OnCancel="() => _showExportDialog = false"
+                      OnComplete="OnExportComplete" />
+}
+
 @code {
     private int _selectedYear = DateTime.Today.Year;
     private int _minYear = DateTime.Today.Year;
@@ -339,10 +278,7 @@ else if (_entries != null)
     private readonly HashSet<int> _expanded = new();
     private bool _loading;
     private bool _processing;
-    private bool _showExport;
-    private bool _includeExported;
-    private bool _useFixedExecutionDate;
-    private DateTime _fixedExecutionDate = DateTime.Today.AddDays(1);
+    private bool _showExportDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -423,52 +359,10 @@ else if (_entries != null)
         }
     }
 
-    private List<LoanPaymentPlanEntry> GetExportCandidates() =>
-        _entries?.Where(e => e.Status != PaymentPlanEntryStatus.Paid
-                             && (_includeExported || !e.ExportedAt.HasValue)
-                             && GenoCRM.Services.Business.SepaExportService.IsExportable(e)).ToList()
-        ?? new List<LoanPaymentPlanEntry>();
-
-    private async Task ExportSepa()
+    private async Task OnExportComplete()
     {
-        var candidates = GetExportCandidates();
-        if (candidates.Count == 0) return;
-        if (_useFixedExecutionDate && _fixedExecutionDate.Date < DateTime.Today)
-        {
-            await ModalService.ShowErrorAsync(L["Error"], L["SepaExecutionDateInPast"]);
-            return;
-        }
-
-        if (candidates.Any(e => e.ExportedAt.HasValue))
-        {
-            var confirmed = await ModalService.ShowConfirmationAsync(L["SepaExport"], L["SepaReexportConfirm"]);
-            if (!confirmed) return;
-        }
-
-        _processing = true;
-        try
-        {
-            var result = await SepaExportService.ExportLoanPaymentsAsync(
-                candidates.Select(e => e.Id).ToList(),
-                new SepaExportOptions(_useFixedExecutionDate ? _fixedExecutionDate.Date : null));
-
-            await JS.InvokeVoidAsync("downloadFile", result.FileName, Convert.ToBase64String(result.Content), "application/xml");
-            await LoadEntries();
-
-            var message = string.Format(L["SepaExportDone"], result.TransactionCount,
-                FormattingService.FormatCurrency(result.ControlSum), result.MessageId);
-            if (result.Skipped.Count > 0)
-                message += " " + string.Format(L["SepaExportSkipped"], result.Skipped.Count);
-            await ModalService.ShowSuccessAsync(L["SepaExport"], message);
-        }
-        catch (Exception ex)
-        {
-            await ModalService.ShowErrorAsync(L["Error"], ex.Message);
-        }
-        finally
-        {
-            _processing = false;
-        }
+        _showExportDialog = false;
+        await LoadEntries();
     }
 
     private async Task RegeneratePlans()

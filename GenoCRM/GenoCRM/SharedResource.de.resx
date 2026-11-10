@@ -1826,19 +1826,13 @@
     <value>Das Ausführungsdatum darf nicht in der Vergangenheit liegen.</value>
   </data>
   <data name="SepaIncludeExported" xml:space="preserve">
-    <value>Bereits exportierte Zahlungen erneut einschließen</value>
+    <value>Bereits exportierte Zahlungen erneut einschließen (erneute Markierung und erneuter E-Mail-Versand)</value>
   </data>
   <data name="Payments" xml:space="preserve">
     <value>Zahlungen</value>
   </data>
-  <data name="SepaCreateFile" xml:space="preserve">
-    <value>SEPA-Datei erzeugen</value>
-  </data>
   <data name="SepaExportHint" xml:space="preserve">
     <value>Exportiert alle offenen Zahlungen des gewählten Jahres als SEPA-Sammelüberweisung (pain.001.001.09). Laden Sie die Datei im Online-Banking hoch und geben Sie sie mit einer TAN frei. Als bezahlt gelten die Zahlungen erst, wenn Sie sie hier bestätigen.</value>
-  </data>
-  <data name="SepaReexportConfirm" xml:space="preserve">
-    <value>Einige dieser Zahlungen wurden bereits exportiert. Stellen Sie sicher, dass die frühere Datei nicht ausgeführt wurde – sonst wird doppelt überwiesen. Fortfahren?</value>
   </data>
   <data name="SepaExportDone" xml:space="preserve">
     <value>{0} Zahlungen über insgesamt {1} exportiert (Referenz {2}).</value>
@@ -1869,5 +1863,74 @@
   </data>
   <data name="ShareIncreaseNotePrefix" xml:space="preserve">
     <value>[Korrektur Dateneingabe]</value>
+  </data>
+  <data name="SepaModeExport" xml:space="preserve">
+    <value>Neuer Export mit Auszahlungsmitteilung</value>
+  </data>
+  <data name="SepaModeExportHint" xml:space="preserve">
+    <value>Erzeugt die SEPA-Datei, markiert die Zahlungen als exportiert und sendet jedem betroffenen Mitglied eine Auszahlungsmitteilung per E-Mail.</value>
+  </data>
+  <data name="SepaModeRedownload" xml:space="preserve">
+    <value>Nur Datei erneut herunterladen</value>
+  </data>
+  <data name="SepaModeRedownloadHint" xml:space="preserve">
+    <value>Erzeugt die Datei eines früheren Exports mit derselben Referenz neu. Es werden keine Zahlungen markiert und keine E-Mails versendet.</value>
+  </data>
+  <data name="SepaRedownloadSelect" xml:space="preserve">
+    <value>Früherer Export</value>
+  </data>
+  <data name="SepaNoPreviousExports" xml:space="preserve">
+    <value>Im gewählten Jahr gibt es noch keinen Export.</value>
+  </data>
+  <data name="SepaRedownloadButton" xml:space="preserve">
+    <value>Datei herunterladen</value>
+  </data>
+  <data name="SepaRedownloadDone" xml:space="preserve">
+    <value>Datei für Export {0} erneut erzeugt ({1} Zahlungen, {2}). Es wurden keine Zahlungen markiert und keine E-Mails versendet. Achtung: Wurde die ursprüngliche Datei bereits bei der Bank eingereicht, diese Datei nicht erneut hochladen.</value>
+  </data>
+  <data name="SepaConfirmTitle" xml:space="preserve">
+    <value>SEPA-Export und E-Mail-Versand bestätigen</value>
+  </data>
+  <data name="SepaConfirmMailWarning" xml:space="preserve">
+    <value>Dieser Export versendet sofort {0} E-Mails mit Auszahlungsmitteilungen an die unten aufgeführten Mitglieder.</value>
+  </data>
+  <data name="SepaConfirmMailWarningDetail" xml:space="preserve">
+    <value>Jede Mitteilung enthält Darlehensnummer, Projekt, Zinsen, Tilgung, Restschuld, Ausführungsdatum und die maskierte IBAN. Die Zahlungen werden außerdem als exportiert markiert. Der Versand lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="SepaConfirmReexportWarning" xml:space="preserve">
+    <value>{0} dieser Zahlungen wurden bereits exportiert. Stellen Sie sicher, dass die frühere Datei nicht ausgeführt wurde – sonst wird doppelt überwiesen. Die betroffenen Mitglieder erhalten die Mitteilung erneut.</value>
+  </data>
+  <data name="SepaConfirmNoEmail" xml:space="preserve">
+    <value>keine E-Mail-Adresse</value>
+  </data>
+  <data name="SepaConfirmWithoutEmail" xml:space="preserve">
+    <value>{0} Mitglieder haben keine E-Mail-Adresse und erhalten keine Mitteilung; ihre Zahlungen werden trotzdem exportiert.</value>
+  </data>
+  <data name="SepaConfirmPreview" xml:space="preserve">
+    <value>Vorschau</value>
+  </data>
+  <data name="SepaConfirmButton" xml:space="preserve">
+    <value>Exportieren &amp; {0} E-Mails senden</value>
+  </data>
+  <data name="SepaSendingMails" xml:space="preserve">
+    <value>Sende {0} E-Mails …</value>
+  </data>
+  <data name="SepaMailsSent" xml:space="preserve">
+    <value>{0} Auszahlungsmitteilungen versendet.</value>
+  </data>
+  <data name="SepaMailsWithoutEmail" xml:space="preserve">
+    <value>Ohne E-Mail-Adresse: {0}.</value>
+  </data>
+  <data name="SepaMailsOptedOut" xml:space="preserve">
+    <value>Vom Empfang abgemeldet: {0}.</value>
+  </data>
+  <data name="SepaMailsFailed" xml:space="preserve">
+    <value>Versand fehlgeschlagen: {0}. Die SEPA-Datei wurde dennoch erzeugt und die Zahlungen sind als exportiert markiert.</value>
+  </data>
+  <data name="LoanPayoutNotification" xml:space="preserve">
+    <value>Auszahlungsmitteilung Darlehen</value>
+  </data>
+  <data name="SepaConfirmCheckbox" xml:space="preserve">
+    <value>Ich habe geprüft, dass {0} Zahlungen exportiert und dabei {1} E-Mails an Mitglieder versendet werden.</value>
   </data>
 </root>

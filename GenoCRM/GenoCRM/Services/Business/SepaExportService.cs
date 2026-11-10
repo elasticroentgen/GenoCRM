@@ -27,6 +27,7 @@ public record SepaExportResult(
     string MessageId,
     int TransactionCount,
     decimal ControlSum,
+    IReadOnlyList<LoanPaymentPlanEntry> Exported,
     IReadOnlyList<LoanPaymentPlanEntry> Skipped);
 
 public interface ISepaExportService
@@ -35,6 +36,12 @@ public interface ISepaExportService
 
     /// <summary>Builds a pain.001.001.09 credit transfer file for the given entries and marks them as exported.</summary>
     Task<SepaExportResult> ExportLoanPaymentsAsync(IReadOnlyCollection<int> entryIds, SepaExportOptions options);
+
+    /// <summary>
+    /// Rebuilds the file of an earlier export (same message id) without changing anything in the database:
+    /// entries are not marked again and no notifications are triggered.
+    /// </summary>
+    Task<SepaExportResult> RebuildExportAsync(string exportReference, SepaExportOptions options);
 }
 
 public class SepaExportService : ISepaExportService
@@ -58,14 +65,7 @@ public class SepaExportService : ISepaExportService
         if (!Debtor.IsConfigured)
             throw new InvalidOperationException("SEPA debtor account is not configured (SepaDebtor:Name / SepaDebtor:Iban).");
 
-        var entries = await _context.LoanPaymentPlanEntries
-            .Include(e => e.LoanPaymentPlan)
-                .ThenInclude(p => p.LoanSubscription)
-                    .ThenInclude(s => s.Member)
-            .Include(e => e.LoanPaymentPlan)
-                .ThenInclude(p => p.LoanSubscription)
-                    .ThenInclude(s => s.LoanOffer)
-                        .ThenInclude(o => o.LoanProject)
+        var entries = await EntriesWithDetails()
             .Where(e => entryIds.Contains(e.Id) && e.Status != PaymentPlanEntryStatus.Paid)
             .ToListAsync();
 
@@ -91,8 +91,46 @@ public class SepaExportService : ISepaExportService
             messageId, exportable.Count, exportable.Sum(e => e.TotalAmount), skipped.Count);
 
         return new SepaExportResult(content, $"SEPA-Ueberweisungen-{now:yyyy-MM-dd-HHmm}.xml", messageId,
-            exportable.Count, exportable.Sum(e => e.TotalAmount), skipped);
+            exportable.Count, exportable.Sum(e => e.TotalAmount), exportable, skipped);
     }
+
+    public async Task<SepaExportResult> RebuildExportAsync(string exportReference, SepaExportOptions options)
+    {
+        if (!Debtor.IsConfigured)
+            throw new InvalidOperationException("SEPA debtor account is not configured (SepaDebtor:Name / SepaDebtor:Iban).");
+
+        // Paid entries are included on purpose: the file is reproduced as it was exported.
+        var entries = await EntriesWithDetails()
+            .AsNoTracking()
+            .Where(e => e.ExportReference == exportReference)
+            .ToListAsync();
+        var exportable = entries.Where(IsExportable).ToList();
+        var skipped = entries.Except(exportable).ToList();
+        if (exportable.Count == 0)
+            throw new InvalidOperationException($"No exportable payments found for export {exportReference}.");
+
+        var content = BuildPain001(exportable, Debtor, exportReference, DateTime.Now, options.ExecutionDate, DateTime.Today);
+
+        _logger.LogInformation("SEPA export {MessageId} rebuilt (re-download) with {Count} payments; no entries changed",
+            exportReference, exportable.Count);
+
+        return new SepaExportResult(content, $"SEPA-Ueberweisungen-{exportReference}-Kopie.xml", exportReference,
+            exportable.Count, exportable.Sum(e => e.TotalAmount), exportable, skipped);
+    }
+
+    private IQueryable<LoanPaymentPlanEntry> EntriesWithDetails() =>
+        _context.LoanPaymentPlanEntries
+            .Include(e => e.LoanPaymentPlan)
+                .ThenInclude(p => p.LoanSubscription)
+                    .ThenInclude(s => s.Member)
+            .Include(e => e.LoanPaymentPlan)
+                .ThenInclude(p => p.LoanSubscription)
+                    .ThenInclude(s => s.LoanOffer)
+                        .ThenInclude(o => o.LoanProject);
+
+    /// <summary>Requested execution date: the fixed date if given, else the due date (today if already due).</summary>
+    public static DateTime GetExecutionDate(LoanPaymentPlanEntry entry, DateTime? fixedExecutionDate, DateTime today) =>
+        (fixedExecutionDate ?? (entry.DueDate.Date < today ? today : entry.DueDate.Date)).Date;
 
     public static bool IsExportable(LoanPaymentPlanEntry entry) =>
         entry.TotalAmount > 0 && !string.IsNullOrWhiteSpace(entry.LoanPaymentPlan.LoanSubscription.IBAN);
@@ -123,7 +161,7 @@ public class SepaExportService : ISepaExportService
         DateTime today)
     {
         var groups = entries
-            .GroupBy(e => (fixedExecutionDate ?? (e.DueDate.Date < today ? today : e.DueDate.Date)).Date)
+            .GroupBy(e => GetExecutionDate(e, fixedExecutionDate, today))
             .OrderBy(g => g.Key)
             .ToList();
 
